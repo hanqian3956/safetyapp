@@ -191,6 +191,31 @@ document.querySelectorAll("[data-open-messages-page]").forEach((trigger) => {
 
 document.querySelector("[data-close-messages-page]").addEventListener("click", closeMessagesPage);
 
+const messageStatusTabs = [...document.querySelectorAll("[data-message-status]")];
+const messageFeedRows = [...document.querySelectorAll("[data-message-read-state]")];
+const messageFeedEmpty = document.querySelector(".message-feed-empty");
+
+messageStatusTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const selectedStatus = tab.dataset.messageStatus;
+    let visibleCount = 0;
+
+    messageStatusTabs.forEach((item) => {
+      const isActive = item === tab;
+      item.classList.toggle("is-active", isActive);
+      item.setAttribute("aria-selected", String(isActive));
+    });
+
+    messageFeedRows.forEach((row) => {
+      const isVisible = selectedStatus === "all" || row.dataset.messageReadState === selectedStatus;
+      row.hidden = !isVisible;
+      if (isVisible) visibleCount += 1;
+    });
+
+    messageFeedEmpty.hidden = visibleCount > 0;
+  });
+});
+
 const activityFilters = [...document.querySelectorAll("[data-activity-filter]")];
 
 activityFilters.forEach((filter) => {

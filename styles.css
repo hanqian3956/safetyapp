@@ -247,29 +247,34 @@ p {
 
 .messages-page-scroll {
   height: calc(100% - 78px);
-  padding-top: 4px;
+  padding-top: 12px;
   padding-bottom: 28px;
 }
 
-.message-overview {
-  padding: 7px 0 14px;
+.message-status-tabs {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
 }
 
-.message-overview p {
-  color: var(--muted);
+.message-status-tabs button {
+  min-width: 58px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--pill-radius);
+  background: var(--surface-strong);
+  color: var(--ink-soft);
   font-size: 12px;
+  font-weight: 700;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
-.message-overview p span {
-  color: var(--accent-deep);
-  font-weight: 750;
-}
-
-.message-overview h2 {
-  margin-top: 3px;
-  font-size: 21px;
-  font-weight: 750;
-  letter-spacing: -0.03em;
+.message-status-tabs button.is-active {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #ffffff;
 }
 
 .message-filters {
@@ -277,7 +282,7 @@ p {
   gap: 8px;
   overflow-x: auto;
   margin: 0 -18px 14px;
-  padding: 0 18px 2px;
+  padding: 14px 18px 2px;
   scrollbar-width: none;
 }
 
@@ -401,6 +406,11 @@ p {
   font-weight: 650;
 }
 
+.message-feed-stage em.is-read {
+  background: var(--surface-muted);
+  color: var(--muted);
+}
+
 .message-feed-copy small {
   color: var(--ink-soft);
   font-size: 10px;
@@ -411,6 +421,13 @@ p {
   align-self: center;
   color: #a2aab5;
   font-size: 14px;
+}
+
+.message-feed-empty {
+  padding: 36px 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
 }
 
 .page-scroll::-webkit-scrollbar {
