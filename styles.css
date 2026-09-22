@@ -247,88 +247,170 @@ p {
 
 .messages-page-scroll {
   height: calc(100% - 78px);
-  padding-top: 8px;
+  padding-top: 4px;
   padding-bottom: 28px;
 }
 
-.message-page-group + .message-page-group {
-  margin-top: 26px;
+.message-overview {
+  padding: 7px 0 14px;
 }
 
-.message-page-group-heading {
-  min-height: 30px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 7px;
+.message-overview p {
+  color: var(--muted);
+  font-size: 12px;
 }
 
-.message-page-group-heading h2 {
-  font-size: 17px;
-  font-weight: 750;
-  letter-spacing: -0.02em;
-}
-
-.message-page-group-heading span {
-  min-width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--pill-radius);
-  background: var(--accent-soft);
+.message-overview p span {
   color: var(--accent-deep);
-  font-size: 11px;
   font-weight: 750;
 }
 
-.message-page-list {
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--card-radius);
-  background: var(--surface-strong);
+.message-overview h2 {
+  margin-top: 3px;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
 }
 
-.message-page-row {
-  width: 100%;
-  min-height: 72px;
+.message-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 -18px 14px;
+  padding: 0 18px 2px;
+  scrollbar-width: none;
+}
+
+.message-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.message-filters label {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto;
   align-items: center;
-  gap: 11px;
-  padding: 11px 13px;
+  gap: 6px;
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.message-filters select {
+  min-height: 32px;
+  max-width: 88px;
+  padding: 0 24px 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
   background: var(--surface-strong);
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.message-feed {
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.message-feed-row {
+  width: 100%;
+  min-height: 104px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 12px;
+  align-items: start;
+  gap: 10px;
+  padding: 14px 1px;
+  background: transparent;
   text-align: left;
 }
 
-.message-page-row + .message-page-row {
+.message-feed-row + .message-feed-row {
   border-top: 1px solid var(--line);
 }
 
-.message-page-row > span:nth-child(2) {
-  min-width: 0;
-  display: grid;
-  gap: 3px;
+.message-feed-row:active {
+  background: var(--surface-muted);
 }
 
-.message-page-row strong,
-.message-page-row small {
+.message-feed-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #e6f1fb;
+  color: #1774cc;
+  font-size: 17px;
+}
+
+.message-feed-icon-warm {
+  background: #fff0e9;
+  color: #d96632;
+}
+
+.message-feed-icon-alert {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+.message-feed-copy {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.message-feed-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.message-feed-title strong,
+.message-feed-copy small {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.message-page-row strong {
-  font-size: 14px;
+.message-feed-title strong {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.message-feed-title time {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.message-feed-stage {
+  color: #1774cc;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.message-page-row small {
-  color: var(--muted);
-  font-size: 11px;
+.message-feed-stage em {
+  margin-left: 6px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 650;
 }
 
-.message-page-row > .ph {
+.message-feed-copy small {
+  color: var(--ink-soft);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.message-feed-row > .ph {
+  align-self: center;
   color: #a2aab5;
+  font-size: 14px;
 }
 
 .page-scroll::-webkit-scrollbar {

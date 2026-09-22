@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=messages-page-layout-fix" />
+    <link rel="stylesheet" href="./styles.css?v=messages-mobile-v1" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -166,38 +166,76 @@
             </header>
 
             <div class="page-scroll messages-page-scroll">
-              <section class="message-page-group" aria-labelledby="pendingMessagesTitle">
-                <div class="message-page-group-heading">
-                  <h2 id="pendingMessagesTitle">待处理</h2><span>3</span>
-                </div>
-                <div class="message-page-list">
-                  <button class="message-page-row" type="button" data-show-toast="正在打开动火作业审批">
-                    <span class="row-icon row-icon-primary" aria-hidden="true"><i class="ph ph-arrows-clockwise"></i></span>
-                    <span><strong>动火作业审批待处理</strong><small>流程消息 · 10分钟前</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                  <button class="message-page-row" type="button" data-show-toast="正在打开临边防护复核">
-                    <span class="row-icon row-icon-primary" aria-hidden="true"><i class="ph ph-warning"></i></span>
-                    <span><strong>东区临边防护需要复核</strong><small>预警消息 · 30分钟前</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                  <button class="message-page-row" type="button" data-show-toast="正在打开班前安全确认">
-                    <span class="row-icon row-icon-primary" aria-hidden="true"><i class="ph ph-check-square"></i></span>
-                    <span><strong>完成班前安全确认</strong><small>任务消息 · 今天 08:30</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                </div>
+              <section class="message-overview" aria-labelledby="messageListTitle">
+                <p>互动消息列表 <span>4 条未读</span></p>
+                <h2 id="messageListTitle">待处理消息</h2>
               </section>
 
-              <section class="message-page-group" aria-labelledby="earlierMessagesTitle">
-                <div class="message-page-group-heading"><h2 id="earlierMessagesTitle">更早消息</h2></div>
-                <div class="message-page-list">
-                  <button class="message-page-row" type="button" data-show-toast="正在打开设备检查通知">
-                    <span class="row-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span>
-                    <span><strong>本周设备检查安排已同步</strong><small>系统通知 · 昨天 16:40</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                </div>
+              <form class="message-filters" aria-label="消息筛选条件">
+                <label>
+                  <span>消息来源</span>
+                  <select aria-label="消息来源">
+                    <option>全部</option>
+                    <option>流程</option>
+                    <option>系统</option>
+                  </select>
+                </label>
+                <label>
+                  <span>消息类型</span>
+                  <select aria-label="消息类型">
+                    <option>全部</option>
+                    <option>流程审批</option>
+                    <option>流程超时</option>
+                    <option>流程结束</option>
+                  </select>
+                </label>
+                <label>
+                  <span>消息状态</span>
+                  <select aria-label="消息状态">
+                    <option>未读</option>
+                    <option>全部</option>
+                    <option>已读</option>
+                  </select>
+                </label>
+              </form>
+
+              <section class="message-feed" aria-label="互动消息列表">
+                <button class="message-feed-row" type="button" data-show-toast="正在打开矿山应急照明设备采购申请">
+                  <span class="message-feed-icon message-feed-icon-flow" aria-hidden="true"><i class="ph ph-arrows-clockwise"></i></span>
+                  <span class="message-feed-copy">
+                    <span class="message-feed-title"><strong>矿山应急照明设备采购申请</strong><time>今天 10:12</time></span>
+                    <span class="message-feed-stage">流程审批 <em>未读</em></span>
+                    <small>王建国于今天 09:12 通过机电管理应用发起的流程编号为：202608310001</small>
+                  </span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="message-feed-row" type="button" data-show-toast="正在打开南区 2# 采场动火作业申请">
+                  <span class="message-feed-icon message-feed-icon-warm" aria-hidden="true"><i class="ph ph-fire"></i></span>
+                  <span class="message-feed-copy">
+                    <span class="message-feed-title"><strong>南区 2# 采场动火作业申请</strong><time>今天 09:38</time></span>
+                    <span class="message-feed-stage">流程超时 <em>未读</em></span>
+                    <small>张宇于今天 08:46 通过安全管理应用发起的流程编号为：202608310002</small>
+                  </span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="message-feed-row" type="button" data-show-toast="正在打开碎矿车间停机检修计划">
+                  <span class="message-feed-icon message-feed-icon-alert" aria-hidden="true"><i class="ph ph-warning-circle"></i></span>
+                  <span class="message-feed-copy">
+                    <span class="message-feed-title"><strong>碎矿车间停机检修计划</strong><time>昨天 16:45</time></span>
+                    <span class="message-feed-stage">流程结束 <em>未读</em></span>
+                    <small>赵磊于昨天 15:28 通过设备管理应用发起的流程编号为：202608300003</small>
+                  </span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="message-feed-row" type="button" data-show-toast="正在打开外协队入场资格审核">
+                  <span class="message-feed-icon message-feed-icon-warm" aria-hidden="true"><i class="ph ph-user-check"></i></span>
+                  <span class="message-feed-copy">
+                    <span class="message-feed-title"><strong>外协队入场资格审核</strong><time>昨天 14:20</time></span>
+                    <span class="message-feed-stage">流程审批 <em>未读</em></span>
+                    <small>周敏于昨天 10:20 通过双重预防机制应用发起的流程编号为：202608300004</small>
+                  </span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
               </section>
             </div>
           </section>
