@@ -954,6 +954,7 @@ p {
 }
 
 .prevention-page,
+.prevention-catalog-page,
 .inspection-page {
   position: absolute;
   inset: 0;
@@ -993,11 +994,101 @@ p {
   padding-bottom: 28px;
 }
 
-.inspection-catalog h2 {
-  margin-bottom: 12px;
+.prevention-menu {
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.prevention-menu-row {
+  width: 100%;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--ink-soft);
+  text-align: left;
+}
+
+.prevention-menu-row + .prevention-menu-row,
+.prevention-menu-group + .prevention-menu-row,
+.prevention-menu-row + .prevention-menu-group {
+  border-top: 1px solid var(--line);
+}
+
+.prevention-menu-row:active {
+  background: var(--surface-muted);
+}
+
+.prevention-menu-row > .ph:first-child {
+  color: #66788c;
   font-size: 18px;
+}
+
+.prevention-menu-row > .ph:last-child {
+  color: #a2aab5;
+  font-size: 13px;
+}
+
+.prevention-menu-row > span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.prevention-menu-parent.is-active {
+  background: #e9f3fb;
+  color: #1768b0;
+}
+
+.prevention-menu-parent.is-active > .ph:first-child {
+  color: #1774cc;
+}
+
+.prevention-submenu {
+  padding: 4px 0;
+  background: #f0f7fc;
+}
+
+.prevention-submenu button {
+  position: relative;
+  width: 100%;
+  min-height: 43px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 7px 44px;
+  background: transparent;
+  color: #53657a;
+  font-size: 12px;
+  font-weight: 650;
+  text-align: left;
+}
+
+.prevention-submenu button.is-current {
+  background: var(--surface-strong);
+  color: #1768b0;
   font-weight: 750;
-  letter-spacing: -0.02em;
+}
+
+.prevention-submenu button.is-current::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: #1774cc;
+  content: "";
+}
+
+.prevention-submenu button > .ph {
+  color: #a2aab5;
+  font-size: 12px;
+}
+
+.prevention-catalog-page .subpage-scroll {
+  padding-top: 8px;
 }
 
 .inspection-catalog-list {

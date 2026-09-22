@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=prevention-mobile-v1" />
+    <link rel="stylesheet" href="./styles.css?v=prevention-menu-v1" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -244,8 +244,72 @@
             </header>
 
             <div class="page-scroll subpage-scroll">
-              <section class="inspection-catalog" aria-labelledby="inspectionCatalogTitle">
-                <h2 id="inspectionCatalogTitle">岗位隐患排查清单</h2>
+              <nav class="prevention-menu" aria-label="双重预防管理菜单">
+                <button class="prevention-menu-row" type="button" data-show-toast="法律法规将在下一版开放">
+                  <i class="ph ph-file-text" aria-hidden="true"></i>
+                  <span>法律法规</span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="prevention-menu-row" type="button" data-show-toast="制度文件将在下一版开放">
+                  <i class="ph ph-files" aria-hidden="true"></i>
+                  <span>制度文件</span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="prevention-menu-row" type="button" data-show-toast="风险分级管控将在下一版开放">
+                  <i class="ph ph-shield-chevron" aria-hidden="true"></i>
+                  <span>风险分级管控</span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+
+                <section class="prevention-menu-group">
+                  <button
+                    class="prevention-menu-row prevention-menu-parent is-active"
+                    type="button"
+                    aria-expanded="true"
+                    aria-controls="hazardMenu"
+                    data-toggle-hazard-menu
+                  >
+                    <i class="ph ph-warning-circle" aria-hidden="true"></i>
+                    <span>隐患排查治理</span>
+                    <i class="ph ph-caret-down" aria-hidden="true"></i>
+                  </button>
+                  <div class="prevention-submenu" id="hazardMenu">
+                    <button type="button" data-show-toast="隐患排查任务发布将在下一版开放">隐患排查任务发布<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button class="is-current" type="button" data-open-prevention-catalog aria-current="page">岗位隐患排查清单<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-show-toast="隐患排查审批流程将在下一版开放">隐患排查审批流程<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-show-toast="隐患排查治理记录将在下一版开放">隐患排查治理记录<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-show-toast="隐患排查工作表将在下一版开放">隐患排查工作表<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-show-toast="隐患整改通知单将在下一版开放">隐患整改通知单<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-show-toast="隐患整改台账将在下一版开放">隐患整改台账<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-show-toast="隐患信息统计将在下一版开放">隐患信息统计<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-show-toast="隐患汇报将在下一版开放">隐患汇报<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                  </div>
+                </section>
+
+                <button class="prevention-menu-row" type="button" data-show-toast="风险告知卡将在下一版开放">
+                  <i class="ph ph-identification-card" aria-hidden="true"></i>
+                  <span>风险告知卡</span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="prevention-menu-row" type="button" data-show-toast="风险四色图将在下一版开放">
+                  <i class="ph ph-chart-bar" aria-hidden="true"></i>
+                  <span>风险四色图</span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+              </nav>
+            </div>
+          </section>
+
+          <section class="page prevention-catalog-page" data-page="preventionCatalog" aria-labelledby="inspectionCatalogTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-back-prevention-menu aria-label="返回双重预防管理菜单">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="inspectionCatalogTitle">岗位隐患排查清单</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll subpage-scroll inspection-catalog">
                 <div class="inspection-catalog-list">
                   <button type="button" data-open-inspection>
                     <span class="inspection-catalog-icon" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
@@ -263,13 +327,12 @@
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
                   </button>
                 </div>
-              </section>
             </div>
           </section>
 
           <section class="page inspection-page" data-page="inspection" aria-labelledby="inspectionTitle" hidden>
             <header class="subpage-header inspection-page-header">
-              <button class="icon-button icon-button-small" type="button" data-back-prevention aria-label="返回清单">
+              <button class="icon-button icon-button-small" type="button" data-back-prevention-catalog aria-label="返回清单">
                 <i class="ph ph-caret-left" aria-hidden="true"></i>
               </button>
               <h1 id="inspectionTitle">平巷凿岩作业岗位隐患排查表</h1>
@@ -335,7 +398,7 @@
               </fieldset>
 
               <div class="inspection-actions">
-                <button class="inspection-action-cancel" type="button" data-back-prevention>取消</button>
+                <button class="inspection-action-cancel" type="button" data-back-prevention-catalog>取消</button>
                 <button class="inspection-action-draft" type="button" id="saveInspectionDraft">存草稿</button>
                 <button class="inspection-action-submit" type="submit">提交</button>
               </div>

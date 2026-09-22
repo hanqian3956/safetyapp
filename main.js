@@ -214,9 +214,21 @@ document.querySelector("[data-close-messages-page]").addEventListener("click", c
 
 document.querySelector("[data-open-prevention]").addEventListener("click", () => openDetailPage("prevention"));
 document.querySelector("[data-close-prevention]").addEventListener("click", closePreventionPage);
+document.querySelector("[data-open-prevention-catalog]").addEventListener("click", () => openDetailPage("preventionCatalog"));
+document.querySelector("[data-back-prevention-menu]").addEventListener("click", () => openDetailPage("prevention"));
 document.querySelector("[data-open-inspection]").addEventListener("click", () => openDetailPage("inspection"));
-document.querySelectorAll("[data-back-prevention]").forEach((button) => {
-  button.addEventListener("click", () => openDetailPage("prevention"));
+document.querySelectorAll("[data-back-prevention-catalog]").forEach((button) => {
+  button.addEventListener("click", () => openDetailPage("preventionCatalog"));
+});
+
+const hazardMenuToggle = document.querySelector("[data-toggle-hazard-menu]");
+const hazardMenu = document.querySelector("#hazardMenu");
+
+hazardMenuToggle.addEventListener("click", () => {
+  const isExpanded = hazardMenuToggle.getAttribute("aria-expanded") === "true";
+  hazardMenuToggle.setAttribute("aria-expanded", String(!isExpanded));
+  hazardMenu.hidden = isExpanded;
+  hazardMenuToggle.querySelector(".ph:last-child").className = isExpanded ? "ph ph-caret-right" : "ph ph-caret-down";
 });
 
 const inspectionForm = document.querySelector("#inspectionForm");
