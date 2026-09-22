@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f3f5f7" />
+    <title>安作 - 移动作业原型</title>
+    <meta
+      name="description"
+      content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
+    />
+    <link rel="stylesheet" href="./styles.css?v=workbench-redesign-v1" />
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
+  </head>
+  <body>
+    <main class="prototype-stage">
+      <section class="app-shell is-loading" id="appShell" aria-label="安作移动端原型">
+        <div class="loading-view" id="loadingView" aria-label="正在加载">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-hero"></div>
+          <div class="skeleton skeleton-row"></div>
+          <div class="skeleton skeleton-row skeleton-row-short"></div>
+        </div>
+
+        <div class="app-content" id="appContent">
+          <section class="page is-active" data-page="workbench" aria-labelledby="workbenchTitle">
+            <header class="page-header workbench-header">
+              <div>
+                <p class="header-context">9月22日，周一</p>
+                <h1 id="workbenchTitle">早上好，林工</h1>
+              </div>
+              <button
+                class="icon-button notification-button"
+                type="button"
+                data-open-messages-page
+                aria-label="打开消息中心，有新消息"
+              >
+                <i class="ph ph-bell" aria-hidden="true"></i>
+                <span class="notification-mark" aria-hidden="true"></span>
+              </button>
+            </header>
+
+            <div class="page-scroll">
+              <section class="shift-brief" aria-labelledby="shiftBriefTitle">
+                <div class="shift-brief-top">
+                  <div>
+                    <p>今日现场作业</p>
+                    <h2 id="shiftBriefTitle">东区作业面</h2>
+                  </div>
+                  <span class="shift-live"><i aria-hidden="true"></i>作业中</span>
+                </div>
+                <div class="shift-brief-bottom">
+                  <p>开工前确认尚有 3 项待处理</p>
+                  <button class="shift-brief-action" type="button" data-open-messages-page>查看待办</button>
+                </div>
+              </section>
+
+              <section class="section-block priority-section" aria-labelledby="messageTitle">
+                <div class="section-heading">
+                  <div>
+                    <h2 id="messageTitle">需要确认</h2>
+                    <p>优先处理，避免影响现场作业</p>
+                  </div>
+                  <button class="text-button" type="button" data-open-messages-page>全部待办</button>
+                </div>
+
+                <div class="priority-list">
+                  <button class="priority-row" type="button" data-open-sheet="workflow">
+                    <span class="priority-icon" aria-hidden="true">
+                      <i class="ph ph-arrows-clockwise"></i>
+                    </span>
+                    <span class="priority-copy"><strong>动火作业审批</strong><small>流程 · 2 项待处理</small></span>
+                    <span class="priority-count" aria-label="2项待处理">2</span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+
+                  <button class="priority-row" type="button" data-open-sheet="warning">
+                    <span class="priority-icon priority-icon-alert" aria-hidden="true">
+                      <i class="ph ph-warning"></i>
+                    </span>
+                    <span class="priority-copy"><strong>临边防护复核</strong><small>预警 · 东区作业面</small></span>
+                    <span class="priority-count" aria-label="1项待处理">1</span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+
+                  <button class="priority-row" type="button" data-open-sheet="task">
+                    <span class="priority-icon" aria-hidden="true">
+                      <i class="ph ph-check-square"></i>
+                    </span>
+                    <span class="priority-copy"><strong>班前安全确认</strong><small>任务 · 作业开始前完成</small></span>
+                    <span class="priority-count" aria-label="3项待处理">3</span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </section>
+
+              <section class="section-block app-section" aria-labelledby="appListTitle">
+                <div class="section-heading">
+                  <div>
+                    <h2 id="appListTitle">应用列表</h2>
+                    <p>常用业务入口</p>
+                  </div>
+                  <button class="icon-button icon-button-small" type="button" data-show-toast="应用管理将在下一版开放" aria-label="管理应用">
+                    <i class="ph ph-sliders-horizontal" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <div class="app-grid">
+                  <button class="app-entry" type="button" data-show-toast="已进入隐患排查">
+                    <span><i class="ph ph-magnifying-glass" aria-hidden="true"></i></span>
+                    <strong>隐患排查</strong>
+                  </button>
+                  <button class="app-entry" type="button" data-show-toast="已进入作业许可">
+                    <span><i class="ph ph-file-text" aria-hidden="true"></i></span>
+                    <strong>作业许可</strong>
+                  </button>
+                  <button class="app-entry" type="button" data-show-toast="已进入设备巡检">
+                    <span><i class="ph ph-wrench" aria-hidden="true"></i></span>
+                    <strong>设备巡检</strong>
+                  </button>
+                  <button class="app-entry" type="button" data-show-toast="已进入培训记录">
+                    <span><i class="ph ph-notebook" aria-hidden="true"></i></span>
+                    <strong>培训记录</strong>
+                  </button>
+                  <button class="app-entry" type="button" data-show-toast="已进入风险管控">
+                    <span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
+                    <strong>风险管控</strong>
+                  </button>
+                  <button class="app-entry" type="button" data-show-toast="已进入应急管理">
+                    <span><i class="ph ph-first-aid-kit" aria-hidden="true"></i></span>
+                    <strong>应急管理</strong>
+                  </button>
+                  <button class="app-entry" type="button" data-show-toast="已进入设备台账">
+                    <span><i class="ph ph-database" aria-hidden="true"></i></span>
+                    <strong>设备台账</strong>
+                  </button>
+                  <button class="app-entry" type="button" data-show-toast="已进入承包商">
+                    <span><i class="ph ph-users-three" aria-hidden="true"></i></span>
+                    <strong>承包商</strong>
+                  </button>
+                </div>
+              </section>
+
+              <section class="section-block function-section" aria-labelledby="functionTitle">
+                <div class="section-heading">
+                  <div>
+                    <h2 id="functionTitle">我的执行</h2>
+                    <p>查看我发起和我执行的事项</p>
+                  </div>
+                </div>
+
+                <div class="function-stack">
+                  <article class="function-panel">
+                    <div class="function-title">
+                      <span class="row-icon" aria-hidden="true"><i class="ph ph-checks"></i></span>
+                      <div><strong>任务</strong><span>分派、跟进与执行</span></div>
+                    </div>
+                    <div class="function-actions">
+                      <button type="button" data-show-toast="正在查看我发起的任务">我发起的</button>
+                      <button type="button" data-show-toast="正在查看我执行的任务">我执行的</button>
+                    </div>
+                  </article>
+
+                  <article class="function-panel">
+                    <div class="function-title">
+                      <span class="row-icon" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span>
+                      <div><strong>流程</strong><span>审批与流转进度</span></div>
+                    </div>
+                    <div class="function-actions">
+                      <button type="button" data-show-toast="正在查看我发起的流程">我发起的</button>
+                      <button type="button" data-show-toast="正在查看我执行的流程">我执行的</button>
+                    </div>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="page messages-page" data-page="messages" aria-labelledby="messagesPageTitle" hidden>
+            <header class="messages-page-header">
+              <button class="icon-button icon-button-small" type="button" data-close-messages-page aria-label="返回工作台">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="messagesPageTitle">消息中心</h1>
+              <button class="text-button" type="button" data-show-toast="已全部标为已读">全部已读</button>
+            </header>
+
+            <div class="page-scroll messages-page-scroll">
+              <section class="message-page-group" aria-labelledby="pendingMessagesTitle">
+                <div class="message-page-group-heading">
+                  <h2 id="pendingMessagesTitle">待处理</h2><span>3</span>
+                </div>
+                <div class="message-page-list">
+                  <button class="message-page-row" type="button" data-show-toast="正在打开动火作业审批">
+                    <span class="row-icon row-icon-primary" aria-hidden="true"><i class="ph ph-arrows-clockwise"></i></span>
+                    <span><strong>动火作业审批待处理</strong><small>流程消息 · 10分钟前</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="message-page-row" type="button" data-show-toast="正在打开临边防护复核">
+                    <span class="row-icon row-icon-primary" aria-hidden="true"><i class="ph ph-warning"></i></span>
+                    <span><strong>东区临边防护需要复核</strong><small>预警消息 · 30分钟前</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="message-page-row" type="button" data-show-toast="正在打开班前安全确认">
+                    <span class="row-icon row-icon-primary" aria-hidden="true"><i class="ph ph-check-square"></i></span>
+                    <span><strong>完成班前安全确认</strong><small>任务消息 · 今天 08:30</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </section>
+
+              <section class="message-page-group" aria-labelledby="earlierMessagesTitle">
+                <div class="message-page-group-heading"><h2 id="earlierMessagesTitle">更早消息</h2></div>
+                <div class="message-page-list">
+                  <button class="message-page-row" type="button" data-show-toast="正在打开设备检查通知">
+                    <span class="row-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span>
+                    <span><strong>本周设备检查安排已同步</strong><small>系统通知 · 昨天 16:40</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="page" data-page="favorites" aria-labelledby="favoritesTitle" hidden>
+            <header class="page-header simple-header">
+              <div>
+                <p class="header-context">快捷入口</p>
+                <h1 id="favoritesTitle">常用</h1>
+              </div>
+              <button class="icon-button" type="button" data-show-toast="长按项目即可调整顺序" aria-label="管理常用项目">
+                <i class="ph ph-dots-three" aria-hidden="true"></i>
+              </button>
+            </header>
+
+            <div class="page-scroll">
+              <button class="launch-action" type="button" data-open-sheet="launch">
+                <span class="launch-icon" aria-hidden="true"><i class="ph ph-plus"></i></span>
+                <span><strong>发起工作表</strong><small>从固定模板或业务系统开始</small></span>
+                <i class="ph ph-caret-right" aria-hidden="true"></i>
+              </button>
+
+              <section class="section-block recent-section" aria-labelledby="recentTitle">
+                <div class="section-heading">
+                  <div>
+                    <h2 id="recentTitle">最近使用</h2>
+                    <p>快速返回上次工作</p>
+                  </div>
+                </div>
+
+                <div class="recent-grid">
+                  <button class="recent-entry" type="button" data-show-toast="正在打开东区巡检">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+                    <span class="recent-copy"><strong>东区巡检</strong><small>今天</small></span>
+                  </button>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开动火审批">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-fire"></i></span>
+                    <span class="recent-copy"><strong>动火审批</strong><small>昨天</small></span>
+                  </button>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开整改复查">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-check-circle"></i></span>
+                    <span class="recent-copy"><strong>整改复查</strong><small>3天前</small></span>
+                  </button>
+                </div>
+              </section>
+
+              <section class="section-block" aria-labelledby="savedTitle">
+                <div class="section-heading">
+                  <div>
+                    <h2 id="savedTitle">我的常用</h2>
+                    <p>工作表、流程与任务</p>
+                  </div>
+                  <button class="text-button" type="button" id="editFavorites">编辑</button>
+                </div>
+
+                <div class="favorite-list" id="favoriteList">
+                  <button class="favorite-row" type="button" data-show-toast="已打开每日安全巡查表">
+                    <span class="favorite-type">表</span>
+                    <span><strong>每日安全巡查表</strong><small>现场管理系统</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="favorite-row" type="button" data-show-toast="已打开隐患整改复查流程">
+                    <span class="favorite-type">流</span>
+                    <span><strong>隐患整改复查</strong><small>安全管理系统</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="favorite-row" type="button" data-show-toast="已打开班前会确认任务">
+                    <span class="favorite-type">任</span>
+                    <span><strong>班前会确认</strong><small>我的执行任务</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <div class="empty-state" id="favoritesEmpty" hidden>
+                  <span class="empty-icon" aria-hidden="true"><i class="ph ph-star"></i></span>
+                  <h3>还没有常用内容</h3>
+                  <p>在工作表、流程或任务中选择“设为常用”，下次可直接从这里打开。</p>
+                  <button class="secondary-button" type="button" id="restoreFavorites">恢复示例</button>
+                </div>
+              </section>
+
+              <section class="helper-panel" aria-label="常用提示">
+                <i class="ph ph-lightbulb" aria-hidden="true"></i>
+                <p><strong>把高频事项放在手边</strong><span>打开任意工作表、流程或任务后，可将它设为常用。</span></p>
+              </section>
+            </div>
+          </section>
+
+          <section class="page" data-page="activity" aria-labelledby="activityTitle" hidden>
+            <header class="page-header simple-header activity-header">
+              <div>
+                <p class="header-context">现场圈</p>
+                <h1 id="activityTitle">安全动态</h1>
+              </div>
+              <button class="icon-button" type="button" data-show-toast="发布入口将在下一版开放" aria-label="发布安全动态">
+                <i class="ph ph-camera" aria-hidden="true"></i>
+              </button>
+            </header>
+
+            <div class="page-scroll moments-scroll">
+              <div class="activity-filters" role="group" aria-label="安全动态筛选">
+                <button class="activity-filter is-active" type="button" data-activity-filter="following" data-show-toast="已筛选我关注的动态" aria-pressed="true">
+                  <i class="ph ph-heart" aria-hidden="true"></i><span>我关注的</span>
+                </button>
+                <button class="activity-filter" type="button" data-activity-filter="published" data-show-toast="已筛选我发表的动态" aria-pressed="false">
+                  <i class="ph ph-paper-plane-tilt" aria-hidden="true"></i><span>我发表的</span>
+                </button>
+                <button class="activity-filter" type="button" data-activity-filter="type" data-show-toast="已筛选消息类型" aria-pressed="false">
+                  <i class="ph ph-funnel" aria-hidden="true"></i><span>消息类型</span>
+                </button>
+              </div>
+
+              <section class="moments-feed" aria-label="安全动态列表">
+                <article class="moment-item">
+                  <span class="moment-avatar moment-avatar-red" aria-hidden="true">安</span>
+                  <div class="moment-body">
+                    <strong class="moment-author">安全管理部</strong>
+                    <p class="moment-text">东区脚手架通道已完成加固，防护栏和通行标识复核无误，现场可以按计划恢复作业。</p>
+                    <div class="moment-photos moment-photos-grid">
+                      <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&amp;fit=crop&amp;w=360&amp;h=360&amp;q=82" alt="脚手架通道复核现场" />
+                      <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&amp;fit=crop&amp;w=360&amp;h=360&amp;q=82" alt="现场防护栏检查" />
+                      <img src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&amp;fit=crop&amp;w=360&amp;h=360&amp;q=82" alt="作业通行标识" />
+                    </div>
+                    <div class="moment-meta">
+                      <span>12分钟前</span><span>东区作业面</span>
+                      <button class="moment-menu-button" type="button" data-moment-menu aria-label="展开安全管理部动态操作">
+                        <i class="ph ph-dots-three" aria-hidden="true"></i>
+                      </button>
+                      <div class="moment-action-menu" hidden>
+                        <button class="is-liked" type="button" data-moment-like><i class="ph ph-heart" aria-hidden="true"></i><span>取消</span></button>
+                        <button type="button" data-moment-comment><i class="ph ph-chat-circle" aria-hidden="true"></i><span>评论</span></button>
+                      </div>
+                    </div>
+                    <div class="moment-discussion">
+                      <p class="moment-likes"><i class="ph ph-heart" aria-hidden="true"></i><span data-current-like>林舟</span><span>设备保障部</span></p>
+                      <p><strong>设备保障部：</strong>现场隔离设施已经同步撤除。</p>
+                    </div>
+                    <form class="moment-comment-form" hidden>
+                      <label><span class="sr-only">评论安全管理部动态</span><input type="text" placeholder="写下评论" maxlength="80" /></label>
+                      <button type="submit">发送</button>
+                    </form>
+                  </div>
+                </article>
+
+                <article class="moment-item">
+                  <span class="moment-avatar" aria-hidden="true">设</span>
+                  <div class="moment-body">
+                    <strong class="moment-author">设备保障部</strong>
+                    <p class="moment-text">临时用电检查项完成整改，配电箱标识和接地记录已更新，提交安全管理部复核。</p>
+                    <div class="moment-photos moment-photo-single">
+                      <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&amp;fit=crop&amp;w=720&amp;h=520&amp;q=82" alt="临时用电整改现场" />
+                    </div>
+                    <div class="moment-meta">
+                      <span>昨天 16:40</span>
+                      <button class="moment-menu-button" type="button" data-moment-menu aria-label="展开设备保障部动态操作">
+                        <i class="ph ph-dots-three" aria-hidden="true"></i>
+                      </button>
+                      <div class="moment-action-menu" hidden>
+                        <button type="button" data-moment-like><i class="ph ph-heart" aria-hidden="true"></i><span>赞</span></button>
+                        <button type="button" data-moment-comment><i class="ph ph-chat-circle" aria-hidden="true"></i><span>评论</span></button>
+                      </div>
+                    </div>
+                    <div class="moment-discussion">
+                      <p><strong>安全管理部：</strong>已收到，今天安排现场复核。</p>
+                    </div>
+                    <form class="moment-comment-form" hidden>
+                      <label><span class="sr-only">评论设备保障部动态</span><input type="text" placeholder="写下评论" maxlength="80" /></label>
+                      <button type="submit">发送</button>
+                    </form>
+                  </div>
+                </article>
+
+                <article class="moment-item">
+                  <span class="moment-avatar moment-avatar-light" aria-hidden="true">培</span>
+                  <div class="moment-body">
+                    <strong class="moment-author">培训中心</strong>
+                    <p class="moment-text">高处作业专项培训完成归档，参训人员签认记录已同步到培训档案。</p>
+                    <div class="moment-meta">
+                      <span>周日</span><span>培训中心</span>
+                      <button class="moment-menu-button" type="button" data-moment-menu aria-label="展开培训中心动态操作">
+                        <i class="ph ph-dots-three" aria-hidden="true"></i>
+                      </button>
+                      <div class="moment-action-menu" hidden>
+                        <button type="button" data-moment-like><i class="ph ph-heart" aria-hidden="true"></i><span>赞</span></button>
+                        <button type="button" data-moment-comment><i class="ph ph-chat-circle" aria-hidden="true"></i><span>评论</span></button>
+                      </div>
+                    </div>
+                    <form class="moment-comment-form" hidden>
+                      <label><span class="sr-only">评论培训中心动态</span><input type="text" placeholder="写下评论" maxlength="80" /></label>
+                      <button type="submit">发送</button>
+                    </form>
+                  </div>
+                </article>
+              </section>
+            </div>
+          </section>
+
+          <section class="page" data-page="profile" aria-labelledby="profileTitle" hidden>
+            <header class="profile-header">
+              <span class="avatar" aria-hidden="true">林</span>
+              <div>
+                <h1 id="profileTitle">林舟</h1>
+                <p>安全管理部</p>
+              </div>
+              <button class="icon-button icon-button-on-dark" type="button" data-show-toast="个人设置将在下一版开放" aria-label="个人设置">
+                <i class="ph ph-gear" aria-hidden="true"></i>
+              </button>
+            </header>
+
+            <div class="page-scroll profile-scroll">
+              <section class="offline-panel" aria-labelledby="offlineTitle">
+                <div class="offline-heading">
+                  <span class="offline-icon" aria-hidden="true"><i class="ph ph-cloud-slash"></i></span>
+                  <div><h2 id="offlineTitle">离线模式</h2><p id="offlineStatus">当前使用在线数据</p></div>
+                  <label class="switch" aria-label="切换离线模式">
+                    <input type="checkbox" id="offlineToggle" />
+                    <span></span>
+                  </label>
+                </div>
+                <p class="offline-description">提前下载工作表，在无网络环境下仍可继续填报。</p>
+                <button class="primary-button" type="button" id="downloadAll">
+                  <i class="ph ph-download-simple" aria-hidden="true"></i>
+                  <span>下载所有表</span>
+                </button>
+                <div class="download-progress" id="downloadProgress" hidden>
+                  <span class="progress-copy">正在准备离线数据</span>
+                  <span class="progress-line"><span></span></span>
+                </div>
+              </section>
+
+              <section class="settings-group" aria-labelledby="syncTitle">
+                <h2 id="syncTitle">填报与上报</h2>
+                <div class="setting-row">
+                  <span class="row-icon" aria-hidden="true"><i class="ph ph-cloud-arrow-up"></i></span>
+                  <span class="setting-copy"><strong>有网自动上报</strong><small>离线保存的填报表将在联网后提交</small></span>
+                  <label class="switch" aria-label="切换有网自动上报">
+                    <input type="checkbox" id="autoUploadToggle" checked />
+                    <span></span>
+                  </label>
+                </div>
+                <button class="setting-row setting-row-button" type="button" data-show-toast="暂无待上报记录">
+                  <span class="row-icon" aria-hidden="true"><i class="ph ph-tray"></i></span>
+                  <span class="setting-copy"><strong>待上报记录</strong><small>暂无待上报记录</small></span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+              </section>
+
+              <section class="sync-state" aria-label="同步状态">
+                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                <span><strong>数据已同步</strong><small>本机暂无未提交内容</small></span>
+              </section>
+            </div>
+          </section>
+        </div>
+
+        <nav class="bottom-nav" aria-label="底部导航">
+          <span class="nav-indicator" aria-hidden="true"></span>
+          <button class="nav-item is-active" type="button" data-page-target="workbench" aria-current="page">
+            <i class="ph ph-house" aria-hidden="true"></i><span>工作台</span>
+          </button>
+          <button class="nav-item" type="button" data-page-target="favorites">
+            <i class="ph ph-star" aria-hidden="true"></i><span>常用</span>
+          </button>
+          <button class="nav-item" type="button" data-page-target="activity">
+            <i class="ph ph-broadcast" aria-hidden="true"></i><span>动态</span>
+          </button>
+          <button class="nav-item" type="button" data-page-target="profile">
+            <i class="ph ph-user-circle" aria-hidden="true"></i><span>我的</span>
+          </button>
+        </nav>
+
+        <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+        <aside class="bottom-sheet" id="bottomSheet" aria-modal="true" role="dialog" aria-labelledby="sheetTitle" hidden>
+          <div class="sheet-handle" aria-hidden="true"></div>
+          <header class="sheet-header">
+            <div><p id="sheetContext">详情</p><h2 id="sheetTitle">事项详情</h2></div>
+            <button class="icon-button icon-button-small" type="button" id="closeSheet" aria-label="关闭详情">
+              <i class="ph ph-x" aria-hidden="true"></i>
+            </button>
+          </header>
+          <div class="sheet-content" id="sheetContent"></div>
+        </aside>
+
+        <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+      </section>
+    </main>
+
+    <script src="./main.js"></script>
+  </body>
+</html>
