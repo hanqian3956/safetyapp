@@ -194,11 +194,30 @@ document.querySelector("[data-close-messages-page]").addEventListener("click", c
 const messageStatusTabs = [...document.querySelectorAll("[data-message-status]")];
 const messageFeedRows = [...document.querySelectorAll("[data-message-read-state]")];
 const messageFeedEmpty = document.querySelector(".message-feed-empty");
+const messageFilterSelects = [...document.querySelectorAll("[data-message-filter]")];
+let selectedMessageStatus = "all";
+
+function applyMessageFilters() {
+  const selectedSource = document.querySelector('[data-message-filter="source"]').value;
+  const selectedType = document.querySelector('[data-message-filter="type"]').value;
+  let visibleCount = 0;
+
+  messageFeedRows.forEach((row) => {
+    const matchesSource = selectedSource === "all" || row.dataset.messageSource === selectedSource;
+    const matchesType = selectedType === "all" || row.dataset.messageType === selectedType;
+    const matchesStatus = selectedMessageStatus === "all" || row.dataset.messageReadState === selectedMessageStatus;
+    const isVisible = matchesSource && matchesType && matchesStatus;
+
+    row.hidden = !isVisible;
+    if (isVisible) visibleCount += 1;
+  });
+
+  messageFeedEmpty.hidden = visibleCount > 0;
+}
 
 messageStatusTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
-    const selectedStatus = tab.dataset.messageStatus;
-    let visibleCount = 0;
+    selectedMessageStatus = tab.dataset.messageStatus;
 
     messageStatusTabs.forEach((item) => {
       const isActive = item === tab;
@@ -206,14 +225,12 @@ messageStatusTabs.forEach((tab) => {
       item.setAttribute("aria-selected", String(isActive));
     });
 
-    messageFeedRows.forEach((row) => {
-      const isVisible = selectedStatus === "all" || row.dataset.messageReadState === selectedStatus;
-      row.hidden = !isVisible;
-      if (isVisible) visibleCount += 1;
-    });
-
-    messageFeedEmpty.hidden = visibleCount > 0;
+    applyMessageFilters();
   });
+});
+
+messageFilterSelects.forEach((select) => {
+  select.addEventListener("change", applyMessageFilters);
 });
 
 const activityFilters = [...document.querySelectorAll("[data-activity-filter]")];

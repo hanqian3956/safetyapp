@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=messages-status-tabs-v1" />
+    <link rel="stylesheet" href="./styles.css?v=message-filter-order-v1" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -166,34 +166,34 @@
             </header>
 
             <div class="page-scroll messages-page-scroll">
+              <form class="message-filters" aria-label="消息筛选条件">
+                <label>
+                  <span>消息来源</span>
+                  <select aria-label="消息来源" data-message-filter="source">
+                    <option value="all">全部</option>
+                    <option value="flow">流程</option>
+                    <option value="system">系统</option>
+                  </select>
+                </label>
+                <label>
+                  <span>消息类型</span>
+                  <select aria-label="消息类型" data-message-filter="type">
+                    <option value="all">全部</option>
+                    <option value="approval">流程审批</option>
+                    <option value="timeout">流程超时</option>
+                    <option value="end">流程结束</option>
+                  </select>
+                </label>
+              </form>
+
               <nav class="message-status-tabs" aria-label="消息状态" role="tablist">
                 <button class="is-active" type="button" role="tab" aria-selected="true" data-message-status="all">全部</button>
                 <button type="button" role="tab" aria-selected="false" data-message-status="read">已读</button>
                 <button type="button" role="tab" aria-selected="false" data-message-status="unread">未读</button>
               </nav>
 
-              <form class="message-filters" aria-label="消息筛选条件">
-                <label>
-                  <span>消息来源</span>
-                  <select aria-label="消息来源">
-                    <option>全部</option>
-                    <option>流程</option>
-                    <option>系统</option>
-                  </select>
-                </label>
-                <label>
-                  <span>消息类型</span>
-                  <select aria-label="消息类型">
-                    <option>全部</option>
-                    <option>流程审批</option>
-                    <option>流程超时</option>
-                    <option>流程结束</option>
-                  </select>
-                </label>
-              </form>
-
               <section class="message-feed" aria-label="互动消息列表">
-                <button class="message-feed-row" type="button" data-message-read-state="unread" data-show-toast="正在打开矿山应急照明设备采购申请">
+                <button class="message-feed-row" type="button" data-message-source="flow" data-message-type="approval" data-message-read-state="unread" data-show-toast="正在打开矿山应急照明设备采购申请">
                   <span class="message-feed-icon message-feed-icon-flow" aria-hidden="true"><i class="ph ph-arrows-clockwise"></i></span>
                   <span class="message-feed-copy">
                     <span class="message-feed-title"><strong>矿山应急照明设备采购申请</strong><time>今天 10:12</time></span>
@@ -202,7 +202,7 @@
                   </span>
                   <i class="ph ph-caret-right" aria-hidden="true"></i>
                 </button>
-                <button class="message-feed-row" type="button" data-message-read-state="unread" data-show-toast="正在打开南区 2# 采场动火作业申请">
+                <button class="message-feed-row" type="button" data-message-source="flow" data-message-type="timeout" data-message-read-state="unread" data-show-toast="正在打开南区 2# 采场动火作业申请">
                   <span class="message-feed-icon message-feed-icon-warm" aria-hidden="true"><i class="ph ph-fire"></i></span>
                   <span class="message-feed-copy">
                     <span class="message-feed-title"><strong>南区 2# 采场动火作业申请</strong><time>今天 09:38</time></span>
@@ -211,7 +211,7 @@
                   </span>
                   <i class="ph ph-caret-right" aria-hidden="true"></i>
                 </button>
-                <button class="message-feed-row" type="button" data-message-read-state="unread" data-show-toast="正在打开碎矿车间停机检修计划">
+                <button class="message-feed-row" type="button" data-message-source="flow" data-message-type="end" data-message-read-state="unread" data-show-toast="正在打开碎矿车间停机检修计划">
                   <span class="message-feed-icon message-feed-icon-alert" aria-hidden="true"><i class="ph ph-warning-circle"></i></span>
                   <span class="message-feed-copy">
                     <span class="message-feed-title"><strong>碎矿车间停机检修计划</strong><time>昨天 16:45</time></span>
@@ -220,7 +220,7 @@
                   </span>
                   <i class="ph ph-caret-right" aria-hidden="true"></i>
                 </button>
-                <button class="message-feed-row" type="button" data-message-read-state="read" data-show-toast="正在打开外协队入场资格审核">
+                <button class="message-feed-row" type="button" data-message-source="flow" data-message-type="approval" data-message-read-state="read" data-show-toast="正在打开外协队入场资格审核">
                   <span class="message-feed-icon message-feed-icon-warm" aria-hidden="true"><i class="ph ph-user-check"></i></span>
                   <span class="message-feed-copy">
                     <span class="message-feed-title"><strong>外协队入场资格审核</strong><time>昨天 14:20</time></span>
