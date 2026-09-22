@@ -181,6 +181,27 @@ function closeMessagesPage() {
   switchPage("workbench", navItems[0]);
 }
 
+function openDetailPage(pageName) {
+  activePage = pageName;
+  pages.forEach((page) => {
+    const isActive = page.dataset.page === pageName;
+    page.hidden = !isActive;
+    page.classList.toggle("is-active", isActive);
+    if (isActive) {
+      page.classList.remove("is-entering");
+      requestAnimationFrame(() => page.classList.add("is-entering"));
+      page.querySelector(".page-scroll")?.scrollTo({ top: 0 });
+    }
+  });
+  appShell.classList.add("is-detail-page");
+}
+
+function closePreventionPage() {
+  appShell.classList.remove("is-detail-page");
+  activePage = "";
+  switchPage("workbench", navItems[0]);
+}
+
 navItems.forEach((item) => {
   item.addEventListener("click", () => switchPage(item.dataset.pageTarget, item));
 });
@@ -190,6 +211,22 @@ document.querySelectorAll("[data-open-messages-page]").forEach((trigger) => {
 });
 
 document.querySelector("[data-close-messages-page]").addEventListener("click", closeMessagesPage);
+
+document.querySelector("[data-open-prevention]").addEventListener("click", () => openDetailPage("prevention"));
+document.querySelector("[data-close-prevention]").addEventListener("click", closePreventionPage);
+document.querySelector("[data-open-inspection]").addEventListener("click", () => openDetailPage("inspection"));
+document.querySelectorAll("[data-back-prevention]").forEach((button) => {
+  button.addEventListener("click", () => openDetailPage("prevention"));
+});
+
+const inspectionForm = document.querySelector("#inspectionForm");
+const saveInspectionDraft = document.querySelector("#saveInspectionDraft");
+
+saveInspectionDraft.addEventListener("click", () => showToast("草稿已保存"));
+inspectionForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  showToast("排查记录已提交");
+});
 
 const messageStatusTabs = [...document.querySelectorAll("[data-message-status]")];
 const messageFeedRows = [...document.querySelectorAll("[data-message-read-state]")];

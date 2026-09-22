@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=message-filter-order-v1" />
+    <link rel="stylesheet" href="./styles.css?v=prevention-mobile-v1" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -86,9 +86,9 @@
                 </div>
 
                 <div class="app-grid">
-                  <button class="app-entry" type="button" data-show-toast="已进入隐患排查">
-                    <span><i class="ph ph-magnifying-glass" aria-hidden="true"></i></span>
-                    <strong>隐患排查</strong>
+                  <button class="app-entry app-entry-prevention" type="button" data-open-prevention>
+                    <span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
+                    <strong>双重预防管理</strong>
                   </button>
                   <button class="app-entry" type="button" data-show-toast="已进入作业许可">
                     <span><i class="ph ph-file-text" aria-hidden="true"></i></span>
@@ -232,6 +232,114 @@
               </section>
               <p class="message-feed-empty" hidden>暂无此类消息</p>
             </div>
+          </section>
+
+          <section class="page prevention-page" data-page="prevention" aria-labelledby="preventionTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-close-prevention aria-label="返回工作台">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="preventionTitle">双重预防管理</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll subpage-scroll">
+              <section class="inspection-catalog" aria-labelledby="inspectionCatalogTitle">
+                <h2 id="inspectionCatalogTitle">岗位隐患排查清单</h2>
+                <div class="inspection-catalog-list">
+                  <button type="button" data-open-inspection>
+                    <span class="inspection-catalog-icon" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
+                    <strong>平巷凿岩作业岗位隐患排查表</strong>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" data-show-toast="掘进凿岩工排查清单将在下一版开放">
+                    <span class="inspection-catalog-icon inspection-catalog-icon-blue" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+                    <strong>掘进凿岩工隐患排查清单</strong>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" data-show-toast="操作作业排查表将在下一版开放">
+                    <span class="inspection-catalog-icon" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
+                    <strong>操作作业岗位隐患排查表</strong>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="page inspection-page" data-page="inspection" aria-labelledby="inspectionTitle" hidden>
+            <header class="subpage-header inspection-page-header">
+              <button class="icon-button icon-button-small" type="button" data-back-prevention aria-label="返回清单">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="inspectionTitle">平巷凿岩作业岗位隐患排查表</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <form class="page-scroll subpage-scroll inspection-form" id="inspectionForm">
+              <fieldset class="inspection-fieldset inspection-info">
+                <legend>填报信息</legend>
+                <label>
+                  <span>填报人</span>
+                  <input type="text" value="张宇" required />
+                </label>
+                <label>
+                  <span>检查日期</span>
+                  <input type="date" value="2026-07-29" required />
+                </label>
+                <label>
+                  <span>作业班次</span>
+                  <select required>
+                    <option>早班</option>
+                    <option>中班</option>
+                    <option>晚班</option>
+                  </select>
+                </label>
+                <label>
+                  <span>作业地点</span>
+                  <input type="text" placeholder="例如：西翼 3# 平巷" required />
+                </label>
+              </fieldset>
+
+              <fieldset class="inspection-fieldset site-checks">
+                <legend>现场检查</legend>
+                <div class="inspection-check-row">
+                  <span>凿岩设备防护装置完好</span>
+                  <div class="inspection-options">
+                    <label><input type="radio" name="equipment" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label>
+                    <label><input type="radio" name="equipment" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label>
+                  </div>
+                </div>
+                <div class="inspection-check-row">
+                  <span>作业面通风与照明符合要求</span>
+                  <div class="inspection-options">
+                    <label><input type="radio" name="environment" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label>
+                    <label><input type="radio" name="environment" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label>
+                  </div>
+                </div>
+                <div class="inspection-check-row">
+                  <span>人员防护用品佩戴规范</span>
+                  <div class="inspection-options">
+                    <label><input type="radio" name="protection" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label>
+                    <label><input type="radio" name="protection" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="inspection-fieldset inspection-note">
+                <legend>问题说明</legend>
+                <label>
+                  <span>隐患描述与整改建议</span>
+                  <textarea rows="4" placeholder="发现隐患时填写具体位置、问题描述及整改措施"></textarea>
+                </label>
+              </fieldset>
+
+              <div class="inspection-actions">
+                <button class="inspection-action-cancel" type="button" data-back-prevention>取消</button>
+                <button class="inspection-action-draft" type="button" id="saveInspectionDraft">存草稿</button>
+                <button class="inspection-action-submit" type="submit">提交</button>
+              </div>
+            </form>
           </section>
 
           <section class="page" data-page="favorites" aria-labelledby="favoritesTitle" hidden>
