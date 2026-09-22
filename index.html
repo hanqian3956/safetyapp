@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=workbench-redesign-v1" />
+    <link rel="stylesheet" href="./styles.css?v=messages-page-layout-fix" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -26,7 +26,7 @@
           <section class="page is-active" data-page="workbench" aria-labelledby="workbenchTitle">
             <header class="page-header workbench-header">
               <div>
-                <p class="header-context">9月22日，周一</p>
+                <p class="header-context">移动作业中心</p>
                 <h1 id="workbenchTitle">早上好，林工</h1>
               </div>
               <button
@@ -41,55 +41,35 @@
             </header>
 
             <div class="page-scroll">
-              <section class="shift-brief" aria-labelledby="shiftBriefTitle">
-                <div class="shift-brief-top">
-                  <div>
-                    <p>今日现场作业</p>
-                    <h2 id="shiftBriefTitle">东区作业面</h2>
-                  </div>
-                  <span class="shift-live"><i aria-hidden="true"></i>作业中</span>
-                </div>
-                <div class="shift-brief-bottom">
-                  <p>开工前确认尚有 3 项待处理</p>
-                  <button class="shift-brief-action" type="button" data-open-messages-page>查看待办</button>
-                </div>
-              </section>
-
-              <section class="section-block priority-section" aria-labelledby="messageTitle">
+              <section class="section-block message-section" aria-labelledby="messageTitle">
                 <div class="section-heading">
-                  <div>
-                    <h2 id="messageTitle">需要确认</h2>
-                    <p>优先处理，避免影响现场作业</p>
-                  </div>
-                  <button class="text-button" type="button" data-open-messages-page>全部待办</button>
+                  <h2 id="messageTitle">待办事项</h2>
+                  <button class="text-button" type="button" data-open-messages-page>全部</button>
                 </div>
 
-                <div class="priority-list">
-                  <button class="priority-row" type="button" data-open-sheet="workflow">
-                    <span class="priority-icon" aria-hidden="true">
+                <div class="message-shortcuts">
+                  <button class="message-shortcut" type="button" data-open-sheet="workflow">
+                    <span class="shortcut-icon" aria-hidden="true">
                       <i class="ph ph-arrows-clockwise"></i>
                     </span>
-                    <span class="priority-copy"><strong>动火作业审批</strong><small>流程 · 2 项待处理</small></span>
-                    <span class="priority-count" aria-label="2项待处理">2</span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                    <span>流程</span>
+                    <span class="shortcut-mark" aria-label="2项未读">2</span>
                   </button>
 
-                  <button class="priority-row" type="button" data-open-sheet="warning">
-                    <span class="priority-icon priority-icon-alert" aria-hidden="true">
+                  <button class="message-shortcut" type="button" data-open-sheet="warning">
+                    <span class="shortcut-icon" aria-hidden="true">
                       <i class="ph ph-warning"></i>
                     </span>
-                    <span class="priority-copy"><strong>临边防护复核</strong><small>预警 · 东区作业面</small></span>
-                    <span class="priority-count" aria-label="1项待处理">1</span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                    <span>预警</span>
+                    <span class="shortcut-mark" aria-label="1项待办">1</span>
                   </button>
 
-                  <button class="priority-row" type="button" data-open-sheet="task">
-                    <span class="priority-icon" aria-hidden="true">
+                  <button class="message-shortcut" type="button" data-open-sheet="task">
+                    <span class="shortcut-icon" aria-hidden="true">
                       <i class="ph ph-check-square"></i>
                     </span>
-                    <span class="priority-copy"><strong>班前安全确认</strong><small>任务 · 作业开始前完成</small></span>
-                    <span class="priority-count" aria-label="3项待处理">3</span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                    <span>任务</span>
+                    <span class="shortcut-mark" aria-label="3项待办">3</span>
                   </button>
                 </div>
               </section>
@@ -144,16 +124,16 @@
               <section class="section-block function-section" aria-labelledby="functionTitle">
                 <div class="section-heading">
                   <div>
-                    <h2 id="functionTitle">我的执行</h2>
-                    <p>查看我发起和我执行的事项</p>
+                    <h2 id="functionTitle">功能</h2>
+                    <p>按角色快速查看</p>
                   </div>
                 </div>
 
                 <div class="function-stack">
                   <article class="function-panel">
                     <div class="function-title">
-                      <span class="row-icon" aria-hidden="true"><i class="ph ph-checks"></i></span>
-                      <div><strong>任务</strong><span>分派、跟进与执行</span></div>
+                      <span class="row-icon row-icon-dark" aria-hidden="true"><i class="ph ph-checks"></i></span>
+                      <div><strong>任务</strong><span>跟进分派与执行</span></div>
                     </div>
                     <div class="function-actions">
                       <button type="button" data-show-toast="正在查看我发起的任务">我发起的</button>
@@ -163,8 +143,8 @@
 
                   <article class="function-panel">
                     <div class="function-title">
-                      <span class="row-icon" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span>
-                      <div><strong>流程</strong><span>审批与流转进度</span></div>
+                      <span class="row-icon row-icon-dark" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span>
+                      <div><strong>流程</strong><span>查看审批与流转</span></div>
                     </div>
                     <div class="function-actions">
                       <button type="button" data-show-toast="正在查看我发起的流程">我发起的</button>
