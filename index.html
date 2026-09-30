@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=prevention-menu-v1" />
+    <link rel="stylesheet" href="./styles.css?v=prevention-scheme-one-process-v2" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -41,19 +41,23 @@
             </header>
 
             <div class="page-scroll">
+              <button class="workbench-search-trigger" type="button" data-open-workbench-search aria-label="搜索子系统内的工作表、流程和其他内容">
+                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                <span>搜索工作表、流程和台账</span>
+              </button>
+
               <section class="section-block message-section" aria-labelledby="messageTitle">
                 <div class="section-heading">
                   <h2 id="messageTitle">待办事项</h2>
-                  <button class="text-button" type="button" data-open-messages-page>全部</button>
                 </div>
 
                 <div class="message-shortcuts">
-                  <button class="message-shortcut" type="button" data-open-sheet="workflow">
+                  <button class="message-shortcut" type="button" data-open-process-page>
                     <span class="shortcut-icon" aria-hidden="true">
                       <i class="ph ph-arrows-clockwise"></i>
                     </span>
                     <span>流程</span>
-                    <span class="shortcut-mark" aria-label="2项未读">2</span>
+                    <span class="shortcut-mark" aria-label="3项待审批">3</span>
                   </button>
 
                   <button class="message-shortcut" type="button" data-open-sheet="warning">
@@ -76,83 +80,138 @@
 
               <section class="section-block app-section" aria-labelledby="appListTitle">
                 <div class="section-heading">
-                  <div>
-                    <h2 id="appListTitle">应用列表</h2>
-                    <p>常用业务入口</p>
+                  <h2 id="appListTitle">应用列表</h2>
+                  <div class="app-section-actions">
+                    <button class="icon-button icon-button-small" type="button" data-open-app-organizer aria-label="查看全部应用"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
                   </div>
-                  <button class="icon-button icon-button-small" type="button" data-show-toast="应用管理将在下一版开放" aria-label="管理应用">
-                    <i class="ph ph-sliders-horizontal" aria-hidden="true"></i>
-                  </button>
                 </div>
 
-                <div class="app-grid">
-                  <button class="app-entry app-entry-prevention" type="button" data-open-prevention>
-                    <span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
-                    <strong>双重预防管理</strong>
-                  </button>
-                  <button class="app-entry" type="button" data-show-toast="已进入作业许可">
-                    <span><i class="ph ph-file-text" aria-hidden="true"></i></span>
-                    <strong>作业许可</strong>
-                  </button>
-                  <button class="app-entry" type="button" data-show-toast="已进入设备巡检">
-                    <span><i class="ph ph-wrench" aria-hidden="true"></i></span>
-                    <strong>设备巡检</strong>
-                  </button>
-                  <button class="app-entry" type="button" data-show-toast="已进入培训记录">
-                    <span><i class="ph ph-notebook" aria-hidden="true"></i></span>
-                    <strong>培训记录</strong>
-                  </button>
-                  <button class="app-entry" type="button" data-show-toast="已进入风险管控">
-                    <span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
-                    <strong>风险管控</strong>
-                  </button>
-                  <button class="app-entry" type="button" data-show-toast="已进入应急管理">
-                    <span><i class="ph ph-first-aid-kit" aria-hidden="true"></i></span>
-                    <strong>应急管理</strong>
-                  </button>
-                  <button class="app-entry" type="button" data-show-toast="已进入设备台账">
-                    <span><i class="ph ph-database" aria-hidden="true"></i></span>
-                    <strong>设备台账</strong>
-                  </button>
-                  <button class="app-entry" type="button" data-show-toast="已进入承包商">
-                    <span><i class="ph ph-users-three" aria-hidden="true"></i></span>
-                    <strong>承包商</strong>
-                  </button>
+                <div class="app-grid" data-favorite-app-grid>
+                  <div class="app-item" data-app-item="prevention"><button class="app-entry app-entry-prevention" type="button" data-open-prevention><span><i class="ph ph-shield-check" aria-hidden="true"></i></span><strong>双重预防管理</strong></button></div>
+                  <div class="app-item" data-app-item="prevention-two"><button class="app-entry app-entry-prevention-two" type="button" data-open-prevention-two><span><i class="ph ph-squares-four" aria-hidden="true"></i></span><strong>双重预防2</strong></button></div>
+                  <div class="app-item" data-app-item="inspection"><button class="app-entry" type="button" data-show-toast="已进入设备巡检"><span><i class="ph ph-wrench" aria-hidden="true"></i></span><strong>设备巡检</strong></button></div>
+                  <div class="app-item" data-app-item="training"><button class="app-entry" type="button" data-show-toast="已进入培训记录"><span><i class="ph ph-notebook" aria-hidden="true"></i></span><strong>培训记录</strong></button></div>
+                  <div class="app-item" data-app-item="risk"><button class="app-entry" type="button" data-show-toast="已进入风险管控"><span><i class="ph ph-shield-check" aria-hidden="true"></i></span><strong>风险管控</strong></button></div>
+                  <div class="app-item" data-app-item="emergency"><button class="app-entry" type="button" data-show-toast="已进入应急管理"><span><i class="ph ph-first-aid-kit" aria-hidden="true"></i></span><strong>应急管理</strong></button></div>
+                  <div class="app-item" data-app-item="equipment"><button class="app-entry" type="button" data-show-toast="已进入设备台账"><span><i class="ph ph-database" aria-hidden="true"></i></span><strong>设备台账</strong></button></div>
+                  <div class="app-item" data-app-item="contractor"><button class="app-entry" type="button" data-show-toast="已进入承包商"><span><i class="ph ph-users-three" aria-hidden="true"></i></span><strong>承包商</strong></button></div>
+                  <div class="app-item" data-app-item="occupational-health"><button class="app-entry" type="button" data-show-toast="已进入职业健康"><span><i class="ph ph-heartbeat" aria-hidden="true"></i></span><strong>职业健康</strong></button></div>
+                  <div class="app-item" data-app-item="fire-protection"><button class="app-entry" type="button" data-show-toast="已进入消防管理"><span><i class="ph ph-fire-extinguisher" aria-hidden="true"></i></span><strong>消防管理</strong></button></div>
+                  <div class="app-item" data-app-item="contractor-evaluation"><button class="app-entry" type="button" data-show-toast="已进入承包商评价"><span><i class="ph ph-clipboard-text" aria-hidden="true"></i></span><strong>承包商评价</strong></button></div>
+                  <div class="app-item" data-app-item="reports"><button class="app-entry" type="button" data-show-toast="已进入数据报表"><span><i class="ph ph-chart-bar" aria-hidden="true"></i></span><strong>数据报表</strong></button></div>
                 </div>
               </section>
 
               <section class="section-block function-section" aria-labelledby="functionTitle">
                 <div class="section-heading">
-                  <div>
-                    <h2 id="functionTitle">功能</h2>
-                    <p>按角色快速查看</p>
-                  </div>
+                  <h2 id="functionTitle">功能</h2>
                 </div>
 
-                <div class="function-stack">
-                  <article class="function-panel">
-                    <div class="function-title">
-                      <span class="row-icon row-icon-dark" aria-hidden="true"><i class="ph ph-checks"></i></span>
-                      <div><strong>任务</strong><span>跟进分派与执行</span></div>
-                    </div>
-                    <div class="function-actions">
-                      <button type="button" data-show-toast="正在查看我发起的任务">我发起的</button>
-                      <button type="button" data-show-toast="正在查看我执行的任务">我执行的</button>
-                    </div>
-                  </article>
-
-                  <article class="function-panel">
-                    <div class="function-title">
-                      <span class="row-icon row-icon-dark" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span>
-                      <div><strong>流程</strong><span>查看审批与流转</span></div>
-                    </div>
-                    <div class="function-actions">
-                      <button type="button" data-show-toast="正在查看我发起的流程">我发起的</button>
-                      <button type="button" data-show-toast="正在查看我执行的流程">我执行的</button>
-                    </div>
-                  </article>
+                <div class="function-grid">
+                  <button class="function-card function-card-task" type="button" data-show-toast="正在打开任务中心">
+                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-checks"></i></span>
+                    <span class="function-card-copy"><strong>任务</strong><small>3 项待办</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="function-card function-card-flow" type="button" data-open-process-page>
+                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span>
+                    <span class="function-card-copy"><strong>流程</strong><small>3 项审批</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="function-card function-card-warning" type="button" data-show-toast="正在打开预警中心">
+                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-warning"></i></span>
+                    <span class="function-card-copy"><strong>预警</strong><small>1 项待处理</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="function-card function-card-board" type="button" data-show-toast="正在打开安全看板">
+                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-chart-donut"></i></span>
+                    <span class="function-card-copy"><strong>看板</strong><small>实时概览</small></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
                 </div>
               </section>
+            </div>
+          </section>
+
+          <section class="page workbench-search-page" data-page="workbenchSearch" aria-labelledby="workbenchSearchTitle" hidden>
+            <header class="workbench-search-header">
+              <button class="icon-button icon-button-small" type="button" data-close-workbench-search aria-label="返回工作台"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="workbenchSearchTitle">搜索</h1>
+              <span aria-hidden="true"></span>
+            </header>
+            <div class="page-scroll workbench-search-scroll">
+              <form class="subsystem-search-form" role="search">
+                <label>
+                  <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                  <span class="sr-only">搜索子系统内容</span>
+                  <input type="search" placeholder="搜索工作表、流程、台账" autocomplete="off" data-subsystem-search />
+                </label>
+                <button type="button" data-clear-subsystem-search aria-label="清空搜索"><i class="ph ph-x-circle" aria-hidden="true"></i></button>
+              </form>
+
+              <nav class="subsystem-search-types" aria-label="结果类型" role="tablist">
+                <button class="is-active" type="button" role="tab" aria-selected="true" data-subsystem-search-type="all">全部</button>
+                <button type="button" role="tab" aria-selected="false" data-subsystem-search-type="worksheet">工作表</button>
+                <button type="button" role="tab" aria-selected="false" data-subsystem-search-type="flow">流程</button>
+                <button type="button" role="tab" aria-selected="false" data-subsystem-search-type="record">台账与记录</button>
+              </nav>
+
+              <div class="subsystem-search-result-heading"><strong>搜索结果</strong><span data-subsystem-search-count>8 项</span></div>
+              <section class="subsystem-search-results" aria-label="子系统内容搜索结果">
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="worksheet" data-search-text="双重预防管理 双重预防 隐患排查 岗位隐患 平巷凿岩 作业 工作表 排查表" data-search-target="inspection">
+                  <span class="subsystem-search-icon is-green" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span><span><strong>平巷凿岩作业岗位隐患排查表</strong><small>双重预防管理 · 工作表</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="worksheet" data-search-text="双重预防管理 双重预防 隐患排查 掘进凿岩工 工作表 清单" data-search-action="掘进凿岩工隐患排查清单将在下一版开放">
+                  <span class="subsystem-search-icon is-blue" aria-hidden="true"><i class="ph ph-list-checks"></i></span><span><strong>掘进凿岩工隐患排查清单</strong><small>双重预防管理 · 工作表</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="flow" data-search-text="双重预防管理 双重预防 隐患排查 审批流程" data-search-action="已进入双重预防管理的隐患排查审批流程">
+                  <span class="subsystem-search-icon is-amber" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span><span><strong>隐患排查审批流程</strong><small>双重预防管理 · 流程</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="record" data-search-text="双重预防管理 双重预防 隐患 整改 台账" data-search-action="已进入双重预防管理的隐患整改台账">
+                  <span class="subsystem-search-icon is-slate" aria-hidden="true"><i class="ph ph-book-bookmark"></i></span><span><strong>隐患整改台账</strong><small>双重预防管理 · 台账</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="worksheet" data-search-text="双重预防2 双重预防 隐患排查 操作作业 岗位 工作表 排查表" data-search-target="prevention-two-catalog">
+                  <span class="subsystem-search-icon is-green" aria-hidden="true"><i class="ph ph-note-pencil"></i></span><span><strong>操作作业岗位隐患排查表</strong><small>双重预防2 · 工作表</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="flow" data-search-text="设备管理 设备 照明 采购 申请 审批流程" data-search-target="processes">
+                  <span class="subsystem-search-icon is-blue" aria-hidden="true"><i class="ph ph-lightbulb"></i></span><span><strong>矿山应急照明设备采购申请</strong><small>设备管理 · 流程</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="record" data-search-text="设备管理 设备 巡检 记录" data-search-action="已进入设备管理的设备巡检记录">
+                  <span class="subsystem-search-icon is-slate" aria-hidden="true"><i class="ph ph-wrench"></i></span><span><strong>设备巡检记录</strong><small>设备管理 · 记录</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="subsystem-search-result" type="button" data-subsystem-search-item data-search-type="flow" data-search-text="安全管理 动火 作业 申请 审批流程" data-search-target="processes">
+                  <span class="subsystem-search-icon is-red" aria-hidden="true"><i class="ph ph-fire"></i></span><span><strong>南区 2 号采场动火作业申请</strong><small>安全管理 · 流程</small></span><i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+              </section>
+              <div class="subsystem-search-empty" data-subsystem-search-empty hidden><i class="ph ph-magnifying-glass" aria-hidden="true"></i><strong>没有找到匹配内容</strong></div>
+            </div>
+          </section>
+
+          <section class="page app-organizer-page" data-page="appOrganizer" aria-labelledby="appOrganizerTitle" hidden>
+            <header class="app-organizer-header">
+              <button class="icon-button icon-button-small" type="button" data-close-app-organizer aria-label="返回工作台"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="appOrganizerTitle">全部应用</h1>
+              <button class="text-button app-organizer-edit-button" type="button" data-toggle-app-organizer-edit>编辑</button>
+            </header>
+            <div class="page-scroll app-organizer-scroll">
+              <div class="app-organizer-tip" aria-label="操作提示" hidden>
+                <span><i class="ph ph-dots-six-vertical" aria-hidden="true"></i>拖动左侧手柄调整顺序</span>
+                <span><i class="ph ph-toggle-right" aria-hidden="true"></i>右侧开关显示或隐藏应用</span>
+              </div>
+              <div class="app-organizer-list" data-app-organizer-list aria-label="调整应用顺序与显示状态">
+                <div class="app-organizer-row" data-app-organizer-item="prevention"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon organizer-app-icon-green" aria-hidden="true"><i class="ph ph-shield-check"></i></span><strong>双重预防管理</strong><label class="switch" aria-label="双重预防管理显示在工作台"><input type="checkbox" checked data-app-visibility="prevention" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="prevention-two"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon organizer-app-icon-blue" aria-hidden="true"><i class="ph ph-squares-four"></i></span><strong>双重预防2</strong><label class="switch" aria-label="双重预防2显示在工作台"><input type="checkbox" checked data-app-visibility="prevention-two" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="inspection"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span><strong>设备巡检</strong><label class="switch" aria-label="设备巡检显示在工作台"><input type="checkbox" checked data-app-visibility="inspection" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="training"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-notebook"></i></span><strong>培训记录</strong><label class="switch" aria-label="培训记录显示在工作台"><input type="checkbox" checked data-app-visibility="training" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="risk"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-shield-check"></i></span><strong>风险管控</strong><label class="switch" aria-label="风险管控显示在工作台"><input type="checkbox" checked data-app-visibility="risk" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="emergency"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-first-aid-kit"></i></span><strong>应急管理</strong><label class="switch" aria-label="应急管理显示在工作台"><input type="checkbox" checked data-app-visibility="emergency" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="equipment"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-database"></i></span><strong>设备台账</strong><label class="switch" aria-label="设备台账显示在工作台"><input type="checkbox" checked data-app-visibility="equipment" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="contractor"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-users-three"></i></span><strong>承包商</strong><label class="switch" aria-label="承包商显示在工作台"><input type="checkbox" checked data-app-visibility="contractor" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="occupational-health"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-heartbeat"></i></span><strong>职业健康</strong><label class="switch" aria-label="职业健康显示在工作台"><input type="checkbox" checked data-app-visibility="occupational-health" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="fire-protection"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-fire-extinguisher"></i></span><strong>消防管理</strong><label class="switch" aria-label="消防管理显示在工作台"><input type="checkbox" checked data-app-visibility="fire-protection" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="contractor-evaluation"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span><strong>承包商评价</strong><label class="switch" aria-label="承包商评价显示在工作台"><input type="checkbox" checked data-app-visibility="contractor-evaluation" /><span></span></label></div>
+                <div class="app-organizer-row" data-app-organizer-item="reports"><span class="app-drag-handle" aria-hidden="true"><i class="ph ph-dots-six-vertical"></i></span><span class="organizer-app-icon" aria-hidden="true"><i class="ph ph-chart-bar"></i></span><strong>数据报表</strong><label class="switch" aria-label="数据报表显示在工作台"><input type="checkbox" checked data-app-visibility="reports" /><span></span></label></div>
+              </div>
             </div>
           </section>
 
@@ -234,6 +293,439 @@
             </div>
           </section>
 
+          <section class="page process-page" data-page="processes" aria-labelledby="processPageTitle" hidden>
+            <header class="process-page-header">
+              <button class="icon-button icon-button-small" type="button" data-close-process-page aria-label="返回工作台">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="processPageTitle">流程中心</h1>
+              <button class="process-launch-button" type="button" data-open-process-library>
+                <i class="ph ph-plus" aria-hidden="true"></i>
+                <span>发起</span>
+              </button>
+            </header>
+
+            <nav class="process-tabs" aria-label="流程分类" role="tablist">
+              <button class="is-active" type="button" role="tab" aria-selected="true" data-process-tab="pending">
+                待审批 <span>3</span>
+              </button>
+              <button type="button" role="tab" aria-selected="false" data-process-tab="approved">已审批</button>
+              <button type="button" role="tab" aria-selected="false" data-process-tab="copied">抄送我的</button>
+              <button type="button" role="tab" aria-selected="false" data-process-tab="mine">我发起的</button>
+              <button type="button" role="tab" aria-selected="false" data-process-tab="draft">草稿箱</button>
+            </nav>
+
+            <div class="page-scroll process-page-scroll">
+              <form class="process-filters" id="processFilters" role="search" aria-label="搜索流程">
+                <label class="process-search-field">
+                  <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                  <span class="sr-only">搜索流程编号或名称</span>
+                  <input type="search" placeholder="搜索编号或流程名称" data-process-search />
+                </label>
+                <label class="process-app-filter">
+                  <span class="sr-only">所属应用</span>
+                  <select data-process-app aria-label="所属应用">
+                    <option value="all">全部应用</option>
+                    <option value="设备管理">设备管理</option>
+                    <option value="安全管理">安全管理</option>
+                    <option value="综合管理">综合管理</option>
+                    <option value="双重预防机制">双重预防机制</option>
+                    <option value="应急管理">应急管理</option>
+                    <option value="消防管理">消防管理</option>
+                    <option value="火工品管理">火工品管理</option>
+                  </select>
+                </label>
+              </form>
+
+              <div class="process-result-heading">
+                <div>
+                  <h2 data-process-list-title>待审批</h2>
+                  <p><span data-process-count>3</span> 条流程</p>
+                </div>
+                <span class="process-sync-state"><i class="ph ph-check-circle" aria-hidden="true"></i> 已同步</span>
+              </div>
+
+              <section class="process-list" aria-label="流程列表">
+                <article class="process-row" data-process-status="pending" data-process-app-name="设备管理" data-process-keywords="202608310001 矿山应急照明设备采购申请 采购申请 王建国">
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-equipment" aria-hidden="true"><i class="ph ph-lightbulb"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title">
+                        <h3>矿山应急照明设备采购申请</h3>
+                        <span class="process-state process-state-pending">审批中</span>
+                      </div>
+                      <p class="process-number">202608310001</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>采购申请</dd></div>
+                        <div><dt>应用</dt><dd>设备管理</dd></div>
+                        <div><dt>发起人</dt><dd>王建国</dd></div>
+                        <div><dt>到达</dt><dd>今天 09:12</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action">
+                    <span>发起于今天 09:12</span>
+                    <button type="button" data-open-process-detail data-process-mode="approval">审批</button>
+                  </div>
+                </article>
+
+                <article class="process-row" data-process-status="pending" data-process-app-name="安全管理" data-process-keywords="202608310002 南区2号采场动火作业申请 作业审批 张宇">
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-hotwork" aria-hidden="true"><i class="ph ph-fire"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title">
+                        <h3>南区 2# 采场动火作业申请</h3>
+                        <span class="process-state process-state-pending">审批中</span>
+                      </div>
+                      <p class="process-number">202608310002</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>作业审批</dd></div>
+                        <div><dt>应用</dt><dd>安全管理</dd></div>
+                        <div><dt>发起人</dt><dd>张宇</dd></div>
+                        <div><dt>到达</dt><dd>今天 08:46</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action">
+                    <span>发起于今天 08:46</span>
+                    <button type="button" data-open-process-detail data-process-mode="approval">审批</button>
+                  </div>
+                </article>
+
+                <article class="process-row" data-process-status="pending" data-process-app-name="综合管理" data-process-keywords="202608300004 外协队入场资格审核 业务审批 周毅">
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-contractor" aria-hidden="true"><i class="ph ph-user-check"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title">
+                        <h3>外协队入场资格审核</h3>
+                        <span class="process-state process-state-pending">审批中</span>
+                      </div>
+                      <p class="process-number">202608300004</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>业务审批</dd></div>
+                        <div><dt>应用</dt><dd>综合管理</dd></div>
+                        <div><dt>发起人</dt><dd>周毅</dd></div>
+                        <div><dt>到达</dt><dd>昨天 10:20</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action">
+                    <span>发起于昨天 10:20</span>
+                    <button type="button" data-open-process-detail data-process-mode="approval">审批</button>
+                  </div>
+                </article>
+
+                <article class="process-row" data-process-status="approved" data-process-app-name="安全管理" data-process-keywords="202608290018 尾矿库汛期专项检查计划 检查审批 李杰" hidden>
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-approved" aria-hidden="true"><i class="ph ph-checks"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title"><h3>尾矿库汛期专项检查计划</h3><span class="process-state process-state-approved">已通过</span></div>
+                      <p class="process-number">202608290018</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>检查审批</dd></div><div><dt>应用</dt><dd>安全管理</dd></div>
+                        <div><dt>发起人</dt><dd>李杰</dd></div><div><dt>完成</dt><dd>8月 30日</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action"><span>审批已完成</span><button class="process-secondary-action" type="button" data-open-process-detail data-process-mode="view">查看</button></div>
+                </article>
+
+                <article class="process-row" data-process-status="copied" data-process-app-name="设备管理" data-process-keywords="202608280036 9月设备保养计划 计划审批 赵磊" hidden>
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-equipment" aria-hidden="true"><i class="ph ph-wrench"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title"><h3>9 月设备保养计划</h3><span class="process-state process-state-copied">已抄送</span></div>
+                      <p class="process-number">202608280036</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>计划审批</dd></div><div><dt>应用</dt><dd>设备管理</dd></div>
+                        <div><dt>发起人</dt><dd>赵磊</dd></div><div><dt>抄送</dt><dd>8月 29日</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action"><span>无需处理</span><button class="process-secondary-action" type="button" data-open-process-detail data-process-mode="view">查看</button></div>
+                </article>
+
+                <article class="process-row" data-process-status="mine" data-process-app-name="设备管理" data-process-keywords="202608310021 西区照明回路检修申请 检修申请 林舟" hidden>
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-equipment" aria-hidden="true"><i class="ph ph-lightning"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title"><h3>西区照明回路检修申请</h3><span class="process-state process-state-pending">审批中</span></div>
+                      <p class="process-number">202608310021</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>检修申请</dd></div><div><dt>应用</dt><dd>设备管理</dd></div>
+                        <div><dt>发起人</dt><dd>林舟</dd></div><div><dt>发起</dt><dd>今天 11:24</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action"><span>当前节点：部门审核</span><div class="process-row-actions"><button class="process-danger-action" type="button" data-process-quick-action="撤销">撤销</button><button class="process-secondary-action" type="button" data-open-process-detail data-process-mode="mine">查看</button></div></div>
+                </article>
+
+                <article class="process-row" data-process-status="mine" data-process-app-name="双重预防机制" data-process-keywords="202609020012 东翼通风系统整改申请 业务审批 林舟" hidden>
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-rejected" aria-hidden="true"><i class="ph ph-arrow-u-down-left"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title"><h3>东翼通风系统整改申请</h3><span class="process-state process-state-rejected">已驳回</span></div>
+                      <p class="process-number">202609020012</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>业务审批</dd></div><div><dt>应用</dt><dd>双重预防机制</dd></div>
+                        <div><dt>发起人</dt><dd>林舟</dd></div><div><dt>发起</dt><dd>9月 2日</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action"><span>已驳回至发起人</span><div class="process-row-actions"><button class="process-secondary-action" type="button" data-resubmit-process>重新提交</button><button class="process-secondary-action" type="button" data-open-process-detail data-process-mode="mine">查看</button></div></div>
+                </article>
+
+                <article class="process-row" data-process-status="draft" data-process-app-name="综合管理" data-process-keywords="承包商月度评价 业务评价 林舟" hidden>
+                  <div class="process-row-main">
+                    <span class="process-type-icon process-type-draft" aria-hidden="true"><i class="ph ph-note-pencil"></i></span>
+                    <div class="process-row-copy">
+                      <div class="process-row-title"><h3>承包商月度评价</h3><span class="process-state process-state-draft">草稿</span></div>
+                      <p class="process-number">尚未生成流程编号</p>
+                      <dl class="process-meta">
+                        <div><dt>类型</dt><dd>业务评价</dd></div><div><dt>应用</dt><dd>综合管理</dd></div>
+                        <div><dt>创建人</dt><dd>林舟</dd></div><div><dt>保存</dt><dd>昨天 17:42</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="process-row-action"><span>资料填写至 60%</span><button class="process-secondary-action" type="button" data-edit-process-draft>继续填写</button></div>
+                </article>
+              </section>
+
+              <div class="process-empty" hidden>
+                <span aria-hidden="true"><i class="ph ph-magnifying-glass"></i></span>
+                <h3>没有找到流程</h3>
+                <p>更换关键词或所属应用后再试。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="page process-library-page" data-page="processLibrary" aria-labelledby="processLibraryTitle" hidden>
+            <header class="process-subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-back-process-list aria-label="返回流程中心">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="processLibraryTitle">发起流程</h1>
+              <span class="process-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll process-library-scroll">
+              <div class="process-template-tools">
+                <nav class="process-template-tabs" aria-label="流程模板分类">
+                  <button class="is-active" type="button" data-template-filter="all" aria-pressed="true">全部</button>
+                  <button type="button" data-template-filter="recent" aria-pressed="false">最近使用</button>
+                </nav>
+                <label class="process-template-search">
+                  <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                  <span class="sr-only">搜索流程模板</span>
+                  <input type="search" placeholder="搜索流程模板" data-template-search />
+                </label>
+              </div>
+
+              <div class="process-template-groups">
+                <section class="process-template-group" data-template-group>
+                  <header><span class="template-group-mark template-group-blue"></span><h2>人资管理</h2><small>3</small></header>
+                  <div class="process-template-list">
+                    <button type="button" data-process-template data-template-name="员工离职申请" data-template-app="消防管理" data-template-type="业务审批" data-template-recent="true"><span><strong>员工离职申请</strong><small>消防管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="职员晋升审批" data-template-app="机电管理" data-template-type="人事审批"><span><strong>职员晋升审批</strong><small>机电管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="职员调岗审批" data-template-app="双重预防机制" data-template-type="人事审批"><span><strong>职员调岗审批</strong><small>双重预防机制</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                  </div>
+                </section>
+
+                <section class="process-template-group" data-template-group>
+                  <header><span class="template-group-mark template-group-gold"></span><h2>基建管理</h2><small>3</small></header>
+                  <div class="process-template-list">
+                    <button type="button" data-process-template data-template-name="地表基建项目报建申请" data-template-app="生产管理" data-template-type="项目审批" data-template-recent="true"><span><strong>地表基建项目报建申请</strong><small>生产管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="年度工程计划编制审批" data-template-app="应急管理" data-template-type="计划审批"><span><strong>年度工程计划编制审批</strong><small>应急管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="项目合同申报审批" data-template-app="设备管理" data-template-type="合同审批"><span><strong>项目合同申报审批</strong><small>设备管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                  </div>
+                </section>
+
+                <section class="process-template-group" data-template-group>
+                  <header><span class="template-group-mark template-group-red"></span><h2>选矿管理</h2><small>3</small></header>
+                  <div class="process-template-list">
+                    <button type="button" data-process-template data-template-name="换矿申请" data-template-app="火工品管理" data-template-type="业务审批"><span><strong>换矿申请</strong><small>火工品管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="选厂药剂领用申请" data-template-app="安全管理" data-template-type="领用审批" data-template-recent="true"><span><strong>选厂药剂领用申请</strong><small>安全管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="材料采购流程" data-template-app="双重预防机制" data-template-type="采购申请"><span><strong>材料采购流程</strong><small>双重预防机制</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                  </div>
+                </section>
+              </div>
+
+              <div class="process-template-empty" hidden>
+                <i class="ph ph-files" aria-hidden="true"></i>
+                <h3>没有匹配的流程模板</h3>
+                <p>试试流程名称或所属应用。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="page process-form-page" data-page="processForm" aria-labelledby="processFormTitle" hidden>
+            <header class="process-subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-back-process-library aria-label="返回流程模板库">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="processFormTitle">发起流程</h1>
+              <button class="process-header-link" type="button" data-toggle-form-route>流程图</button>
+            </header>
+
+            <div class="page-scroll process-form-scroll">
+              <form class="process-launch-form" id="processLaunchForm">
+                <section class="process-form-identity" aria-label="所选流程模板">
+                  <span class="process-form-icon" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span>
+                  <div><small data-form-template-type>业务审批</small><h2 data-form-template-name>员工离职申请</h2><p data-form-template-app>消防管理</p></div>
+                </section>
+
+                <section class="process-form-section" aria-labelledby="processApplyInfoTitle">
+                  <h3 id="processApplyInfoTitle">申请信息</h3>
+                  <label class="process-field"><span>申请标题</span><input type="text" name="title" value="员工离职申请" required data-form-title /></label>
+                  <div class="process-field-grid">
+                    <label class="process-field"><span>申请部门</span><select name="department"><option>安全管理部</option><option>生产管理部</option><option>设备管理部</option></select></label>
+                    <label class="process-field"><span>申请人</span><input type="text" value="林舟" disabled /></label>
+                  </div>
+                  <label class="process-field"><span>申请说明</span><textarea name="description" rows="5" placeholder="填写申请事由、工作安排及需要说明的事项" required></textarea></label>
+                  <div class="process-attachment-row"><span><strong>相关附件</strong><small data-attachment-state>支持图片与文档</small></span><button type="button" data-add-process-attachment><i class="ph ph-paperclip" aria-hidden="true"></i> 添加</button></div>
+                </section>
+
+                <section class="process-form-route" data-form-route hidden>
+                  <div class="process-section-title"><h3>审批流程</h3><span>4 个节点</span></div>
+                  <ol class="process-route-steps">
+                    <li class="is-current"><span>1</span><div><strong>发起申请</strong><small>林舟</small></div></li>
+                    <li><span>2</span><div><strong>部门负责人</strong><small>部门负责人审批</small></div></li>
+                    <li><span>3</span><div><strong>安全审核</strong><small>安全管理部审批</small></div></li>
+                    <li><span>4</span><div><strong>归档完成</strong><small>系统自动归档</small></div></li>
+                  </ol>
+                </section>
+
+                <footer class="process-form-actions">
+                  <button class="process-action-ghost" type="button" data-cancel-process-form>取消</button>
+                  <button class="process-action-secondary" type="button" data-save-process-draft>存草稿</button>
+                  <button class="process-action-primary" type="submit">发起流程</button>
+                </footer>
+              </form>
+            </div>
+          </section>
+
+          <section class="page process-detail-page" data-page="processDetail" aria-labelledby="processDetailPageTitle" hidden>
+            <header class="process-subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-back-process-list aria-label="返回流程中心">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="processDetailPageTitle">流程详情</h1>
+              <span class="process-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <nav class="process-detail-tabs" aria-label="流程详情内容" role="tablist">
+              <button class="is-active" type="button" role="tab" aria-selected="true" data-detail-tab="form">申请单</button>
+              <button type="button" role="tab" aria-selected="false" data-detail-tab="log">流程日志</button>
+              <button type="button" role="tab" aria-selected="false" data-detail-tab="route">流程图</button>
+            </nav>
+
+            <div class="page-scroll process-detail-scroll">
+              <div class="process-detail-pane" data-detail-pane="form">
+                <section class="process-detail-summary">
+                  <div class="process-detail-title"><div><p data-detail-number>202608310001</p><h2 data-detail-name>矿山应急照明设备采购申请</h2></div><span class="process-state process-state-pending" data-detail-status>审批中</span></div>
+                  <dl class="process-detail-meta">
+                    <div><dt>所属部门</dt><dd data-detail-department>机电管理部</dd></div>
+                    <div><dt>发起人</dt><dd data-detail-applicant>王建国</dd></div>
+                    <div><dt>所属应用</dt><dd data-detail-app>设备管理</dd></div>
+                    <div><dt>发起时间</dt><dd data-detail-time>今天 09:12</dd></div>
+                  </dl>
+                  <div class="process-detail-description"><span>申请说明</span><p data-detail-description>矿山应急照明设备采购申请相关事项，请按流程审核处理。</p></div>
+                </section>
+
+                <section class="process-approval-panel" data-approval-panel>
+                  <div class="process-section-title"><h3>审批意见</h3><span>当前待你处理</span></div>
+                  <label class="process-field"><span class="sr-only">审批意见</span><textarea rows="4" placeholder="输入审批意见" data-approval-opinion></textarea></label>
+                  <div class="process-approval-actions">
+                    <button type="button" data-toggle-more-actions><i class="ph ph-dots-three" aria-hidden="true"></i> 更多</button>
+                    <button class="process-action-primary" type="button" data-complete-process="同意"><i class="ph ph-check" aria-hidden="true"></i> 同意</button>
+                  </div>
+                  <div class="process-more-actions" data-more-process-actions hidden>
+                    <button type="button" data-open-subaction="转办"><i class="ph ph-user-switch" aria-hidden="true"></i><span>转办</span></button>
+                    <button type="button" data-open-subaction="加签"><i class="ph ph-user-plus" aria-hidden="true"></i><span>加签</span></button>
+                    <button type="button" data-open-reject-confirm><i class="ph ph-arrow-u-down-left" aria-hidden="true"></i><span>驳回</span></button>
+                    <button type="button" data-open-refuse-confirm><i class="ph ph-x-circle" aria-hidden="true"></i><span>拒绝</span></button>
+                  </div>
+                </section>
+
+                <section class="process-owner-actions" data-owner-actions hidden>
+                  <button type="button" data-process-quick-action="撤销"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>撤销流程</button>
+                </section>
+              </div>
+
+              <section class="process-detail-pane process-log-section" data-detail-pane="log" hidden>
+                <div class="process-section-title"><h3>流程日志</h3><span>6 条记录</span></div>
+                <ol class="process-log-list">
+                  <li class="is-complete"><span class="process-log-dot"></span><div><strong>系统发起</strong><time>今天 09:12</time><p><b data-log-applicant>王建国</b>发起了流程</p><small>发起</small></div></li>
+                  <li class="is-complete"><span class="process-log-dot"></span><div><strong>主管领导审批</strong><time>今天 09:34</time><p>李四已同意，审批意见：请按流程办理</p><small>同意</small></div></li>
+                  <li class="is-complete"><span class="process-log-dot"></span><div><strong>分管领导审批</strong><time>今天 09:46</time><p>王五转办给赵六，转办原因：请赵总审定</p><small>转办</small></div></li>
+                  <li class="is-complete"><span class="process-log-dot"></span><div><strong>转办审批</strong><time>今天 10:02</time><p>赵六已添加张七共同审批</p><small>加签</small></div></li>
+                  <li class="is-complete"><span class="process-log-dot"></span><div><strong>抄送</strong><time>今天 10:10</time><p>系统已抄送相关人员</p><small>抄送</small></div></li>
+                  <li class="is-current"><span class="process-log-dot"></span><div><strong>部门负责人</strong><time>当前</time><p>当前待林舟审批</p><small>审批中</small></div></li>
+                </ol>
+              </section>
+
+              <section class="process-detail-pane process-detail-route" data-detail-pane="route" hidden>
+                <div class="process-section-title"><h3>流程图</h3><span>当前在部门负责人</span></div>
+                <ol class="process-route-steps process-route-horizontal">
+                  <li class="is-complete"><span><i class="ph ph-check"></i></span><div><strong>发起申请</strong></div></li>
+                  <li class="is-current"><span>2</span><div><strong>部门负责人</strong></div></li>
+                  <li><span>3</span><div><strong>安全审核</strong></div></li>
+                  <li><span>4</span><div><strong>归档</strong></div></li>
+                </ol>
+              </section>
+            </div>
+
+            <div class="process-action-dialog" data-process-action-dialog hidden>
+              <div class="process-action-dialog-backdrop" data-close-process-action></div>
+              <section role="dialog" aria-modal="true" aria-labelledby="processSubactionTitle">
+                <header><h2 id="processSubactionTitle" data-subaction-title>转办流程</h2><button type="button" data-close-process-action aria-label="关闭"><i class="ph ph-x"></i></button></header>
+                <label class="process-field"><span data-subaction-person-label>转办人</span><button class="process-person-picker" type="button" data-open-person-picker aria-haspopup="dialog"><span data-subaction-person-value>请选择人员</span><i class="ph ph-caret-right" aria-hidden="true"></i></button></label>
+                <label class="process-field"><span data-subaction-reason-label>转办原因</span><textarea rows="4" placeholder="填写原因" data-subaction-reason></textarea></label>
+                <footer><button type="button" data-close-process-action>取消</button><button class="process-action-primary" type="button" data-confirm-subaction>确认转办</button></footer>
+              </section>
+            </div>
+
+            <div class="process-reject-dialog" data-process-reject-dialog hidden>
+              <div class="process-action-dialog-backdrop" data-close-process-reject></div>
+              <section role="dialog" aria-modal="true" aria-labelledby="processRejectTitle">
+                <header><h2 id="processRejectTitle">确认驳回</h2><button type="button" data-close-process-reject aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+                <p class="process-reject-notice"><i class="ph ph-warning-circle" aria-hidden="true"></i> <span data-reject-destination-notice>驳回后将退回至上一节点。</span></p>
+                <label class="process-field"><span>驳回意见（非必填）</span><textarea rows="4" placeholder="可填写驳回原因" data-reject-opinion></textarea></label>
+                <footer class="process-confirm-actions"><button type="button" data-close-process-reject>取消</button><button class="process-action-danger" type="button" data-confirm-process-reject>确认驳回</button></footer>
+              </section>
+            </div>
+
+            <div class="process-refuse-dialog" data-process-refuse-dialog hidden>
+              <div class="process-action-dialog-backdrop" data-close-process-refuse></div>
+              <section role="dialog" aria-modal="true" aria-labelledby="processRefuseTitle">
+                <header><h2 id="processRefuseTitle">确认拒绝</h2><button type="button" data-close-process-refuse aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+                <p class="process-reject-notice"><i class="ph ph-x-circle" aria-hidden="true"></i> 拒绝后流程将终止，无法继续审批。</p>
+                <label class="process-field"><span>拒绝意见（非必填）</span><textarea rows="4" placeholder="可填写拒绝原因" data-refuse-opinion></textarea></label>
+                <footer class="process-confirm-actions"><button type="button" data-close-process-refuse>取消</button><button class="process-action-danger" type="button" data-confirm-process-refuse>确认拒绝</button></footer>
+              </section>
+            </div>
+
+            <div class="process-person-dialog" data-process-person-dialog hidden>
+              <div class="process-action-dialog-backdrop" data-close-person-picker></div>
+              <section role="dialog" aria-modal="true" aria-labelledby="processPersonPickerTitle">
+                <header><h2 id="processPersonPickerTitle" data-person-picker-title>选择转办人</h2><button type="button" data-close-person-picker aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+                <section class="process-selected-person" data-selected-person hidden aria-labelledby="selectedPersonTitle">
+                  <div class="process-person-section-heading"><h3 id="selectedPersonTitle">已选人员<span data-selected-person-count></span></h3></div>
+                  <div class="process-selected-person-empty" data-selected-person-empty>暂未选择人员</div>
+                  <div class="process-selected-person-list" data-selected-person-list hidden></div>
+                </section>
+                <div class="process-person-browser-body" data-person-browser-body>
+                  <section class="process-org-browser" aria-labelledby="personOrgTitle">
+                    <h3 id="personOrgTitle">组织架构</h3>
+                    <nav class="process-org-breadcrumb" data-person-breadcrumb aria-label="组织路径"></nav>
+                    <div class="process-org-list" data-person-org-list></div>
+                  </section>
+                </div>
+                <footer class="process-confirm-actions"><button type="button" data-close-person-picker>取消</button><button class="process-action-primary" type="button" data-confirm-person-picker>确认选择</button></footer>
+              </section>
+            </div>
+          </section>
+
           <section class="page prevention-page" data-page="prevention" aria-labelledby="preventionTitle" hidden>
             <header class="subpage-header">
               <button class="icon-button icon-button-small" type="button" data-close-prevention aria-label="返回工作台">
@@ -300,9 +792,78 @@
             </div>
           </section>
 
+          <section class="page prevention-two-page" data-page="preventionTwo" aria-labelledby="preventionTwoTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-close-prevention-two aria-label="返回工作台">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="preventionTwoTitle">双重预防2</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll subpage-scroll prevention-two-scroll">
+              <nav class="prevention-two-list prevention-two-category-list" aria-label="双重预防2菜单">
+                <button type="button" data-show-toast="法律法规将在下一版开放">
+                  <span class="prevention-two-icon prevention-two-icon-blue" aria-hidden="true"><i class="ph ph-file-text"></i></span>
+                  <strong>法律法规</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-show-toast="制度文件将在下一版开放">
+                  <span class="prevention-two-icon prevention-two-icon-slate" aria-hidden="true"><i class="ph ph-files"></i></span>
+                  <strong>制度文件</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-show-toast="风险分级管控将在下一版开放">
+                  <span class="prevention-two-icon prevention-two-icon-amber" aria-hidden="true"><i class="ph ph-shield-chevron"></i></span>
+                  <strong>风险分级管控</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="prevention-two-primary-row" type="button" data-open-prevention-two-hazards>
+                  <span class="prevention-two-icon prevention-two-icon-green" aria-hidden="true"><i class="ph ph-warning-circle"></i></span>
+                  <strong>隐患排查治理</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-show-toast="风险告知卡将在下一版开放">
+                  <span class="prevention-two-icon prevention-two-icon-red" aria-hidden="true"><i class="ph ph-identification-card"></i></span>
+                  <strong>风险告知卡</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-show-toast="风险四色图将在下一版开放">
+                  <span class="prevention-two-icon prevention-two-icon-violet" aria-hidden="true"><i class="ph ph-chart-bar"></i></span>
+                  <strong>风险四色图</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+              </nav>
+            </div>
+          </section>
+
+          <section class="page prevention-two-page" data-page="preventionTwoHazards" aria-labelledby="preventionTwoHazardsTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-back-prevention-two aria-label="返回双重预防2菜单">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="preventionTwoHazardsTitle">隐患排查治理</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll subpage-scroll prevention-two-scroll">
+              <nav class="prevention-two-list prevention-two-hazard-list" aria-label="隐患排查治理菜单">
+                <button type="button" data-show-toast="隐患排查任务发布将在下一版开放"><span>01</span><strong>隐患排查任务发布</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button class="prevention-two-current-row" type="button" data-open-prevention-two-catalog><span>02</span><strong>岗位隐患排查清单</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-show-toast="隐患排查审批流程将在下一版开放"><span>03</span><strong>隐患排查审批流程</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-show-toast="隐患排查治理记录将在下一版开放"><span>04</span><strong>隐患排查治理记录</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-show-toast="隐患排查工作表将在下一版开放"><span>05</span><strong>隐患排查工作表</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-show-toast="隐患整改通知单将在下一版开放"><span>06</span><strong>隐患整改通知单</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-show-toast="隐患整改台账将在下一版开放"><span>07</span><strong>隐患整改台账</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-show-toast="隐患信息统计将在下一版开放"><span>08</span><strong>隐患信息统计</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-show-toast="隐患汇报将在下一版开放"><span>09</span><strong>隐患汇报</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+              </nav>
+            </div>
+          </section>
+
           <section class="page prevention-catalog-page" data-page="preventionCatalog" aria-labelledby="inspectionCatalogTitle" hidden>
             <header class="subpage-header">
-              <button class="icon-button icon-button-small" type="button" data-back-prevention-menu aria-label="返回双重预防管理菜单">
+              <button class="icon-button icon-button-small" type="button" data-back-prevention-parent aria-label="返回上级菜单">
                 <i class="ph ph-caret-left" aria-hidden="true"></i>
               </button>
               <h1 id="inspectionCatalogTitle">岗位隐患排查清单</h1>
@@ -408,7 +969,6 @@
           <section class="page" data-page="favorites" aria-labelledby="favoritesTitle" hidden>
             <header class="page-header simple-header">
               <div>
-                <p class="header-context">快捷入口</p>
                 <h1 id="favoritesTitle">常用</h1>
               </div>
               <button class="icon-button" type="button" data-show-toast="长按项目即可调整顺序" aria-label="管理常用项目">
@@ -417,32 +977,37 @@
             </header>
 
             <div class="page-scroll">
-              <button class="launch-action" type="button" data-open-sheet="launch">
-                <span class="launch-icon" aria-hidden="true"><i class="ph ph-plus"></i></span>
-                <span><strong>发起工作表</strong><small>从固定模板或业务系统开始</small></span>
-                <i class="ph ph-caret-right" aria-hidden="true"></i>
-              </button>
-
               <section class="section-block recent-section" aria-labelledby="recentTitle">
                 <div class="section-heading">
                   <div>
                     <h2 id="recentTitle">最近使用</h2>
-                    <p>快速返回上次工作</p>
                   </div>
                 </div>
 
                 <div class="recent-grid">
                   <button class="recent-entry" type="button" data-show-toast="正在打开东区巡检">
                     <span class="recent-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
-                    <span class="recent-copy"><strong>东区巡检</strong><small>今天</small></span>
+                    <span class="recent-copy"><strong>东区巡检</strong></span>
                   </button>
                   <button class="recent-entry" type="button" data-show-toast="正在打开动火审批">
                     <span class="recent-icon" aria-hidden="true"><i class="ph ph-fire"></i></span>
-                    <span class="recent-copy"><strong>动火审批</strong><small>昨天</small></span>
+                    <span class="recent-copy"><strong>动火审批</strong></span>
                   </button>
                   <button class="recent-entry" type="button" data-show-toast="正在打开整改复查">
                     <span class="recent-icon" aria-hidden="true"><i class="ph ph-check-circle"></i></span>
-                    <span class="recent-copy"><strong>整改复查</strong><small>3天前</small></span>
+                    <span class="recent-copy"><strong>整改复查</strong></span>
+                  </button>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开设备点检">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span>
+                    <span class="recent-copy"><strong>设备点检</strong></span>
+                  </button>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开班前会确认">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-users-three"></i></span>
+                    <span class="recent-copy"><strong>班前会确认</strong></span>
+                  </button>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开隐患整改台账">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-book-bookmark"></i></span>
+                    <span class="recent-copy"><strong>隐患整改台账</strong></span>
                   </button>
                 </div>
               </section>
@@ -451,25 +1016,41 @@
                 <div class="section-heading">
                   <div>
                     <h2 id="savedTitle">我的常用</h2>
-                    <p>工作表、流程与任务</p>
                   </div>
-                  <button class="text-button" type="button" id="editFavorites">编辑</button>
+                  <div class="favorites-section-actions">
+                    <button class="icon-button icon-button-small" type="button" data-open-favorite-list aria-label="查看全部我的常用"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                  </div>
                 </div>
 
                 <div class="favorite-list" id="favoriteList">
                   <button class="favorite-row" type="button" data-show-toast="已打开每日安全巡查表">
                     <span class="favorite-type">表</span>
-                    <span><strong>每日安全巡查表</strong><small>现场管理系统</small></span>
+                    <span><strong>每日安全巡查表</strong></span>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
                   </button>
                   <button class="favorite-row" type="button" data-show-toast="已打开隐患整改复查流程">
                     <span class="favorite-type">流</span>
-                    <span><strong>隐患整改复查</strong><small>安全管理系统</small></span>
+                    <span><strong>隐患整改复查</strong></span>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
                   </button>
                   <button class="favorite-row" type="button" data-show-toast="已打开班前会确认任务">
                     <span class="favorite-type">任</span>
-                    <span><strong>班前会确认</strong><small>我的执行任务</small></span>
+                    <span><strong>班前会确认</strong></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="favorite-row" type="button" data-show-toast="已打开设备点检记录">
+                    <span class="favorite-type">表</span>
+                    <span><strong>设备点检记录</strong></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="favorite-row" type="button" data-show-toast="已打开动火作业申请">
+                    <span class="favorite-type">流</span>
+                    <span><strong>动火作业申请</strong></span>
+                    <i class="ph ph-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="favorite-row" type="button" data-show-toast="已打开培训签到表">
+                    <span class="favorite-type">表</span>
+                    <span><strong>培训签到表</strong></span>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
                   </button>
                 </div>
@@ -482,10 +1063,40 @@
                 </div>
               </section>
 
-              <section class="helper-panel" aria-label="常用提示">
-                <i class="ph ph-lightbulb" aria-hidden="true"></i>
-                <p><strong>把高频事项放在手边</strong><span>打开任意工作表、流程或任务后，可将它设为常用。</span></p>
+              <section class="section-block collected-section" aria-labelledby="collectedTitle">
+                <div class="section-heading">
+                  <h2 id="collectedTitle">我收藏的</h2>
+                  <button class="icon-button icon-button-small" type="button" data-open-collected-list aria-label="查看全部我的收藏" hidden><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                </div>
+                <div class="favorite-list collected-list" id="collectedList" hidden></div>
+                <div class="collected-empty" id="collectedEmpty"><i class="ph ph-star" aria-hidden="true"></i><span>暂无收藏</span></div>
               </section>
+
+            </div>
+          </section>
+
+          <section class="page favorites-detail-page" data-page="collectedAll" aria-labelledby="collectedAllTitle" hidden>
+            <header class="favorites-detail-header">
+              <button class="icon-button icon-button-small" type="button" data-close-favorites-detail aria-label="返回常用"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="collectedAllTitle">我收藏的</h1>
+              <span aria-hidden="true"></span>
+            </header>
+            <div class="page-scroll favorites-detail-scroll">
+              <div class="favorite-list favorite-detail-list" id="collectedAllList" hidden></div>
+              <div class="collected-empty" id="collectedAllEmpty"><i class="ph ph-star" aria-hidden="true"></i><span>暂无收藏</span></div>
+            </div>
+          </section>
+
+          <section class="page favorites-detail-page" data-page="favoritesAll" aria-labelledby="favoritesAllTitle" hidden>
+            <header class="favorites-detail-header">
+              <button class="icon-button icon-button-small" type="button" data-close-favorites-detail aria-label="返回常用"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="favoritesAllTitle">我的常用</h1>
+              <button class="text-button favorites-edit-button" type="button" id="editFavorites">编辑</button>
+            </header>
+            <div class="page-scroll favorites-detail-scroll">
+              <p class="favorites-sort-note">我的常用按照表单提交次数从多到少排列</p>
+              <div class="favorite-list favorite-detail-list" id="favoritesAllList"></div>
+              <div class="collected-empty" id="favoritesAllEmpty" hidden><i class="ph ph-star" aria-hidden="true"></i><span>暂无常用内容</span></div>
             </div>
           </section>
 
@@ -600,17 +1211,65 @@
 
           <section class="page" data-page="profile" aria-labelledby="profileTitle" hidden>
             <header class="profile-header">
-              <span class="avatar" aria-hidden="true">林</span>
+              <span class="avatar" data-profile-avatar aria-hidden="true">林</span>
               <div>
-                <h1 id="profileTitle">林舟</h1>
-                <p>安全管理部</p>
+                <h1 id="profileTitle" data-profile-heading>林舟</h1>
               </div>
-              <button class="icon-button icon-button-on-dark" type="button" data-show-toast="个人设置将在下一版开放" aria-label="个人设置">
-                <i class="ph ph-gear" aria-hidden="true"></i>
-              </button>
+              <span aria-hidden="true"></span>
             </header>
 
             <div class="page-scroll profile-scroll">
+              <section class="profile-entry-group" aria-label="个人与离线管理">
+                <button class="profile-center-entry" type="button" data-open-profile-center>
+                  <span class="row-icon" aria-hidden="true"><i class="ph ph-identification-card"></i></span>
+                  <strong>个人中心</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="profile-center-entry" type="button" data-open-offline-management>
+                  <span class="row-icon" aria-hidden="true"><i class="ph ph-cloud-slash"></i></span>
+                  <strong>离线管理</strong>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+              </section>
+
+            </div>
+          </section>
+
+          <section class="page profile-center-page" data-page="profileCenter" aria-labelledby="profileCenterTitle" hidden>
+            <header class="profile-center-header">
+              <button class="icon-button icon-button-small" type="button" data-close-profile-center aria-label="返回我的"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="profileCenterTitle">个人中心</h1>
+              <span aria-hidden="true"></span>
+            </header>
+            <div class="page-scroll profile-center-scroll">
+              <section class="profile-card" aria-labelledby="profileInfoTitle">
+                <div class="profile-section-heading"><h2 id="profileInfoTitle">个人资料</h2><button type="button" data-open-profile-edit>编辑</button></div>
+                <dl class="profile-data-list">
+                  <div><dt>姓名</dt><dd data-profile-field="name">林舟</dd></div>
+                  <div><dt>手机号</dt><dd data-profile-field="phone">138 0000 2746</dd></div>
+                  <div><dt>邮箱</dt><dd data-profile-field="email">linzhou@hbky.com</dd></div>
+                  <div><dt>所属部门</dt><dd data-profile-field="department">安全管理部</dd></div>
+                  <div><dt>角色</dt><dd data-profile-field="role">安全管理员</dd></div>
+                  <div><dt>账号状态</dt><dd><span class="account-status" data-profile-field="status">正常</span></dd></div>
+                </dl>
+              </section>
+
+              <section class="profile-account-actions" aria-labelledby="accountActionsTitle">
+                <h2 id="accountActionsTitle">账号与安全</h2>
+                <button type="button" data-open-password-dialog><span class="row-icon" aria-hidden="true"><i class="ph ph-lock-key"></i></span><strong>修改密码</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+              </section>
+
+              <button class="profile-logout-button" type="button" data-open-logout-dialog>退出登录</button>
+            </div>
+          </section>
+
+          <section class="page offline-management-page" data-page="offlineManagement" aria-labelledby="offlineManagementTitle" hidden>
+            <header class="offline-management-header">
+              <button class="icon-button icon-button-small" type="button" data-close-offline-management aria-label="返回我的"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="offlineManagementTitle">离线管理</h1>
+              <span aria-hidden="true"></span>
+            </header>
+            <div class="page-scroll offline-management-scroll">
               <section class="offline-panel" aria-labelledby="offlineTitle">
                 <div class="offline-heading">
                   <span class="offline-icon" aria-hidden="true"><i class="ph ph-cloud-slash"></i></span>
@@ -673,10 +1332,9 @@
         </nav>
 
         <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
-        <aside class="bottom-sheet" id="bottomSheet" aria-modal="true" role="dialog" aria-labelledby="sheetTitle" hidden>
-          <div class="sheet-handle" aria-hidden="true"></div>
+        <aside class="screen-modal" id="bottomSheet" aria-modal="true" role="dialog" aria-labelledby="sheetTitle" hidden>
           <header class="sheet-header">
-            <div><p id="sheetContext">详情</p><h2 id="sheetTitle">事项详情</h2></div>
+            <h2 id="sheetTitle">事项详情</h2>
             <button class="icon-button icon-button-small" type="button" id="closeSheet" aria-label="关闭详情">
               <i class="ph ph-x" aria-hidden="true"></i>
             </button>
@@ -684,7 +1342,57 @@
           <div class="sheet-content" id="sheetContent"></div>
         </aside>
 
-        <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+        <div class="profile-dialog" data-profile-edit-dialog hidden>
+          <div class="profile-dialog-backdrop" data-close-profile-edit></div>
+          <section role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
+            <header><h2 id="profileEditTitle">编辑个人资料</h2><button type="button" data-close-profile-edit aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+            <form data-profile-edit-form>
+              <label><span>姓名</span><input name="name" required /></label>
+              <label><span>手机号</span><input name="phone" inputmode="tel" required /></label>
+              <label><span>邮箱</span><input name="email" type="email" required /></label>
+              <label><span>所属部门</span><select name="department"><option>安全管理部</option><option>设备管理部</option><option>生产技术部</option></select></label>
+              <label><span>角色</span><select name="role"><option>安全管理员</option><option>安全主管</option><option>普通员工</option></select></label>
+              <label><span>账号状态</span><select name="status"><option>正常</option><option>停用</option></select></label>
+              <footer><button type="button" data-close-profile-edit>取消</button><button class="profile-dialog-primary" type="submit">保存</button></footer>
+            </form>
+          </section>
+        </div>
+
+        <div class="profile-dialog" data-password-dialog hidden>
+          <div class="profile-dialog-backdrop" data-close-password-dialog></div>
+          <section role="dialog" aria-modal="true" aria-labelledby="passwordDialogTitle">
+            <header><h2 id="passwordDialogTitle">修改密码</h2><button type="button" data-close-password-dialog aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+            <form data-password-form>
+              <label><span>当前密码</span><input name="currentPassword" type="password" autocomplete="current-password" required /></label>
+              <label><span>新密码</span><input name="newPassword" type="password" autocomplete="new-password" required /></label>
+              <label><span>确认新密码</span><input name="confirmPassword" type="password" autocomplete="new-password" required /></label>
+              <footer><button type="button" data-close-password-dialog>取消</button><button class="profile-dialog-primary" type="submit">保存密码</button></footer>
+            </form>
+          </section>
+        </div>
+
+        <div class="profile-dialog" data-logout-dialog hidden>
+          <div class="profile-dialog-backdrop" data-close-logout-dialog></div>
+          <section class="profile-logout-dialog" role="dialog" aria-modal="true" aria-labelledby="logoutDialogTitle">
+            <header><h2 id="logoutDialogTitle">退出登录</h2><button type="button" data-close-logout-dialog aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+            <p>退出后需要重新登录。</p>
+            <footer><button type="button" data-close-logout-dialog>取消</button><button class="profile-dialog-danger" type="button" data-confirm-logout>退出登录</button></footer>
+          </section>
+        </div>
+
+        <div class="collection-remove-dialog" data-collection-remove-dialog hidden>
+          <div class="collection-remove-backdrop" data-close-collection-remove></div>
+          <section role="dialog" aria-modal="true" aria-labelledby="collectionRemoveTitle">
+            <header><h2 id="collectionRemoveTitle">取消收藏</h2><button type="button" data-close-collection-remove aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+            <p>取消后，该内容将不再展示在“我收藏的”中。</p>
+            <footer><button type="button" data-close-collection-remove>暂不取消</button><button class="collection-remove-danger" type="button" data-confirm-collection-remove>确认取消</button></footer>
+          </section>
+        </div>
+
+        <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+          <span class="toast-icon" aria-hidden="true"><i class="ph ph-check-circle"></i></span>
+          <span class="toast-message" data-toast-message></span>
+        </div>
       </section>
     </main>
 
