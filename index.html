@@ -60,7 +60,7 @@
                     <span class="shortcut-mark" aria-label="3项待审批">3</span>
                   </button>
 
-                  <button class="message-shortcut" type="button" data-open-sheet="warning">
+                  <button class="message-shortcut" type="button" data-open-warning-tasks data-warning-todo>
                     <span class="shortcut-icon" aria-hidden="true">
                       <i class="ph ph-warning"></i>
                     </span>
@@ -68,7 +68,7 @@
                     <span class="shortcut-mark" aria-label="1项待办">1</span>
                   </button>
 
-                  <button class="message-shortcut" type="button" data-open-sheet="task">
+                  <button class="message-shortcut" type="button" data-open-task-todo>
                     <span class="shortcut-icon" aria-hidden="true">
                       <i class="ph ph-check-square"></i>
                     </span>
@@ -96,7 +96,7 @@
                   <div class="app-item" data-app-item="equipment"><button class="app-entry" type="button" data-show-toast="已进入设备台账"><span><i class="ph ph-database" aria-hidden="true"></i></span><strong>设备台账</strong></button></div>
                   <div class="app-item" data-app-item="contractor"><button class="app-entry" type="button" data-show-toast="已进入承包商"><span><i class="ph ph-users-three" aria-hidden="true"></i></span><strong>承包商</strong></button></div>
                   <div class="app-item" data-app-item="occupational-health"><button class="app-entry" type="button" data-show-toast="已进入职业健康"><span><i class="ph ph-heartbeat" aria-hidden="true"></i></span><strong>职业健康</strong></button></div>
-                  <div class="app-item" data-app-item="fire-protection"><button class="app-entry" type="button" data-show-toast="已进入消防管理"><span><i class="ph ph-fire-extinguisher" aria-hidden="true"></i></span><strong>消防管理</strong></button></div>
+                  <div class="app-item" data-app-item="fire-protection"><button class="app-entry" type="button" data-open-fire-management><span><i class="ph ph-fire-extinguisher" aria-hidden="true"></i></span><strong>消防管理</strong></button></div>
                   <div class="app-item" data-app-item="contractor-evaluation"><button class="app-entry" type="button" data-show-toast="已进入承包商评价"><span><i class="ph ph-clipboard-text" aria-hidden="true"></i></span><strong>承包商评价</strong></button></div>
                   <div class="app-item" data-app-item="reports"><button class="app-entry" type="button" data-show-toast="已进入数据报表"><span><i class="ph ph-chart-bar" aria-hidden="true"></i></span><strong>数据报表</strong></button></div>
                 </div>
@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="function-grid">
-                  <button class="function-card function-card-task" type="button" data-show-toast="正在打开任务中心">
+                  <button class="function-card function-card-task" type="button" data-open-task-tasks>
                     <span class="function-card-icon" aria-hidden="true"><i class="ph ph-checks"></i></span>
                     <span class="function-card-copy"><strong>任务</strong><small>3 项待办</small></span>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
@@ -118,7 +118,7 @@
                     <span class="function-card-copy"><strong>流程</strong><small>3 项审批</small></span>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
                   </button>
-                  <button class="function-card function-card-warning" type="button" data-show-toast="正在打开预警中心">
+                  <button class="function-card function-card-warning" type="button" data-open-warning-tasks>
                     <span class="function-card-icon" aria-hidden="true"><i class="ph ph-warning"></i></span>
                     <span class="function-card-copy"><strong>预警</strong><small>1 项待处理</small></span>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
@@ -185,6 +185,36 @@
               </section>
               <div class="subsystem-search-empty" data-subsystem-search-empty hidden><i class="ph ph-magnifying-glass" aria-hidden="true"></i><strong>没有找到匹配内容</strong></div>
             </div>
+          </section>
+
+          <section class="page warning-tasks-page" data-page="warningTasks" aria-labelledby="warningTasksTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-close-warning-tasks aria-label="返回工作台">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="warningTasksTitle">预警</h1>
+              <label class="warning-help-toggle" aria-label="显示预警说明">
+                <span>说明</span>
+                <input type="checkbox" data-warning-help-toggle />
+                <i aria-hidden="true"></i>
+              </label>
+            </header>
+            <iframe class="warning-tasks-frame" src="./预警任务-移动端.html?embedded=1" title="预警任务"></iframe>
+          </section>
+
+          <section class="page task-tasks-page" data-page="taskTasks" aria-labelledby="taskTasksTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-close-task-tasks aria-label="返回工作台">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="taskTasksTitle">任务</h1>
+              <label class="warning-help-toggle" aria-label="显示任务说明">
+                <span>说明</span>
+                <input type="checkbox" data-task-help-toggle />
+                <i aria-hidden="true"></i>
+              </label>
+            </header>
+            <iframe class="task-tasks-frame" src="./任务-移动端.html?embedded=1" title="任务"></iframe>
           </section>
 
           <section class="page app-organizer-page" data-page="appOrganizer" aria-labelledby="appOrganizerTitle" hidden>
@@ -766,7 +796,7 @@
                     <i class="ph ph-caret-down" aria-hidden="true"></i>
                   </button>
                   <div class="prevention-submenu" id="hazardMenu">
-                    <button type="button" data-show-toast="隐患排查任务发布将在下一版开放">隐患排查任务发布<i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-open-prevention-task-publish>隐患排查任务发布<i class="ph ph-caret-right" aria-hidden="true"></i></button>
                     <button class="is-current" type="button" data-open-prevention-catalog aria-current="page">岗位隐患排查清单<i class="ph ph-caret-right" aria-hidden="true"></i></button>
                     <button type="button" data-show-toast="隐患排查审批流程将在下一版开放">隐患排查审批流程<i class="ph ph-caret-right" aria-hidden="true"></i></button>
                     <button type="button" data-show-toast="隐患排查治理记录将在下一版开放">隐患排查治理记录<i class="ph ph-caret-right" aria-hidden="true"></i></button>
@@ -848,7 +878,7 @@
 
             <div class="page-scroll subpage-scroll prevention-two-scroll">
               <nav class="prevention-two-list prevention-two-hazard-list" aria-label="隐患排查治理菜单">
-                <button type="button" data-show-toast="隐患排查任务发布将在下一版开放"><span>01</span><strong>隐患排查任务发布</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-open-prevention-task-publish><span>01</span><strong>隐患排查任务发布</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
                 <button class="prevention-two-current-row" type="button" data-open-prevention-two-catalog><span>02</span><strong>岗位隐患排查清单</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
                 <button type="button" data-show-toast="隐患排查审批流程将在下一版开放"><span>03</span><strong>隐患排查审批流程</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
                 <button type="button" data-show-toast="隐患排查治理记录将在下一版开放"><span>04</span><strong>隐患排查治理记录</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
@@ -889,6 +919,92 @@
                   </button>
                 </div>
             </div>
+          </section>
+
+          <section class="page prevention-task-page" data-page="preventionTaskPublish" aria-labelledby="preventionTaskPublishTitle" hidden>
+            <header class="subpage-header inspection-page-header">
+              <button class="icon-button icon-button-small" type="button" data-back-prevention-task-publish aria-label="返回隐患排查治理">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="preventionTaskPublishTitle">隐患排查任务发布</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <form class="page-scroll subpage-scroll inspection-form prevention-task-form" id="preventionTaskPublishForm">
+              <div class="task-publish-intro">
+                <span class="task-publish-intro-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+                <p><strong>发布排查任务</strong><small>发布后将通知执行人员，并按配置的审批流程留痕。</small></p>
+              </div>
+
+              <fieldset class="inspection-fieldset inspection-info">
+                <legend>任务基础信息</legend>
+                <label>
+                  <span>任务名称 <em>*</em></span>
+                  <input type="text" value="10 月井下作业区域专项隐患排查" required />
+                </label>
+                <label>
+                  <span>任务类型 <em>*</em></span>
+                  <select required>
+                    <option>专项排查</option>
+                    <option>日常排查</option>
+                    <option>季节性排查</option>
+                    <option>节假日前排查</option>
+                  </select>
+                </label>
+                <label>
+                  <span>关联排查清单 <em>*</em></span>
+                  <select required>
+                    <option>平巷凿岩作业岗位隐患排查表</option>
+                    <option>掘进凿岩工隐患排查清单</option>
+                    <option>操作作业岗位隐患排查表</option>
+                  </select>
+                </label>
+                <label>
+                  <span>隐患等级</span>
+                  <select>
+                    <option>全部等级</option>
+                    <option>一般隐患</option>
+                    <option>重大隐患</option>
+                  </select>
+                </label>
+              </fieldset>
+
+              <fieldset class="inspection-fieldset inspection-info task-publish-plan">
+                <legend>执行安排</legend>
+                <label>
+                  <span>执行部门 <em>*</em></span>
+                  <select required><option>生产技术部</option><option>安全管理部</option><option>设备管理部</option></select>
+                </label>
+                <label>
+                  <span>执行人员 <em>*</em></span>
+                  <input type="text" value="张宇、陈刚、王芳" required />
+                </label>
+                <label>
+                  <span>计划开始 <em>*</em></span>
+                  <input type="datetime-local" value="2026-10-27T08:00" required />
+                </label>
+                <label>
+                  <span>计划完成 <em>*</em></span>
+                  <input type="datetime-local" value="2026-10-30T18:00" required />
+                </label>
+              </fieldset>
+
+              <fieldset class="inspection-fieldset inspection-note">
+                <legend>发布说明</legend>
+                <label>
+                  <span>排查重点与要求</span>
+                  <textarea rows="4" placeholder="填写本次排查范围、重点风险及现场安全要求">重点排查井下作业区域的设备防护、通风照明及人员防护用品佩戴情况。</textarea>
+                </label>
+              </fieldset>
+
+              <div class="task-flow-note"><i class="ph ph-flow-arrow" aria-hidden="true"></i><span>审批流程：隐患排查审批流程 · 发布后由安全管理部复核</span></div>
+
+              <div class="inspection-actions">
+                <button class="inspection-action-cancel" type="button" data-back-prevention-task-publish>取消</button>
+                <button class="inspection-action-draft" type="button" data-save-prevention-task-draft>存草稿</button>
+                <button class="inspection-action-submit" type="submit">发布任务</button>
+              </div>
+            </form>
           </section>
 
           <section class="page inspection-page" data-page="inspection" aria-labelledby="inspectionTitle" hidden>
@@ -961,6 +1077,145 @@
               <div class="inspection-actions">
                 <button class="inspection-action-cancel" type="button" data-back-prevention-catalog>取消</button>
                 <button class="inspection-action-draft" type="button" id="saveInspectionDraft">存草稿</button>
+                <button class="inspection-action-submit" type="submit">提交</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="page fire-management-page" data-page="fireManagement" aria-labelledby="fireManagementTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-close-fire-management aria-label="返回工作台">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="fireManagementTitle">消防管理</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll subpage-scroll fire-management-scroll">
+              <div class="fire-menu-grid" aria-label="消防管理功能">
+                <button class="fire-menu-entry is-red" type="button" data-open-fire-inspection-menu>
+                  <span aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+                  <strong>巡检管理</strong>
+                </button>
+                <button class="fire-menu-entry is-amber" type="button" data-show-toast="隐患整改将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-warning-circle"></i></span>
+                  <strong>隐患整改</strong>
+                </button>
+                <button class="fire-menu-entry is-blue" type="button" data-show-toast="消防档案将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-files"></i></span>
+                  <strong>消防档案</strong>
+                </button>
+                <button class="fire-menu-entry is-green" type="button" data-show-toast="设施台账将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-fire-extinguisher"></i></span>
+                  <strong>设施台账</strong>
+                </button>
+                <button class="fire-menu-entry is-slate" type="button" data-show-toast="值班管理将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-clock"></i></span>
+                  <strong>值班管理</strong>
+                </button>
+                <button class="fire-menu-entry is-red" type="button" data-show-toast="演练管理将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-siren"></i></span>
+                  <strong>演练管理</strong>
+                </button>
+                <button class="fire-menu-entry is-amber" type="button" data-show-toast="预案管理将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-map-trifold"></i></span>
+                  <strong>预案管理</strong>
+                </button>
+                <button class="fire-menu-entry is-blue" type="button" data-show-toast="数据报表将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-chart-bar"></i></span>
+                  <strong>数据报表</strong>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="page fire-inspection-menu-page" data-page="fireInspectionMenu" aria-labelledby="fireInspectionMenuTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-back-fire-management aria-label="返回消防管理">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="fireInspectionMenuTitle">巡检管理</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll subpage-scroll fire-management-scroll">
+              <div class="fire-menu-grid" aria-label="巡检管理功能">
+                <button class="fire-menu-entry is-red" type="button" data-open-fire-worksheets>
+                  <span aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+                  <strong>日常巡检</strong>
+                </button>
+                <button class="fire-menu-entry is-amber" type="button" data-show-toast="专项检查将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-magnifying-glass"></i></span>
+                  <strong>专项检查</strong>
+                </button>
+                <button class="fire-menu-entry is-blue" type="button" data-show-toast="消防设施维护将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-wrench"></i></span>
+                  <strong>设施维护</strong>
+                </button>
+                <button class="fire-menu-entry is-slate" type="button" data-show-toast="值班检查将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-clock"></i></span>
+                  <strong>值班检查</strong>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="page fire-worksheets-page" data-page="fireWorksheets" aria-labelledby="fireWorksheetsTitle" hidden>
+            <header class="subpage-header">
+              <button class="icon-button icon-button-small" type="button" data-back-fire-inspection-menu aria-label="返回巡检管理">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="fireWorksheetsTitle">日常巡检</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="page-scroll subpage-scroll fire-management-scroll">
+              <div class="fire-menu-grid" aria-label="日常巡检工作表">
+                <button class="fire-menu-entry is-red" type="button" data-open-fire-worksheet-form>
+                  <span aria-hidden="true"><i class="ph ph-fire-extinguisher"></i></span>
+                  <strong>消防设施日常巡检表</strong>
+                </button>
+                <button class="fire-menu-entry is-blue" type="button" data-show-toast="消防控制室值班记录将在下一版开放">
+                  <span aria-hidden="true"><i class="ph ph-notebook"></i></span>
+                  <strong>消防控制室值班记录</strong>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="page fire-worksheet-form-page" data-page="fireWorksheetForm" aria-labelledby="fireWorksheetFormTitle" hidden>
+            <header class="subpage-header inspection-page-header">
+              <button class="icon-button icon-button-small" type="button" data-back-fire-worksheets aria-label="返回日常巡检">
+                <i class="ph ph-caret-left" aria-hidden="true"></i>
+              </button>
+              <h1 id="fireWorksheetFormTitle">消防设施日常巡检表</h1>
+              <span class="subpage-header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <form class="page-scroll subpage-scroll inspection-form fire-worksheet-form" id="fireWorksheetForm">
+              <fieldset class="inspection-fieldset inspection-info">
+                <legend>填报信息</legend>
+                <label><span>填报人</span><input type="text" value="张宇" required /></label>
+                <label><span>检查日期</span><input type="date" value="2026-10-15" required /></label>
+                <label><span>巡检区域</span><input type="text" placeholder="例如：生产区" required /></label>
+                <label><span>巡检班次</span><select required><option>早班</option><option>中班</option><option>晚班</option></select></label>
+              </fieldset>
+
+              <fieldset class="inspection-fieldset site-checks">
+                <legend>巡检项目</legend>
+                <div class="inspection-check-row"><span>灭火器压力正常、铅封完好</span><div class="inspection-options"><label><input type="radio" name="extinguisher" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label><label><input type="radio" name="extinguisher" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label></div></div>
+                <div class="inspection-check-row"><span>消火栓箱体及水带完好</span><div class="inspection-options"><label><input type="radio" name="hydrant" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label><label><input type="radio" name="hydrant" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label></div></div>
+                <div class="inspection-check-row"><span>疏散通道和安全出口畅通</span><div class="inspection-options"><label><input type="radio" name="passage" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label><label><input type="radio" name="passage" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label></div></div>
+              </fieldset>
+
+              <fieldset class="inspection-fieldset inspection-note">
+                <legend>问题说明</legend>
+                <label><span>问题描述与整改建议</span><textarea rows="4" placeholder="发现问题时填写具体位置、问题描述及整改建议"></textarea></label>
+              </fieldset>
+
+              <div class="inspection-actions">
+                <button class="inspection-action-cancel" type="button" data-back-fire-worksheets>取消</button>
+                <button class="inspection-action-draft" type="button" id="saveFireWorksheetDraft">存草稿</button>
                 <button class="inspection-action-submit" type="submit">提交</button>
               </div>
             </form>
@@ -1101,6 +1356,7 @@
           </section>
 
           <section class="page" data-page="activity" aria-labelledby="activityTitle" hidden>
+            <iframe class="activity-embedded-frame" src="./动态号-移动端.html?embedded=1" title="动态信息流"></iframe>
             <header class="page-header simple-header activity-header">
               <div>
                 <p class="header-context">现场圈</p>
@@ -1257,9 +1513,30 @@
               <section class="profile-account-actions" aria-labelledby="accountActionsTitle">
                 <h2 id="accountActionsTitle">账号与安全</h2>
                 <button type="button" data-open-password-dialog><span class="row-icon" aria-hidden="true"><i class="ph ph-lock-key"></i></span><strong>修改密码</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-open-signature-management><span class="row-icon" aria-hidden="true"><i class="ph ph-signature"></i></span><strong>电子签名</strong><i class="ph ph-caret-right" aria-hidden="true"></i></button>
               </section>
 
               <button class="profile-logout-button" type="button" data-open-logout-dialog>退出登录</button>
+            </div>
+          </section>
+
+          <section class="page signature-management-page" data-page="signatureManagement" aria-labelledby="signatureManagementTitle" hidden>
+            <header class="profile-center-header">
+              <button class="icon-button icon-button-small" type="button" data-close-signature-management aria-label="返回个人中心"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="signatureManagementTitle">电子签名</h1>
+              <span aria-hidden="true"></span>
+            </header>
+            <div class="page-scroll profile-center-scroll signature-management-scroll">
+              <section class="signature-card" aria-labelledby="signaturePadTitle">
+                <div class="signature-card-heading"><h2 id="signaturePadTitle">手写签名</h2><button class="text-button signature-landscape-button" type="button" id="enableSignatureLandscape" aria-pressed="false">横屏</button></div>
+                <div class="signature-pad-wrap">
+                  <canvas id="signatureCanvas" width="640" height="260" aria-label="电子签名手写区域"></canvas>
+                </div>
+                <div class="signature-actions">
+                  <button class="secondary-button" type="button" id="clearSignature">清除</button>
+                  <button class="primary-button" type="button" id="saveSignature">保存签名</button>
+                </div>
+              </section>
             </div>
           </section>
 
@@ -1300,16 +1577,48 @@
                     <span></span>
                   </label>
                 </div>
-                <button class="setting-row setting-row-button" type="button" data-show-toast="暂无待上报记录">
+                <button class="setting-row setting-row-button" type="button" data-open-pending-uploads>
                   <span class="row-icon" aria-hidden="true"><i class="ph ph-tray"></i></span>
-                  <span class="setting-copy"><strong>待上报记录</strong><small>暂无待上报记录</small></span>
+                  <span class="setting-copy"><strong>待上报记录</strong><small data-pending-upload-count>4 项待上报记录</small></span>
                   <i class="ph ph-caret-right" aria-hidden="true"></i>
                 </button>
               </section>
 
               <section class="sync-state" aria-label="同步状态">
-                <i class="ph ph-check-circle" aria-hidden="true"></i>
-                <span><strong>数据已同步</strong><small>本机暂无未提交内容</small></span>
+                <i class="ph ph-clock" aria-hidden="true"></i>
+                <span><strong>待上报内容</strong><small data-pending-upload-sync-count>本机有 4 项待上报记录</small></span>
+              </section>
+            </div>
+          </section>
+
+          <section class="page pending-uploads-page" data-page="pendingUploads" aria-labelledby="pendingUploadsTitle" hidden>
+            <header class="offline-management-header">
+              <button class="icon-button icon-button-small" type="button" data-close-pending-uploads aria-label="返回离线管理"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <h1 id="pendingUploadsTitle">待上报记录</h1>
+              <span aria-hidden="true"></span>
+            </header>
+            <div class="page-scroll offline-management-scroll pending-uploads-scroll">
+              <section class="pending-upload-list" data-pending-upload-list aria-label="待上报表单与流程">
+                <button class="pending-upload-row" type="button" data-show-toast="已打开东区设备巡检记录">
+                  <span class="pending-upload-type is-form">表单</span>
+                  <span><strong>东区设备巡检记录</strong><time datetime="2026-10-10T09:42">保存于今天 09:42</time></span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="pending-upload-row" type="button" data-show-toast="已打开动火作业申请">
+                  <span class="pending-upload-type is-flow">流程</span>
+                  <span><strong>动火作业申请</strong><time datetime="2026-10-09T16:20">保存于昨天 16:20</time></span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="pending-upload-row" type="button" data-show-toast="已打开平巷凿岩作业岗位隐患排查表">
+                  <span class="pending-upload-type is-form">表单</span>
+                  <span><strong>平巷凿岩作业岗位隐患排查表</strong><time datetime="2026-10-09T14:05">保存于昨天 14:05</time></span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
+                <button class="pending-upload-row" type="button" data-show-toast="已打开隐患整改复查流程">
+                  <span class="pending-upload-type is-flow">流程</span>
+                  <span><strong>隐患整改复查</strong><time datetime="2026-10-08T10:18">保存于 10 月 8 日 10:18</time></span>
+                  <i class="ph ph-caret-right" aria-hidden="true"></i>
+                </button>
               </section>
             </div>
           </section>
@@ -1394,6 +1703,13 @@
           <span class="toast-message" data-toast-message></span>
         </div>
       </section>
+
+      <aside class="warning-description-panel" data-warning-description-panel aria-label="预警功能说明" hidden>
+        <iframe src="./预警任务-移动端.html?description=1" title="预警功能说明"></iframe>
+      </aside>
+      <aside class="warning-description-panel task-description-panel" data-task-description-panel aria-label="任务功能说明" hidden>
+        <iframe src="./任务-移动端.html?description=1" title="任务功能说明"></iframe>
+      </aside>
     </main>
 
     <script src="./main.js"></script>

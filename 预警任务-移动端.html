@@ -1,0 +1,1249 @@
+<!--
+  矿山安全预警管理系统 - 移动端「预警任务」原型（V3 对齐 PC 2026-10 版）
+  ==================================================================
+  本次修订：完全按「预警模块pc端原型一期.html」（page-warning-task）现行逻辑重做移动端
+  · 编号 WRN-YYYYMMDD-NNN；预警内容 = 任务标题；预警工作项可点开命中明细
+  · 页签：未处理 / 通知我 / 已处理 / 我转发（仅前两个带数量角标）
+  · 查询：时间维度（触发时间 / 处理期限）+ 起止日期 + 预警工作项 + 风险等级（全部等级 / 未分级 / 一~四级）
+  · 处理人多值：首人 + 等 N 人；点开「处理人明细」只列人不带日志
+  · 状态按已提交人数计算（0 未处理 / 部分处理中 / 全部已完成）；超期徽标按当前登录人个人判定
+  · 详情三模式共用一页：处理（编辑）/ 任务详情（只读）/ 个人处置详情（只读）
+  · 转发：仅未处理且本人是处理人，单条限 1 次，组织架构选人，不能选自己
+  · 处理日志为任务级，默认收起，按时间正序，只读留痕
+  视觉：Fluent / 澄明工作台 —— 主色 #0F6CBD，字体 Segoe UI Variable Text / Noto Sans SC
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>矿山安全预警任务 · 移动端原型（对齐PC版）</title>
+<style>
+:root{
+  --primary:#0F6CBD; --primary-dark:#0B5394; --primary-light:#EAF2FB;
+  --danger:#F5655B; --warning:#E6A23C; --success:#2BA471; --info:#8B95A5;
+  --t1:#1F2733; --t2:#515B69; --t3:#8B95A5;
+  --border:#E1E7EF; --border-light:#EEF1F5;
+  --bg:#F4F6F9; --white:#fff;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(23,36,55,.06), 0 4px 12px rgba(23,36,55,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Noto Sans SC","Microsoft YaHei",sans-serif;
+  font-size:14px;color:var(--t1);background:var(--bg);min-height:100vh;
+}
+button{font-family:inherit;}
+
+/* ============ 布局 ============ */
+.app-container{display:flex;min-height:100vh;align-items:flex-start;}
+.main-panel{flex:1;display:flex;flex-direction:column;max-width:85%;}
+.mobile-frame{
+  width:420px;height:880px;background:var(--bg);margin:20px auto;border-radius:38px;
+  box-shadow:0 25px 80px rgba(0,0,0,.15),0 0 0 11px #16202f,0 0 0 13px #2a3648;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;flex-shrink:0;
+}
+.phone-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative;}
+.phone-body::-webkit-scrollbar{width:0;}
+
+/* 说明面板 */
+.desc-panel{width:20%;min-width:320px;background:linear-gradient(180deg,#FFF8E6 0%,#FFECB3 100%);border-left:2px solid #FFD666;padding:22px 18px 60px;overflow-y:auto;font-size:12.5px;line-height:1.75;color:#7a5f10;height:100vh;position:sticky;top:0;}
+.desc-panel h3{font-size:15px;font-weight:700;color:#5B4E00;margin-bottom:14px;padding-bottom:10px;border-bottom:1px dashed #D4AF37;}
+.desc-panel h4{font-size:13px;font-weight:700;color:#6B5B00;margin:16px 0 8px;}
+.desc-item{background:rgba(255,255,255,.65);border-radius:8px;padding:9px 12px;margin-bottom:8px;border-left:3px solid #F7A832;}
+.desc-item .num{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#F7A832;color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-right:6px;vertical-align:1px;}
+.desc-item b{color:#5B4E00;}
+.desc-item .sub{color:#8B6914;}
+.desc-key{display:inline-block;padding:0 5px;background:rgba(247,168,50,.22);border-radius:4px;font-size:11px;}
+
+/* ============ 状态栏 / 导航 ============ */
+.status-bar{height:42px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:13px;font-weight:600;color:var(--t1);flex-shrink:0;}
+.status-bar .sb-right{display:flex;align-items:center;gap:5px;font-size:12px;}
+.sb-bat{font-size:11px;background:var(--success);color:#fff;padding:1px 5px;border-radius:4px;}
+.nav-bar{height:50px;background:#fff;display:flex;align-items:center;padding:0 10px;gap:6px;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.nav-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);border-radius:8px;cursor:pointer;flex-shrink:0;position:relative;}
+.nav-btn:active{background:var(--border-light);}
+.nav-back-icon{width:10px;height:10px;border-left:2px solid var(--t1);border-bottom:2px solid var(--t1);transform:rotate(45deg);margin-left:3px;border-radius:1px;}
+.nav-title{flex:1;text-align:center;font-size:16px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-dot{position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--primary);display:none;}
+
+/* ============ 页签 ============ */
+.tab-scroll{background:#fff;white-space:nowrap;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.tab-scroll::-webkit-scrollbar{display:none;}
+.tabs{display:flex;padding:0 8px;border-bottom:1px solid var(--border-light);}
+.tab-item{padding:11px 12px 10px;font-size:13.5px;font-weight:500;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;flex-shrink:0;display:flex;align-items:center;gap:4px;transition:color .15s;}
+.tab-item.active{color:var(--primary);font-weight:600;border-bottom-color:var(--primary);}
+.tab-item .cnt{min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#FEF0F0;color:var(--danger);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+.tab-item.active .cnt{background:var(--primary-light);color:var(--primary);}
+
+/* ============ 筛选 ============ */
+.filter-bar{background:#fff;padding:8px 10px;display:flex;gap:5px;align-items:center;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.chip{padding:4px 9px;border-radius:14px;font-size:11.5px;white-space:nowrap;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--t2);flex-shrink:0;transition:all .15s;}
+.chip.active{background:var(--primary-light);border-color:var(--primary);color:var(--primary);font-weight:600;}
+.chip.active.c1{background:#FEF0F0;border-color:var(--danger);color:var(--danger);}
+.chip.active.c2{background:#FDF6EC;border-color:var(--warning);color:var(--warning);}
+.chip.active.c3{background:var(--primary-light);border-color:var(--primary);color:var(--primary);}
+.chip.active.c4{background:#F0F9EB;border-color:var(--success);color:var(--success);}
+.chip.active.cn{background:#F4F4F5;border-color:var(--info);color:var(--info);}
+.filter-more{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;font-size:11.5px;border:1px solid var(--border);background:#fff;color:var(--t2);cursor:pointer;flex-shrink:0;}
+.filter-more.on{border-color:var(--primary);color:var(--primary);background:var(--primary-light);}
+.active-summary{padding:0 14px 8px;background:#fff;font-size:11.5px;color:var(--t3);display:none;}
+
+/* ============ 卡片列表 ============ */
+.list-wrap{padding:12px 12px 90px;}
+.wcard{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:11px;box-shadow:var(--shadow);overflow:hidden;}
+.wcard:active{background:#fcfdff;}
+.wc-top{display:flex;align-items:center;gap:6px;padding:11px 13px 0;}
+.wc-id{font-size:11.5px;color:var(--t3);font-variant-numeric:tabular-nums;letter-spacing:.2px;}
+.wc-flags{margin-left:auto;display:flex;align-items:center;gap:5px;}
+.wc-title{padding:5px 13px 9px;font-size:15px;font-weight:600;color:var(--t1);line-height:1.35;}
+.wc-body{padding:0 13px 4px;}
+.row{display:flex;padding:5px 0;font-size:13px;line-height:1.5;align-items:flex-start;}
+.row .k{color:var(--t3);width:74px;flex-shrink:0;}
+.row .v{color:var(--t1);flex:1;min-width:0;word-break:break-word;}
+.row .v.muted{color:var(--t2);}
+.hit-trigger{display:inline-flex;align-items:center;gap:5px;color:var(--primary);cursor:pointer;font-weight:500;}
+.hit-trigger .caret{width:0;height:0;border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-top:4.5px solid currentColor;opacity:.7;transition:transform .15s;}
+.hit-trigger.open .caret{transform:rotate(180deg);}
+.mini-badge{display:inline-block;padding:1px 6px;border-radius:9px;background:var(--primary-light);color:var(--primary);font-size:10.5px;font-weight:600;}
+.cond-link{display:inline-flex;align-items:center;gap:4px;color:var(--t1);cursor:pointer;}
+.cond-link .go{color:var(--t3);font-size:11px;}
+.hit-area{display:none;background:#F7F9FC;border-top:1px solid var(--border-light);padding:9px 13px 11px;}
+.hit-area.open{display:block;}
+.hit-tbl{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed;}
+.hit-tbl th{text-align:left;font-weight:500;color:var(--t3);padding:4px 4px 5px;border-bottom:1px solid var(--border-light);white-space:nowrap;}
+.hit-tbl td{padding:5px 4px;border-bottom:1px solid var(--border-light);color:var(--t2);word-break:break-all;vertical-align:top;}
+.hit-tbl tr:last-child td{border-bottom:none;}
+.hit-tbl td.act{color:var(--danger);font-weight:600;}
+.wc-actions{display:flex;gap:8px;padding:10px 13px;border-top:1px solid var(--border-light);}
+.btn{flex:1;height:34px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--t2);display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:all .15s;}
+.btn:active{opacity:.8;}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;}
+.btn.ghost{background:#fff;border-color:var(--border);color:var(--t2);}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff;}
+.btn[disabled]{opacity:.5;cursor:not-allowed;}
+
+/* 标签 */
+.tag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:600;line-height:1.6;white-space:nowrap;}
+.tag-danger{background:#FEF0F0;color:var(--danger);border:1px solid #FDE2E2;}
+.tag-warning{background:#FDF6EC;color:var(--warning);border:1px solid #FAECD8;}
+.tag-success{background:#F0F9EB;color:var(--success);border:1px solid #E1F3D8;}
+.tag-info{background:#F4F4F5;color:var(--info);border:1px solid #E9E9EB;}
+.tag-primary{background:var(--primary-light);color:var(--primary);border:1px solid #D9ECFF;}
+.tag-lv{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:600;}
+.tag-lv.lv1{background:#FEF0F0;color:#F5655B;}
+.tag-lv.lv2{background:#FDF6EC;color:#E6A23C;}
+.tag-lv.lv3{background:#EAF2FB;color:#0F6CBD;}
+.tag-lv.lv4{background:#F0F9EB;color:#2BA471;}
+.tag-lv.lvn{background:#F4F4F5;color:#8B95A5;}
+.ovd{display:inline-flex;align-items:center;padding:1px 6px;border-radius:6px;font-size:10.5px;font-weight:600;line-height:1.6;}
+.ovd-late{background:#FEF0F0;color:var(--danger);}
+.ovd-done{background:#FDF6EC;color:var(--warning);}
+
+/* 空态 */
+.empty{text-align:center;padding:70px 24px;color:var(--t3);}
+.empty i{font-size:34px;opacity:.28;display:block;margin-bottom:12px;}
+.empty p{font-size:13px;}
+.empty .sub{font-size:11.5px;margin-top:6px;color:#a9b2bf;}
+
+/* ============ 详情页 ============ */
+.detail-wrap{padding:12px 12px 96px;}
+.sec{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:11px;overflow:hidden;box-shadow:var(--shadow);}
+.sec-head{display:flex;align-items:center;gap:6px;padding:11px 13px;border-bottom:1px solid var(--border-light);}
+.sec-head .st{font-size:13.5px;font-weight:600;color:var(--t1);}
+.sec-head .sm{margin-left:auto;font-size:11px;color:var(--t3);font-weight:400;}
+.sec-body{padding:8px 13px 11px;}
+.sec-body .row .k{width:82px;}
+.zone{display:flex;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(90deg,#E8F4FF,rgba(232,244,255,0));border-left:3px solid var(--primary);margin-bottom:4px;}
+.zone .zt{font-size:13px;font-weight:600;color:var(--primary-dark);}
+.zone .zs{margin-left:auto;font-size:11px;color:var(--t3);font-weight:400;}
+
+/* 处理人列表 */
+.ass-row{padding:9px 0;border-bottom:1px solid var(--border-light);}
+.ass-row:last-child{border-bottom:none;}
+.ass-l1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.ass-name{font-size:13.5px;font-weight:600;color:var(--t1);}
+.ass-from{font-size:10.5px;color:var(--t3);background:#F4F4F5;border-radius:9px;padding:1px 6px;}
+.ass-l2{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:11.5px;color:var(--t3);}
+.ass-l2 .link{margin-left:auto;color:var(--primary);font-weight:600;cursor:pointer;}
+.ass-l2 .nolink{color:#b6bec9;}
+
+/* 处置区 */
+.fgroup{margin-bottom:13px;}
+.flabel{display:block;font-size:12.5px;font-weight:600;color:var(--t2);margin-bottom:6px;}
+.flabel .req{color:var(--danger);margin-left:2px;}
+.flabel .hint{font-weight:400;color:var(--t3);font-size:11px;margin-left:4px;}
+.finput,.ftextarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;color:var(--t1);background:#fff;font-family:inherit;transition:border-color .15s;}
+.finput:focus,.ftextarea:focus{outline:none;border-color:var(--primary);}
+.ftextarea{resize:vertical;min-height:84px;line-height:1.65;}
+.finput[readonly]{background:#F5F7FA;color:var(--t2);}
+.fcounter{text-align:right;font-size:11px;color:var(--t3);margin-top:4px;}
+.upload{border:1px dashed var(--border);border-radius:8px;padding:16px;text-align:center;color:var(--t3);font-size:12.5px;cursor:pointer;background:#FAFBFC;}
+.upload:active{border-color:var(--primary);color:var(--primary);}
+.upload i{font-size:20px;display:block;margin-bottom:6px;}
+.thumbs{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
+.thumb{width:58px;height:58px;border-radius:8px;background:#F0F9EB;border:1px solid #C9E9D5;display:flex;align-items:center;justify-content:center;position:relative;color:var(--success);font-size:17px;}
+.thumb .del{position:absolute;top:-6px;right:-6px;width:17px;height:17px;border-radius:50%;background:var(--danger);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.sig{border:1px dashed var(--border);border-radius:8px;height:78px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:12.5px;cursor:pointer;background:#FAFBFC;}
+.sig.signed{border-style:solid;border-color:var(--success);background:#F7FCF9;color:var(--success);}
+.sig .sign{font-size:21px;font-style:italic;font-weight:700;letter-spacing:1px;}
+
+/* 只读处置块 */
+.dis-block{border:1px solid var(--border-light);border-radius:8px;padding:10px 12px;background:#FBFCFE;}
+.dis-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px;}
+.dis-name{font-size:13px;font-weight:600;color:var(--t1);}
+.dis-from{font-size:10.5px;color:var(--t3);background:#F4F4F5;border-radius:9px;padding:1px 6px;}
+.dis-time{margin-left:auto;font-size:11px;color:var(--t3);}
+.dis-label{font-size:11.5px;color:var(--t3);margin:7px 0 3px;}
+.dis-text{font-size:12.5px;color:var(--t2);line-height:1.75;}
+.dis-text .filechip{display:inline-block;padding:1px 7px;margin:0 4px 4px 0;background:#F4F4F5;border-radius:6px;font-size:11px;color:var(--t2);}
+.dis-empty{font-size:12px;color:var(--t3);padding:10px 0;text-align:center;}
+
+/* 日志 */
+.log-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;background:#F7F9FC;border-bottom:1px solid var(--border-light);}
+.log-bar:active{background:#EEF3F9;}
+.log-bar .lt{font-size:13px;font-weight:600;color:var(--t1);}
+.log-bar .lm{font-size:11px;color:var(--t3);flex:1;text-align:right;}
+.log-bar .lx{font-size:11.5px;color:var(--primary);font-weight:600;}
+.log-box{padding:12px 13px 4px;display:none;}
+.log-box.open{display:block;}
+.log-item{position:relative;padding:0 0 14px 18px;border-left:1px solid var(--border);}
+.log-item:last-child{border-left-color:transparent;padding-bottom:0;}
+.log-dot{position:absolute;left:-4.5px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--info);box-shadow:0 0 0 2px #fff;}
+.log-item.t-submit .log-dot{background:var(--success);}
+.log-item.t-forward .log-dot{background:var(--warning);}
+.log-item.t-void .log-dot{background:#A8ABB2;}
+.log-item.t-adjust .log-dot{background:var(--primary);}
+.log-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.log-time{font-size:11px;color:var(--t3);font-variant-numeric:tabular-nums;}
+.log-actor{font-size:12.5px;font-weight:600;color:var(--t1);}
+.log-role{font-size:10px;color:var(--t3);background:#F4F4F5;border-radius:9px;padding:1px 6px;}
+.log-action{font-size:10px;padding:1px 6px;border-radius:9px;line-height:1.6;}
+.a-system{background:#F4F4F5;color:var(--info);}
+.a-forward{background:#FDF6EC;color:var(--warning);}
+.a-submit{background:#F0F9EB;color:var(--success);}
+.a-void{background:#F4F4F5;color:var(--info);}
+.a-adjust{background:var(--primary-light);color:var(--primary);}
+.log-detail{margin-top:4px;font-size:12px;color:var(--t2);line-height:1.7;}
+
+/* 底部操作条 */
+.foot-bar{display:flex;gap:9px;padding:10px 12px;background:rgba(255,255,255,.96);border-top:1px solid var(--border);position:sticky;bottom:0;flex-shrink:0;backdrop-filter:blur(6px);}
+.foot-bar .btn{height:40px;border-radius:10px;font-size:14px;}
+
+/* ============ 弹层 ============ */
+.mask{position:absolute;inset:0;background:rgba(16,24,36,.45);z-index:900;display:none;align-items:flex-end;justify-content:center;}
+.mask.show{display:flex;}
+.sheet{background:#fff;width:100%;border-radius:16px 16px 0 0;max-height:88%;display:flex;flex-direction:column;animation:up .24s ease;overflow:hidden;}
+@keyframes up{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sheet-head{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.sheet-head .st{font-size:15px;font-weight:700;color:var(--t1);}
+.sheet-head .ss{font-size:11px;color:var(--t3);margin-left:8px;font-weight:400;}
+.sheet-close{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#F4F4F5;border:none;color:var(--t3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.sheet-body{padding:14px 16px;overflow-y:auto;flex:1;}
+.sheet-foot{padding:12px 16px;border-top:1px solid var(--border-light);display:flex;gap:9px;flex-shrink:0;}
+.sheet-foot .btn{height:40px;border-radius:10px;}
+
+/* 处理人明细表 */
+.ass-tbl{width:100%;border-collapse:collapse;font-size:11.5px;}
+.ass-tbl th{text-align:left;font-weight:500;color:var(--t3);padding:6px 5px;border-bottom:1px solid var(--border-light);white-space:nowrap;}
+.ass-tbl td{padding:8px 5px;border-bottom:1px solid var(--border-light);color:var(--t2);vertical-align:middle;}
+.ass-tbl td.nm{color:var(--t1);font-weight:600;white-space:nowrap;}
+.ass-tbl td.s-未处理{color:var(--danger);font-weight:600;}
+.ass-tbl td.s-已处理{color:var(--success);font-weight:600;}
+.ass-tbl .link{color:var(--primary);font-weight:600;cursor:pointer;}
+.ass-tbl .nolink{color:#b6bec9;}
+
+/* 筛选表单 */
+.frow{display:flex;gap:9px;align-items:center;margin-bottom:12px;}
+.frow .finput{flex:1;min-width:0;}
+.frow .sep{font-size:12px;color:var(--t3);flex-shrink:0;}
+.lvl-picker{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+
+/* 组织架构 */
+.org-search{display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid var(--border);border-radius:8px;background:#FAFBFC;margin-bottom:10px;}
+.org-search i{color:var(--t3);font-size:12px;}
+.org-search input{border:none;background:transparent;outline:none;flex:1;font-size:13px;color:var(--t1);font-family:inherit;}
+.org-tree{overflow:visible;border:1px solid var(--border-light);border-radius:8px;padding:6px;}
+.org-dept{display:flex;align-items:center;gap:6px;padding:7px 8px;font-size:12.5px;font-weight:600;color:var(--t2);cursor:pointer;border-radius:6px;}
+.org-dept .cnt2{margin-left:auto;font-size:10.5px;color:var(--t3);background:#F4F4F5;padding:0 6px;border-radius:8px;}
+.org-people{padding:0 0 4px 10px;}
+.org-person{display:flex;align-items:center;gap:7px;padding:8px 9px;font-size:13px;color:var(--t2);border-radius:7px;cursor:pointer;}
+.org-person:active{background:var(--border-light);}
+.org-person.active{background:var(--primary-light);color:var(--primary);font-weight:600;}
+.org-person.self{color:#b6bec9;cursor:not-allowed;}
+.org-person .me{margin-left:auto;font-size:10px;color:#c3cad4;background:#F4F4F5;padding:0 6px;border-radius:8px;}
+.org-selected{margin-top:10px;font-size:12px;color:var(--t3);}
+.org-selected b{color:var(--primary);}
+
+
+/* 内联轻量图标（不依赖外部图标库） */
+.sec-ico{width:3px;height:13px;border-radius:2px;background:var(--primary);flex-shrink:0;display:inline-block;}
+.empty-ico{width:38px;height:38px;border:2px solid #dfe5ee;border-radius:10px;margin:0 auto 12px;position:relative;}
+.empty-ico::after{content:"";position:absolute;left:7px;right:7px;top:12px;height:2px;background:#e6ebf2;border-radius:2px;box-shadow:0 7px 0 #e6ebf2;}
+.ppl-dot{width:5px;height:5px;border-radius:50%;background:#c3ccd8;flex-shrink:0;}
+.thumb-tx{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--success);}
+
+/* Toast */
+.toast-wrap{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:1200;display:flex;flex-direction:column;gap:8px;width:88%;max-width:380px;pointer-events:none;}
+.toast{padding:11px 15px;border-radius:9px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(23,36,55,.14);animation:tin .25s ease;line-height:1.5;}
+.toast.success{background:#F0F9EB;color:#1e6b43;border:1px solid #C9E9D5;}
+.toast.error{background:#FEF0F0;color:#b03a32;border:1px solid #FDE2E2;}
+.toast.info{background:var(--primary-light);color:#0B5394;border:1px solid #D9ECFF;}
+.toast.warning{background:#FDF6EC;color:#96652a;border:1px solid #FAECD8;}
+@keyframes tin{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+
+@media (max-width:960px){
+  .app-container{flex-direction:column;}
+  .main-panel{max-width:100%;}
+  .desc-panel{display:none;}
+  .mobile-frame{width:100%;height:auto;min-height:100vh;border-radius:0;box-shadow:none;margin:0;}
+  .phone-body{overflow:visible;}
+  .sheet{width:100%;}
+}
+
+/* 嵌入主原型的预警功能时，仅保留任务内容，移除示意外壳。 */
+html.is-embedded,
+body.is-embedded{
+  width:100%;height:100%;min-height:0;overflow:hidden;
+}
+body.is-embedded{background:var(--bg);}
+body.is-embedded .app-container{
+  display:block;width:100%;height:100%;min-height:0;overflow:hidden;
+}
+body.is-embedded .main-panel{
+  display:block;width:100%;height:100%;min-height:0;max-width:none;
+}
+body.is-embedded .mobile-frame{
+  display:flex;width:100%;height:100%;min-height:0;margin:0;
+  border-radius:0;box-shadow:none;
+}
+body.is-embedded .status-bar,
+body.is-embedded .nav-bar,
+body.is-embedded .desc-panel{display:none;}
+body.is-embedded .phone-body{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;}
+html.is-description-only,body.is-description-only{width:100%;height:100%;min-height:0;overflow:hidden;}
+body.is-description-only{background:#FFF9E9;}
+body.is-description-only .app-container{display:block;width:100%;height:100%;min-height:0;}
+body.is-description-only .main-panel,body.is-description-only .svg-overlay{display:none;}
+body.is-description-only .desc-panel{
+  display:block;position:static;width:100%;min-width:0;height:100%;padding:18px 16px 32px;
+  border:0;background:linear-gradient(180deg,#FFF9E9 0%,#FFF2CC 100%);font-size:13px;line-height:1.72;
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="main-panel">
+    <div class="mobile-frame">
+      <div class="status-bar">
+        <span>08:59</span>
+        <span class="sb-right">5G <span class="sb-bat">69</span></span>
+      </div>
+
+      <div class="nav-bar">
+        <div class="nav-btn" onclick="navBack()"><span class="nav-back-icon"></span></div>
+        <div class="nav-title" id="navTitle">预警任务</div>
+        <div class="nav-btn" id="navFilterBtn" onclick="openFilterSheet()">
+          <span style="font-size:12.5px;font-weight:600;color:var(--t2)">筛选</span>
+          <span class="nav-dot" id="navDot"></span>
+        </div>
+      </div>
+
+      <div class="phone-body" id="phoneBody">
+        <!-- 列表页 -->
+        <div id="listPage">
+          <div class="tab-scroll">
+            <div class="tabs" id="tabContainer">
+              <div class="tab-item active" data-tab="todo" onclick="switchTab('todo')">未处理<span class="cnt" id="cnt-todo">3</span></div>
+              <div class="tab-item" data-tab="notify" onclick="switchTab('notify')">通知我<span class="cnt" id="cnt-notify">2</span></div>
+              <div class="tab-item" data-tab="didProcess" onclick="switchTab('didProcess')">已处理</div>
+              <div class="tab-item" data-tab="forwarded" onclick="switchTab('forwarded')">我转发</div>
+            </div>
+          </div>
+
+          <div class="filter-bar" id="riskFilter">
+            <div class="chip active" data-level="all" onclick="quickLevel(this)">全部等级</div>
+            <div class="chip cn" data-level="none" onclick="quickLevel(this)">未分级</div>
+            <div class="chip c1" data-level="一级" onclick="quickLevel(this)">一级</div>
+            <div class="chip c2" data-level="二级" onclick="quickLevel(this)">二级</div>
+            <div class="chip c3" data-level="三级" onclick="quickLevel(this)">三级</div>
+            <div class="chip c4" data-level="四级" onclick="quickLevel(this)">四级</div>
+            <div class="filter-more" id="filterMore" onclick="resetFilters()">重置</div>
+          </div>
+          <div class="active-summary" id="activeSummary"></div>
+
+          <div class="list-wrap" id="warningList"></div>
+        </div>
+
+        <!-- 详情页 -->
+        <div id="detailPage" style="display:none"></div>
+      </div>
+
+      <!-- 详情底部操作条（随模式变化） -->
+      <div class="foot-bar" id="footBar" style="display:none"></div>
+
+      <!-- 通用弹层（置于手机壳内，弹层与手机屏幕对齐） -->
+      <div class="mask" id="mask" onclick="if(event.target===this)closeSheet()">
+        <div class="sheet">
+          <div class="sheet-head">
+            <span class="st" id="sheetTitle">标题</span>
+            <span class="ss" id="sheetSub"></span>
+            <button class="sheet-close" onclick="closeSheet()">×</button>
+          </div>
+          <div class="sheet-body" id="sheetBody"></div>
+          <div class="sheet-foot" id="sheetFoot"></div>
+        </div>
+      </div>
+      <div class="toast-wrap" id="toastWrap"></div>
+    </div><!-- /mobile-frame -->
+  </div><!-- /main-panel -->
+
+  <!-- ==================== 右侧功能说明 ==================== -->
+  <div class="desc-panel" id="descPanel">
+    <h3>移动端预警任务 · 功能说明</h3>
+    <div class="desc-item" data-target="tabContainer"><span class="num">1</span><b>页签（按当前登录人与该预警的关系）</b><br>
+      <span class="sub">未处理 / 通知我 / 已处理 / 我转发。仅「未处理」「通知我」带数量角标，数量为当前登录人在该页签下的待办条数，实时计算。同一预警可在本人多个页签同时出现（身份不同）；作废预警不出现在任何页签。</span></div>
+    <div class="desc-item" data-target="riskFilter"><span class="num">2</span><b>查询与筛选</b><br>
+      <span class="sub">等级快捷筛选：全部等级 / <b>未分级</b> / 一级 / 二级 / 三级 / 四级，精确匹配；「未分级」只返回规则未指定等级的预警。点右上「筛选」叠加：时间维度（触发时间 / 处理期限）+ 起止日期（自然日闭区间，含当日 00:00—23:59）+ 预警工作项（<b>包含匹配</b>）。查询只作用于当前页签；「重置」清空全部条件（时间维度回「触发时间」、日期为空、工作项为空、等级回「全部等级」）并重查当前页签。</span></div>
+    <div class="desc-item" data-target="warningList"><span class="num">3</span><b>预警卡片</b><br>
+      <span class="sub">标题 = <b>预警内容</b>（规则里配的条件组名称）；编号 WRN-YYYYMMDD-NNN。风险等级颜色固定：一级红、二级橙、三级蓝、四级绿，规则未指定显示灰色「未分级」。<b>处理人</b>取首人 + 「等 N 人」，仅 1 人不显示徽标；<b>处理期限只显示时间</b>，不标红、不写状态文字，是否超期由徽标单独表达。列表按触发时间倒序。</span></div>
+    <div class="desc-item"><span class="num">4</span><b>命中明细（点「预警工作项」展开）</b><br>
+      <span class="sub">展开在本卡片内，不新开弹窗：工作项 / 判定 / 预警值（阈值）/ 触发值（实测，红色加粗）。命中 1 项与多项交互完全一致；无命中数据时工作项显示「—」。</span></div>
+    <div class="desc-item"><span class="num">5</span><b>状态与超期（两个独立维度）</b><br>
+      <span class="sub"><b>状态</b>按「已提交处置人数 / 处理人总数」计算：0 → 未处理，部分 → 处理中，全部 → 已完成；仅 1 个处理人时不会出现「处理中」；作废不属于任务状态。<b>超期徽标</b>按当前登录人个人判定、不看整条任务：本人未提交且已过期 →「已超期」；本人已提交且提交时间晚于期限 →「超期完成」；按期完成或未到期不显示。</span></div>
+    <div class="desc-item"><span class="num">6</span><b>处理人明细（点「处理人」进入）</b><br>
+      <span class="sub">只列人、不带日志，用于核对「谁在办、办了没、几点交的」：姓名 / 来源角色类别 / 处置状态 / 提交时间 / 处理详情。顶部显示<b>派单快照时间</b>——处理人触发时解析并固化，组织架构后续变动不影响本条。解析不到人员的预警属「分派异常」，不进任何页签，只在 PC 端「预警信息表统计」由企业管理员指派。</span></div>
+    <h4>详情三种模式（同一套内容，按入口切换）</h4>
+    <div class="desc-item"><span class="num">7</span><b>处理（编辑）</b><br><span class="sub">仅「未处理」页签的「处理」进入。内容：基础信息（处理人只读显示全部）+ 命中明细 + 本人处置填写 + 处理日志。<b>不显示处理人列表</b>，不暴露他人处置进度。页脚「取消 / 提交处置」。</span></div>
+    <div class="desc-item"><span class="num">8</span><b>任务详情（只读）</b><br><span class="sub">点卡片或「查看」进入。基础信息 + 命中明细 + <b>处理人列表</b> + 处理日志，<b>无处置区</b>，页脚只有「关闭」。</span></div>
+    <div class="desc-item"><span class="num">9</span><b>个人处置详情（只读）</b><br><span class="sub">从处理人明细点「查看」进入。只展示该处理人的处置内容（处理情况 / 附件 / 电子签字 / 提交时间），<b>不含处理人列表、不含日志</b>，页脚「返回」回到上一层。已提交内容不可编辑、不可重新提交。</span></div>
+    <h4>填写与提交</h4>
+    <div class="desc-item"><span class="num">10</span><b>处理情况 / 附件 / 签字</b><br>
+      <span class="sub">处理情况必填、≤500 字、trim 后非空，提交后不可修改；整改照片/附件<b>选填</b>、≤9 个、单个 ≤10MB、限 jpg/jpeg/png/pdf，提交后不可删除；实际处理人与实际处理时间<b>只读</b>，由服务端在提交时写入，未提交显示「提交处置时自动记录」；电子签字必填，未签不可提交。</span></div>
+    <div class="desc-item"><span class="num">11</span><b>转发规则</b><br>
+      <span class="sub">仅「未处理」且当前登录人是处理人时可转发；从组织架构选<b>一名</b>具体人员、不能选自己；转办说明选填 ≤200 字。<b>单条预警只允许转发 1 次</b>，转发后按钮消失，原处理人退出该任务并在「我转发」页签留痕，写入一条「转发预警」日志。</span></div>
+    <div class="desc-item"><span class="num">12</span><b>处理日志</b><br>
+      <span class="sub">日志是<b>任务级</b>的，只出现在「处理」与「任务详情」两处，「个人处置详情」不重复出现。默认收起，点标题行展开；按时间正序，记录触发 / 处理 / 转发 / 调整处理人 / 作废五类节点，含操作人及其角色，只读不可删改。</span></div>
+    <div class="desc-item"><span class="num">13</span><b>提交流转</b><br>
+      <span class="sub">提交后本人处置状态置为已处理并写入提交时间；<b>全部处理人已提交 → 任务转「已完成」并从待办消失</b>，部分提交则任务转「处理中」仍留在「未处理」。提交按钮点击后置灰防重，同一处理人同一预警幂等。</span></div>
+    <h4>样式规范</h4>
+    <div class="desc-item">主色 #0F6CBD（选中 / 主按钮）· 危险 #F5655B（预警 / 超期 / 未处理）· 警示 #E6A23C（处理中 / 超期完成）· 成功 #2BA471（已完成）。字体 Segoe UI Variable Text / Noto Sans SC。圆角：卡片 12 / 按钮 8-10 / 弹层 16。</div>
+  </div>
+
+  <svg class="svg-overlay" id="svgLines" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;"></svg>
+</div>
+
+<script>
+/* =========================================================
+   数据层：与 PC 端 page-warning-task / detailData / assigneeData
+   / disposalData / logData 一一对应
+   ========================================================= */
+const TASKS = [
+  {
+    id:'WRN-20260708-001', sheet:'安全巡检记录表', content:'设备温度超限预警',
+    level:'一级', type:'灼烫', time:'2026-07-08 10:23', due:'2026-07-08 18:00', dueDanger:true,
+    mine:['todo','notify'], forwarded:false, snapshot:'2026-07-08 10:23', ovd:'',
+    items:[{name:'设备温度',judge:'大于',thr:'80°C',act:'85°C'}],
+    assignees:[
+      {name:'王五',from:'表单提交人',status:'未处理',time:'—'},
+      {name:'李国强',from:'预警所在事事号的负责人',status:'未处理',time:'—'}],
+    records:{},
+    logs:[{at:'2026-07-08 10:23',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'设备温度超限预警 · 命中 1 个工作项'}]
+  },
+  {
+    id:'WRN-20260708-002', sheet:'设备运行日检表', content:'管道压力异常预警',
+    level:'二级', type:'触电', time:'2026-07-08 09:15', due:'2026-07-09 09:00', dueDanger:false,
+    mine:['todo'], forwarded:false, snapshot:'2026-07-08 09:15', ovd:'',
+    items:[{name:'管道压力',judge:'大于',thr:'3.0MPa',act:'3.2MPa'},
+           {name:'设备状态',judge:'等于',thr:'故障',act:'故障'}],
+    assignees:[{name:'王五',from:'表单提交人的部门负责人',status:'未处理',time:'—'}],
+    records:{},
+    logs:[{at:'2026-07-08 09:15',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'管道压力异常预警 · 命中 2 个工作项'}]
+  },
+  {
+    id:'WRN-20260708-003', sheet:'隐患排查治理表', content:'防护设施缺失预警',
+    level:'一级', type:'高处坠落', time:'2026-07-07 16:00', due:'2026-07-07 18:00', dueDanger:true,
+    mine:['todo'], forwarded:false, snapshot:'2026-07-07 16:00', ovd:'已超期',
+    items:[{name:'防护栏状态',judge:'等于',thr:'缺失',act:'缺失'}],
+    assignees:[
+      {name:'赵六',from:'预警所在事事号的管理员',status:'未处理',time:'—'},
+      {name:'孙立',from:'预警所在事事号的成员',status:'已处理',time:'2026-07-07 17:40'}],
+    records:{'孙立':{content:'已补装防护栏并加固立柱，现场复测合格，防护高度 1.2m 符合要求。',files:['整改照片.jpg','复测记录.pdf'],signed:'孙立',time:'2026-07-07 17:40'}},
+    logs:[{at:'2026-07-07 16:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'防护设施缺失预警 · 命中 1 个工作项'},
+          {at:'2026-07-07 17:40',actor:'孙立',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（已补装防护栏并加固）'}]
+  },
+  {
+    id:'WRN-20260707-005', sheet:'设备运行日检表', content:'接地电阻超标预警',
+    level:'二级', type:'触电', time:'2026-07-06 11:00', due:'2026-07-06 15:00', dueDanger:false,
+    mine:['notify','didProcess'], forwarded:false, snapshot:'2026-07-06 11:00', ovd:'超期完成',
+    items:[{name:'接地电阻',judge:'大于',thr:'4Ω',act:'6Ω'}],
+    assignees:[
+      {name:'孙立',from:'表单提交人',status:'已处理',time:'2026-07-06 15:30'},
+      {name:'周伟',from:'预警所在事事号的成员',status:'已处理',time:'2026-07-06 16:10'}],
+    records:{
+      '孙立':{content:'已更换接地极并复测接地电阻，作业过程无异常。',files:['检测记录.pdf'],signed:'孙立',time:'2026-07-06 15:30'},
+      '周伟':{content:'现场复核接地电阻 2.8Ω，符合要求，同意闭环。',files:['复核照片.jpg'],signed:'周伟',time:'2026-07-06 16:10'}},
+    logs:[{at:'2026-07-06 11:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'接地电阻超标预警 · 命中 1 个工作项'},
+          {at:'2026-07-06 15:30',actor:'孙立',role:'表单提交人',type:'submit',action:'处理预警',detail:'已提交处置（已更换接地极并复测）'},
+          {at:'2026-07-06 16:10',actor:'周伟',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（现场复核合格）'}]
+  },
+  {
+    id:'WRN-20260707-006', sheet:'隐患排查治理表', content:'物料堆放超高预警',
+    level:'三级', type:'物体打击', time:'2026-07-05 15:00', due:'2026-07-06 15:00', dueDanger:false,
+    mine:['didProcess'], forwarded:false, snapshot:'2026-07-05 15:00', ovd:'',
+    items:[{name:'堆垛高度',judge:'大于',thr:'2m',act:'2.5m'}],
+    assignees:[{name:'孙立',from:'预警所在事事号的成员',status:'已处理',time:'2026-07-05 16:00'}],
+    records:{'孙立':{content:'已重新码放，堆垛高度降至 2.5m 并加设防倾倒措施。',files:['整改后照片.jpg'],signed:'孙立',time:'2026-07-05 16:00'}},
+    logs:[{at:'2026-07-05 15:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'物料堆放超高预警 · 命中 1 个工作项'},
+          {at:'2026-07-05 16:00',actor:'孙立',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（重新码放并加设防倾倒措施）'}]
+  },
+  {
+    id:'WRN-20260708-008', sheet:'安全巡检记录表', content:'高温区域标识缺失预警',
+    level:'一级', type:'灼烫', time:'2026-07-08 11:00', due:'2026-07-08 18:00', dueDanger:false,
+    mine:['didProcess'], forwarded:false, snapshot:'2026-07-08 11:00', ovd:'',
+    items:[{name:'警示标识状态',judge:'等于',thr:'缺失',act:'缺失'}],
+    assignees:[{name:'王五',from:'表单提交人',status:'已处理',time:'2026-07-08 11:46'}],
+    records:{'王五':{content:'已补挂「当心高温」警示标识 2 处，位置符合要求。',files:['现场照片.jpg'],signed:'王五',time:'2026-07-08 11:46'}},
+    logs:[{at:'2026-07-08 11:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'高温区域标识缺失预警 · 命中 1 个工作项'},
+          {at:'2026-07-08 11:46',actor:'王五',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（已补挂警示标识 2 处）'}]
+  },
+  {
+    id:'WRN-20260708-010', sheet:'设备运行日检表', content:'管道泄漏预警',
+    level:'一级', type:'灼烫', time:'2026-07-08 09:45', due:'2026-07-08 15:00', dueDanger:false,
+    mine:['didProcess'], forwarded:false, snapshot:'2026-07-08 09:45', ovd:'',
+    items:[{name:'管道压力',judge:'小于',thr:'1.0MPa',act:'0.6MPa'}],
+    assignees:[{name:'李国强',from:'预警所在事事号的负责人',status:'已处理',time:'2026-07-08 10:40'}],
+    records:{'李国强':{content:'已更换法兰密封垫并试压合格，无渗漏。',files:['检修记录.pdf'],signed:'李国强',time:'2026-07-08 10:40'}},
+    logs:[{at:'2026-07-08 09:45',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'管道泄漏预警 · 命中 1 个工作项'},
+          {at:'2026-07-08 10:40',actor:'李国强',role:'预警所在事事号的负责人',type:'submit',action:'处理预警',detail:'已提交处置（已更换法兰密封垫并试压合格）'}]
+  },
+  {
+    id:'WRN-20260706-009', sheet:'安全巡检记录表', content:'噪音超标预警',
+    level:'二级', type:'触电', time:'2026-07-06 09:40', due:'2026-07-07 10:00', dueDanger:false,
+    mine:['forwarded'], forwarded:true, snapshot:'2026-07-06 09:40', ovd:'',
+    items:[{name:'噪音值',judge:'大于',thr:'85分贝',act:'92分贝'}],
+    assignees:[{name:'李国强',from:'转发自 陈海波',status:'已处理',time:'2026-07-06 10:45'}],
+    records:{'李国强':{content:'已加装隔声罩并复测噪音 82 分贝，达标。',files:['复测记录.pdf'],signed:'李国强',time:'2026-07-06 10:45'}},
+    logs:[{at:'2026-07-06 09:40',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'噪音超标预警 · 命中 1 个工作项'},
+          {at:'2026-07-06 10:30',actor:'陈海波',role:'预警所在事事号的负责人',type:'forward',action:'转发预警',detail:'转交给 李国强（转办说明：该隐患由我牵头，转交复核处理）'},
+          {at:'2026-07-06 10:45',actor:'李国强',role:'转发自 陈海波',type:'submit',action:'处理预警',detail:'已提交处置（已加装隔声罩并复测噪音 82 分贝）'}]
+  }
+];
+
+const TAB_NAME = { todo:'未处理', notify:'通知我', didProcess:'已处理', forwarded:'我转发' };
+
+const ORG = [
+  {dept:'安全监察部', people:['张建国','王五','李国强']},
+  {dept:'生产技术部', people:['陈海波','周伟','孙立']},
+  {dept:'机电队',     people:['赵六','刘海涛']}
+];
+
+/* =========================================================
+   状态层
+   ========================================================= */
+let currentTab = 'todo';
+let filters = { level:'all', dim:'触发时间', from:'', to:'', kw:'' };
+let view = { mode:'list', taskId:null, person:null, backToSheet:false };
+let form = { note:'', files:[], signed:'' };
+
+const $ = id => document.getElementById(id);
+const getTask = id => TASKS.find(t => t.id === id);
+
+function lvClass(lv){ return ({'一级':'lv1','二级':'lv2','三级':'lv3','四级':'lv4'})[lv] || 'lvn'; }
+function lvText(lv){ return lv || '未分级'; }
+
+/* 状态：按已提交 / 总人数 */
+function statusOf(t){
+  const total = t.assignees.length;
+  const done = t.assignees.filter(a => a.status === '已处理').length;
+  if (done === 0) return '未处理';
+  if (done >= total) return '已完成';
+  return '处理中';
+}
+function statusTag(s){
+  const cls = s === '未处理' ? 'tag-danger' : (s === '处理中' ? 'tag-warning' : 'tag-success');
+  return `<span class="tag ${cls}">${s}</span>`;
+}
+function ovdTag(o){
+  if (!o) return '';
+  return `<span class="ovd ${o === '已超期' ? 'ovd-late' : 'ovd-done'}">${o}</span>`;
+}
+/* 当前登录人在本条中的身份（第一条未处理记录视为本人） */
+function myAssignee(t){
+  return t.assignees.find(a => a.status === '未处理') || t.assignees[0];
+}
+function nowStr(){
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/* =========================================================
+   列表
+   ========================================================= */
+function rowsOfTab(tab){
+  return TASKS.filter(t => t.mine.includes(tab));
+}
+function applyFilter(rows){
+  return rows.filter(t => {
+    if (filters.level !== 'all'){
+      if (filters.level === 'none' ? !!t.level : t.level !== filters.level) return false;
+    }
+    if (filters.kw){
+      const kw = filters.kw.trim();
+      if (kw && !t.items.some(i => i.name.indexOf(kw) > -1)) return false;
+    }
+    if (filters.from || filters.to){
+      const base = (filters.dim === '处理期限' ? t.due : t.time).slice(0,10);
+      if (filters.from && base < filters.from) return false;
+      if (filters.to && base > filters.to) return false;
+    }
+    return true;
+  });
+}
+
+function renderList(){
+  let rows = applyFilter(rowsOfTab(currentTab));
+  const box = $('warningList');
+  if (!rows.length){
+    box.innerHTML = `<div class="empty"><div class="empty-ico"></div><p>该分类下暂无预警任务</p><p class="sub">切换页签或清空筛选条件后重试</p></div>`;
+  } else {
+    box.innerHTML = rows.map(cardHTML).join('');
+  }
+  refreshCounts();
+  updateFilterHint();
+}
+
+function cardHTML(t){
+  const st = statusOf(t);
+  const showActions = (currentTab === 'todo');
+  const multi = t.assignees.length > 1;
+  const first = t.assignees[0].name;
+
+  let actions = '';
+  if (showActions){
+    actions = `<div class="btn primary" onclick="event.stopPropagation();openDetail('${t.id}','edit')">处理</div>`;
+    if (!t.forwarded){
+      actions += `<div class="btn ghost" onclick="event.stopPropagation();openForwardSheet('${t.id}')">转发</div>`;
+    }
+  } else {
+    actions = `<div class="btn ghost" onclick="event.stopPropagation();openDetail('${t.id}','task')">查看</div>`;
+  }
+
+  return `<div class="wcard" onclick="openDetail('${t.id}','task')">
+    <div class="wc-top">
+      <span class="wc-id">${t.id}</span>
+      <span class="wc-flags">${statusTag(st)}${ovdTag(t.ovd)}</span>
+    </div>
+    <div class="wc-title">${t.content}</div>
+    <div class="wc-body">
+      <div class="row"><span class="k">工作表</span><span class="v muted">${t.sheet}</span></div>
+      <div class="row"><span class="k">预警工作项</span><span class="v">
+        <span class="hit-trigger" id="trg-${t.id}" onclick="event.stopPropagation();toggleHit('${t.id}')">
+          ${t.items.length ? t.items[0].name : '—'}
+          ${t.items.length > 1 ? `<span class="mini-badge">共 ${t.items.length} 项</span>` : ''}
+          <span class="caret"></span>
+        </span></span></div>
+      <div class="row"><span class="k">风险等级</span><span class="v">
+        <span class="tag-lv ${lvClass(t.level)}">● ${lvText(t.level)}</span>
+        ${t.type ? `<span style="color:var(--t3);font-size:12px;"> · ${t.type}</span>` : ''}</span></div>
+      <div class="row"><span class="k">处理人</span><span class="v">
+        <span class="cond-link" onclick="event.stopPropagation();openAssigneeSheet('${t.id}')">
+          ${first}${multi ? ` <span class="mini-badge">等 ${t.assignees.length} 人</span>` : ''}
+          <span class="go">›</span>
+        </span></span></div>
+      <div class="row"><span class="k">触发时间</span><span class="v muted">${t.time}</span></div>
+      <div class="row"><span class="k">处理期限</span><span class="v muted">${t.due}</span></div>
+    </div>
+    <div class="hit-area" id="hit-${t.id}">${hitTable(t)}</div>
+    <div class="wc-actions">${actions}</div>
+  </div>`;
+}
+
+function hitTable(t){
+  if (!t.items.length) return `<div style="font-size:11.5px;color:var(--t3);padding:4px 0;">无命中数据</div>`;
+  return `<table class="hit-tbl">
+    <thead><tr><th style="width:34%">工作项</th><th style="width:16%">判定</th><th style="width:22%">预警值</th><th style="width:28%">触发值</th></tr></thead>
+    <tbody>${t.items.map(i => `<tr><td>${i.name}</td><td>${i.judge}</td><td>${i.thr}</td><td class="act">${i.act}</td></tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function toggleHit(id){
+  const box = $('hit-' + id), trg = $('trg-' + id);
+  const open = !box.classList.contains('open');
+  box.classList.toggle('open', open);
+  trg.classList.toggle('open', open);
+}
+
+function refreshCounts(){
+  $('cnt-todo').textContent = rowsOfTab('todo').length;
+  $('cnt-notify').textContent = rowsOfTab('notify').length;
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+  renderList();
+  $('phoneBody').scrollTop = 0;
+}
+
+/* 等级快捷筛选 */
+function quickLevel(el){
+  document.querySelectorAll('.filter-bar .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filters.level = el.dataset.level;
+  syncFilterSheetLevel();
+  renderList();
+  $('phoneBody').scrollTop = 0;
+}
+
+/* 筛选条件摘要 + 入口红点 */
+function updateFilterHint(){
+  const parts = [];
+  if (filters.level !== 'all') parts.push(filters.level === 'none' ? '未分级' : filters.level + '风险');
+  if (filters.from || filters.to) parts.push(`${filters.dim} ${filters.from || '不限'} 至 ${filters.to || '不限'}`);
+  if (filters.kw) parts.push(`工作项含「${filters.kw}」`);
+  const s = $('activeSummary');
+  s.style.display = parts.length ? 'block' : 'none';
+  s.textContent = parts.length ? '当前筛选：' + parts.join(' · ') + '（点击「重置」可清空）' : '';
+  $('navDot').style.display = (filters.from || filters.to || filters.kw) ? 'block' : 'none';
+  $('filterMore').classList.toggle('on', !!(filters.from || filters.to || filters.kw));
+}
+
+/* =========================================================
+   弹层
+   ========================================================= */
+let sheetLevel = 'all';
+function openSheet(title, sub, body, foot){
+  $('sheetTitle').textContent = title;
+  $('sheetSub').textContent = sub || '';
+  $('sheetBody').innerHTML = body;
+  $('sheetFoot').innerHTML = foot || '';
+  $('sheetFoot').style.display = foot ? 'flex' : 'none';
+  $('mask').classList.add('show');
+}
+function closeSheet(){ $('mask').classList.remove('show'); }
+
+/* 处理人明细（只列人不带日志） */
+function openAssigneeSheet(id){
+  const t = getTask(id);
+  const rows = t.assignees.map(a => {
+    const act = a.status === '已处理'
+      ? `<span class="link" onclick="closeSheet();openDetail('${t.id}','person','${a.name}')">查看</span>`
+      : `<span class="nolink">未提交</span>`;
+    return `<tr>
+      <td class="nm">${a.name}</td>
+      <td style="font-size:10.5px;color:var(--t3)">${a.from}</td>
+      <td class="s-${a.status}">${a.status}</td>
+      <td style="white-space:nowrap">${a.time === '—' ? '—' : a.time.slice(5)}</td>
+      <td>${act}</td></tr>`;
+  }).join('');
+  openSheet('处理人明细', t.id,
+    `<div style="font-size:11.5px;color:var(--t3);margin-bottom:9px;">
+       派单快照时间：<b style="color:var(--t2)">${t.snapshot}</b>　·　共 ${t.assignees.length} 人
+     </div>
+     <table class="ass-tbl">
+       <thead><tr><th>处理人</th><th>来源角色类别</th><th>状态</th><th>提交时间</th><th>详情</th></tr></thead>
+       <tbody>${rows}</tbody>
+     </table>
+     <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-top:10px;background:#F7F9FC;padding:8px 10px;border-radius:8px;">
+       处理人为触发时按角色类别解析出的真实人员并<b>快照固化</b>，组织架构后续变动不影响本条任务。
+       每人独立提交、互不覆盖；点「查看」进入该人的个人处置详情（不含日志）。
+     </div>`,
+    `<div class="btn ghost" onclick="closeSheet()">关闭</div>`);
+}
+
+/* 筛选面板 */
+function openFilterSheet(){
+  sheetLevel = filters.level;
+  const body = `
+    <div class="fgroup">
+      <label class="flabel">时间维度</label>
+      <select class="finput" id="fDim">
+        <option ${filters.dim==='触发时间'?'selected':''}>触发时间</option>
+        <option ${filters.dim==='处理期限'?'selected':''}>处理期限</option>
+      </select>
+    </div>
+    <div class="fgroup">
+      <label class="flabel">日期范围<span class="hint">按自然日闭区间</span></label>
+      <div class="frow">
+        <input class="finput" type="date" id="fFrom" value="${filters.from}">
+        <span class="sep">至</span>
+        <input class="finput" type="date" id="fTo" value="${filters.to}">
+      </div>
+    </div>
+    <div class="fgroup">
+      <label class="flabel">预警工作项<span class="hint">包含匹配</span></label>
+      <input class="finput" id="fKw" value="${filters.kw}" placeholder="输入工作项名称关键字">
+    </div>
+    <div class="fgroup" style="margin-bottom:4px;">
+      <label class="flabel">风险等级</label>
+      <div class="lvl-picker" id="lvlPicker">
+        ${lvlChip('all','全部等级','')}
+        ${lvlChip('none','未分级','cn')}
+        ${lvlChip('一级','一级','c1')}
+        ${lvlChip('二级','二级','c2')}
+        ${lvlChip('三级','三级','c3')}
+        ${lvlChip('四级','四级','c4')}
+      </div>
+    </div>`;
+  const foot = `<div class="btn ghost" onclick="resetFilters()">重置</div>
+                <div class="btn primary" onclick="applyFilters()">查询</div>`;
+  openSheet('筛选', '仅作用于当前页签', body, foot);
+}
+function lvlChip(v,label,cls){
+  return `<div class="chip ${cls} ${sheetLevel===v?'active':''}" data-lv="${v}" onclick="pickSheetLevel(this)">${label}</div>`;
+}
+function pickSheetLevel(el){
+  document.querySelectorAll('#lvlPicker .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  sheetLevel = el.dataset.lv;
+}
+function syncFilterSheetLevel(){
+  document.querySelectorAll('#lvlPicker .chip').forEach(c => c.classList.toggle('active', c.dataset.lv === filters.level));
+}
+function applyFilters(){
+  const dim = $('fDim') ? $('fDim').value : '触发时间';
+  const from = $('fFrom') ? $('fFrom').value : '';
+  const to = $('fTo') ? $('fTo').value : '';
+  const kw = $('fKw') ? $('fKw').value.trim() : '';
+  if (from && to && from > to){ toast('error','开始日期不能晚于结束日期'); return; }
+  filters = { level: sheetLevel, dim, from, to, kw };
+  document.querySelectorAll('.filter-bar .chip').forEach(c => c.classList.toggle('active', c.dataset.level === filters.level));
+  closeSheet();
+  renderList();
+  $('phoneBody').scrollTop = 0;
+  toast('info','已按当前条件刷新「' + TAB_NAME[currentTab] + '」');
+}
+function resetFilters(){
+  filters = { level:'all', dim:'触发时间', from:'', to:'', kw:'' };
+  sheetLevel = 'all';
+  closeSheet();
+  document.querySelectorAll('.filter-bar .chip').forEach(c => c.classList.toggle('active', c.dataset.level === 'all'));
+  renderList();
+  toast('info','筛选条件已重置');
+}
+
+/* 转发（组织架构选一人） */
+let fwPick = '', fwTaskId = null;
+function openForwardSheet(id){
+  const t = getTask(id);
+  fwTaskId = id; fwPick = '';
+  const body = `
+    <div style="background:#FDF6EC;border:1px dashed #FAECD8;border-radius:8px;padding:9px 11px;font-size:11.5px;color:#96652a;line-height:1.7;margin-bottom:13px;">
+      仅「未处理」状态且本人是处理人时可转发；<b>单条预警只允许转发 1 次</b>，转发后原处理人退出该任务，本条在「我转发」留痕。
+    </div>
+    <div class="org-search">
+      <input id="orgKw" placeholder="搜索姓名..." oninput="renderOrg(this.value)">
+    </div>
+    <div class="org-tree" id="orgTree"></div>
+    <div class="org-selected">已选择：<b id="orgPicked">未选择</b></div>
+    <div class="fgroup" style="margin-top:14px;">
+      <label class="flabel">转办说明<span class="hint">选填 · ≤200 字</span></label>
+      <textarea class="ftextarea" id="fwNote" maxlength="200" style="min-height:64px" placeholder="请输入转办说明..."></textarea>
+    </div>`;
+  const foot = `<div class="btn ghost" onclick="closeSheet()">取消</div>
+                <div class="btn primary" onclick="confirmForward()">确认转发</div>`;
+  openSheet('转发预警任务', t.content, body, foot);
+  renderOrg('');
+}
+function renderOrg(kw){
+  kw = (kw || '').trim();
+  const html = ORG.map(d => {
+    const ppl = d.people.filter(n => !kw || n.indexOf(kw) > -1);
+    if (!ppl.length) return '';
+    const open = !!kw;
+    return `<div class="org-dept" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='none'?'block':'none'">
+        <span style="color:var(--t3);font-size:10px">▾</span>${d.dept}
+        <span class="cnt2">${d.people.length}</span></div>
+      <div class="org-people" style="display:${open?'block':'block'}">
+        ${ppl.map(n => `<div class="org-person ${fwPick===n?'active':''} ${n==='王五'?'self':''}"
+            onclick="${n==='王五'?"toast('warning','不能转发给自己')":`pickFwPerson(this,'${n}')`}">
+            <span class="ppl-dot"></span>${n}
+            ${n==='王五'?'<span class="me">本人</span>':''}</div>`).join('')}
+      </div>`;
+  }).join('');
+  const el = $('orgTree');
+  if (el) el.innerHTML = html || `<div style="font-size:12px;color:var(--t3);padding:14px;text-align:center;">未找到匹配人员</div>`;
+}
+function pickFwPerson(el, name){
+  fwPick = name;
+  document.querySelectorAll('#orgTree .org-person').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  $('orgPicked').textContent = name;
+}
+function confirmForward(){
+  if (!fwPick){ toast('error','请选择转交人'); return; }
+  const t = getTask(fwTaskId);
+  const who = myAssignee(t).name;
+  const note = ($('fwNote') && $('fwNote').value.trim()) || '';
+  const at = nowStr();
+
+  // 原处理人退出，新处理人接管（仍为未处理）
+  const idx = t.assignees.findIndex(a => a.name === who && a.status === '未处理');
+  if (idx > -1) t.assignees[idx] = { name: fwPick, from:'转发自 ' + who, status:'未处理', time:'—' };
+  t.forwarded = true;
+  t.mine = t.mine.filter(m => m !== 'todo');
+  if (!t.mine.includes('forwarded')) t.mine.push('forwarded');
+  t.logs.push({ at, actor:who, role:'表单提交人', type:'forward', action:'转发预警',
+    detail:'转交给 ' + fwPick + (note ? '（转办说明：' + note + '）' : '') });
+
+  closeSheet();
+  if (view.mode !== 'list') backToList();
+  renderList();
+  toast('success','已转发至 ' + fwPick + '，本条已移入「我转发」');
+}
+
+/* =========================================================
+   详情三模式
+   ========================================================= */
+function openDetail(id, mode, person){
+  const t = getTask(id);
+  if (!t) return;
+  view = { mode: mode || 'task', taskId: id, person: person || null, backToSheet:false };
+
+  if (mode === 'edit'){
+    const me = myAssignee(t);
+    form = { note:'', files:[], signed:'' };
+    view.person = me.name;
+  }
+
+  $('listPage').style.display = 'none';
+  $('detailPage').style.display = 'block';
+  $('navTitle').textContent = mode === 'edit' ? '处理预警' : (mode === 'person' ? '处理详情' : '任务详情');
+  $('navFilterBtn').style.display = 'none';
+  $('phoneBody').scrollTop = 0;
+  renderDetail();
+}
+
+function renderDetail(){
+  const t = getTask(view.taskId);
+  const mode = view.mode;
+
+  let html = '<div class="detail-wrap">';
+
+  /* 1. 基础信息（三种模式都显示） */
+  html += `<div class="sec">
+    <div class="sec-head"><span class="sec-ico"></span>
+      <span class="st">预警基础信息</span><span class="sm">系统自动抓取 · 只读</span></div>
+    <div class="sec-body">
+      <div class="row"><span class="k">预警编号</span><span class="v muted" style="font-size:12.5px">${t.id}</span></div>
+      <div class="row"><span class="k">工作表名称</span><span class="v">${t.sheet}</span></div>
+      <div class="row"><span class="k">预警内容</span><span class="v" style="font-weight:600">${t.content}</span></div>
+      <div class="row"><span class="k">发生时间</span><span class="v muted">${t.time}</span></div>
+      <div class="row"><span class="k">风险等级</span><span class="v">
+        <span class="tag-lv ${lvClass(t.level)}">● ${lvText(t.level)}</span>
+        ${t.type ? `<span style="color:var(--t3);font-size:12px;"> ｜ ${t.type}</span>` : ''}</span></div>
+      <div class="row"><span class="k">处理人</span><span class="v">${t.assignees.map(a=>a.name).join('、')}</span></div>
+      <div class="row"><span class="k">处理期限</span><span class="v" style="${t.dueDanger?'color:var(--danger);font-weight:600':''}">${t.due}</span></div>
+    </div>
+  </div>`;
+
+  /* 2. 命中明细 */
+  html += `<div class="sec">
+    <div class="sec-head"><span class="sec-ico"></span>
+      <span class="st">命中明细</span><span class="sm">工作项 · 判定 · 预警值 / 触发值</span></div>
+    <div class="sec-body" style="padding:10px 13px 12px">${hitTable(t)}</div>
+  </div>`;
+
+  /* 3. 处理人列表（仅任务详情） */
+  if (mode === 'task'){
+    html += `<div class="sec">
+      <div class="sec-head"><span class="sec-ico"></span>
+        <span class="st">处理人（${t.assignees.length} 人）</span>
+        <span class="sm">派单快照 ${t.snapshot}</span></div>
+      <div class="sec-body">${t.assignees.map(a => `
+        <div class="ass-row">
+          <div class="ass-l1"><span class="ass-name">${a.name}</span><span class="ass-from">${a.from}</span>
+            <span style="margin-left:auto">${a.status==='已处理'?'<span class="tag tag-success">已处理</span>':'<span class="tag tag-danger">未处理</span>'}</span></div>
+          <div class="ass-l2">
+            <span>提交时间：${a.time}</span>
+            ${a.status==='已处理'
+              ? `<span class="link" onclick="openDetail('${t.id}','person','${a.name}')">查看</span>`
+              : `<span class="nolink">未提交</span>`}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  /* 4. 预警处置 */
+  if (mode === 'edit'){
+    const me = view.person;
+    html += `<div class="sec">
+      <div class="sec-head"><span class="sec-ico"></span>
+        <span class="st">预警处置</span><span class="sm">处理人：${me} · 仅本人可见本区</span></div>
+      <div class="sec-body" style="padding:12px 13px 14px">
+        <div class="fgroup">
+          <label class="flabel">处理情况<span class="req">*</span><span class="hint">≤500 字，提交后不可修改</span></label>
+          <textarea class="ftextarea" id="fNote" maxlength="500" oninput="onNoteInput(this)" placeholder="请填写处理情况..."></textarea>
+          <div class="fcounter" id="noteCount">0 / 500</div>
+        </div>
+        <div class="fgroup">
+          <label class="flabel">整改照片 / 附件<span class="hint">选填 · ≤9 个 · 单个 ≤10MB</span></label>
+          <div class="upload" onclick="mockUpload()">
+            <span style="font-size:19px;display:block;margin-bottom:5px;line-height:1">＋</span>
+            点击上传 jpg / jpeg / png / pdf
+          </div>
+          <div class="thumbs" id="thumbs"></div>
+        </div>
+        <div class="fgroup">
+          <label class="flabel">实际处理人</label>
+          <input class="finput" value="提交处置时自动记录" readonly>
+        </div>
+        <div class="fgroup">
+          <label class="flabel">实际处理时间</label>
+          <input class="finput" value="提交处置时自动记录" readonly>
+        </div>
+        <div class="fgroup" style="margin-bottom:4px;">
+          <label class="flabel">电子签字<span class="req">*</span><span class="hint">未签不可提交</span></label>
+          <div class="sig" id="sigPad" onclick="doSign()">✍️ 点击签字</div>
+        </div>
+      </div>
+    </div>`;
+  } else if (mode === 'person'){
+    const r = (t.records || {})[view.person];
+    html += `<div class="sec">
+      <div class="sec-head"><span class="sec-ico"></span>
+        <span class="st">预警处置</span><span class="sm">处理人：${view.person} · 只读</span></div>
+      <div class="sec-body" style="padding:12px 13px 14px">
+      ${!r
+        ? `<div class="dis-empty">该处理人尚未提交处置，无处置内容。</div>`
+        : `<div class="dis-block">
+            <div class="dis-head"><span class="dis-name">${view.person}</span>
+              <span class="dis-from">${(t.assignees.find(a=>a.name===view.person)||{}).from||''}</span>
+              <span class="dis-time">提交时间 ${r.time}</span></div>
+            <div class="dis-label">处理情况</div>
+            <div class="dis-text">${r.content}</div>
+            <div class="dis-label">整改照片 / 附件</div>
+            <div class="dis-text">${r.files && r.files.length ? r.files.map(f=>`<span class="filechip">📎 ${f}</span>`).join('') : '<span style="color:var(--t3)">无附件</span>'}
+              <span style="font-size:10.5px;color:var(--t3)">（可预览 / 下载，不可删除）</span></div>
+            <div class="dis-label">电子签字</div>
+            <div class="dis-text" style="color:var(--success);font-weight:600;">✎ ${r.signed} · 已签字</div>
+           </div>`}
+      </div>
+    </div>`;
+  }
+
+  /* 5. 处理日志（处理 / 任务详情） */
+  if (mode !== 'person'){
+    html += `<div class="sec">
+      <div class="log-bar" onclick="toggleLog()">
+        <span class="sec-ico"></span>
+        <span class="lt">处理日志</span>
+        <span class="lm" id="logMeta">共 ${t.logs.length} 条 · 只读留痕</span>
+        <span class="lx" id="logToggle">展开</span>
+      </div>
+      <div class="log-box" id="logBox">${t.logs.map(logItemHTML).join('') || '<div class="dis-empty">暂无日志记录</div>'}</div>
+    </div>`;
+  }
+
+  html += '</div>';
+  $('detailPage').innerHTML = html;
+  renderFootBar();
+}
+
+function logItemHTML(e){
+  const roleHTML = (e.actor !== '系统' && e.role) ? `<span class="log-role">${e.role}</span>` : '';
+  return `<div class="log-item t-${e.type}"><span class="log-dot"></span>
+    <div class="log-head"><span class="log-time">${e.at}</span>
+      <span class="log-actor">${e.actor}</span>${roleHTML}
+      <span class="log-action a-${e.type}">${e.action}</span></div>
+    <div class="log-detail">${e.detail}</div></div>`;
+}
+
+function toggleLog(){
+  const box = $('logBox'), tg = $('logToggle');
+  const open = box.classList.toggle('open');
+  tg.textContent = open ? '收起' : '展开';
+}
+
+function renderFootBar(){
+  const bar = $('footBar');
+  const t = getTask(view.taskId);
+  if (view.mode === 'edit'){
+    bar.innerHTML = `<div class="btn ghost" onclick="backToList()">取消</div>
+                     <div class="btn primary" onclick="submitProcess()">提交处置</div>`;
+  } else if (view.mode === 'person'){
+    bar.innerHTML = `<div class="btn ghost" onclick="backToTaskDetail()">返回</div>`;
+  } else if (view.mode === 'task'){
+    bar.innerHTML = `<div class="btn primary" onclick="backToList()">关闭</div>`;
+  } else {
+    bar.innerHTML = '';
+  }
+  bar.style.display = view.mode === 'list' ? 'none' : 'flex';
+}
+
+/* =========================================================
+   填写 / 提交
+   ========================================================= */
+function onNoteInput(el){
+  form.note = el.value;
+  $('noteCount').textContent = (el.value.length) + ' / 500';
+}
+function mockUpload(){
+  if (form.files.length >= 9){ toast('error','最多上传 9 个附件'); return; }
+  form.files.push('整改照片' + (form.files.length + 1) + '.jpg');
+  renderThumbs();
+  toast('success','已添加 1 个附件');
+}
+function renderThumbs(){
+  const box = $('thumbs');
+  if (!box) return;
+  box.innerHTML = form.files.map((f,i) =>
+    `<div class="thumb"><span class="thumb-tx">IMG</span>
+      <span class="del" onclick="removeFile(${i})">×</span></div>`).join('');
+}
+function removeFile(i){
+  form.files.splice(i,1);
+  renderThumbs();
+}
+function doSign(){
+  const pad = $('sigPad');
+  if (pad.classList.contains('signed')) return;
+  const me = view.person || myAssignee(getTask(view.taskId)).name;
+  form.signed = me;
+  pad.classList.add('signed');
+  pad.innerHTML = `<span class="sign">${me}</span>`;
+  toast('success','签字完成');
+}
+
+function submitProcess(){
+  const noteEl = $('fNote');
+  const note = noteEl ? noteEl.value.trim() : '';
+  if (!note){ toast('error','请填写处理情况'); noteEl && noteEl.focus(); return; }
+  if (!form.signed){ toast('error','请签名'); return; }
+
+  const t = getTask(view.taskId);
+  const me = view.person;
+  const at = nowStr();
+
+  const a = t.assignees.find(x => x.name === me && x.status === '未处理') || t.assignees[0];
+  a.status = '已处理';
+  a.time = at;
+
+  t.records = t.records || {};
+  t.records[a.name] = {
+    content: note,
+    files: form.files.slice(),
+    signed: form.signed,
+    time: at
+  };
+  t.logs.push({ at, actor:a.name, role:a.from, type:'submit', action:'处理预警',
+    detail:'已提交处置（' + (note.length > 24 ? note.slice(0,24) + '…' : note) + '）' });
+
+  // 超期按本人提交时间重算
+  t.ovd = (at > t.due) ? '超期完成' : '';
+
+  const st = statusOf(t);
+  if (st === '已完成'){
+    // 全部处理人已提交 → 任务完成，离开待办，进入已处理
+    t.mine = t.mine.filter(m => m !== 'todo');
+    if (!t.mine.includes('didProcess')) t.mine.push('didProcess');
+  }
+
+  form = { note:'', files:[], signed:'' };
+  backToList();
+  renderList();
+  toast('success', st === '已完成'
+    ? '已提交，全部处理人已完成，任务转为「已完成」，已离开待办'
+    : '已提交，本人处置已完成；仍有处理人未提交，任务转为「处理中」');
+}
+
+/* =========================================================
+   导航
+   ========================================================= */
+function backToList(){
+  view = { mode:'list', taskId:null, person:null, backToSheet:false };
+  $('detailPage').style.display = 'none';
+  $('listPage').style.display = 'block';
+  $('navTitle').textContent = '预警任务';
+  $('navFilterBtn').style.display = 'flex';
+  $('footBar').style.display = 'none';
+  $('phoneBody').scrollTop = 0;
+}
+function backToTaskDetail(){
+  view.mode = 'task';
+  view.person = null;
+  $('navTitle').textContent = '任务详情';
+  renderDetail();
+  $('phoneBody').scrollTop = 0;
+}
+function navBack(){
+  if (view.mode === 'person'){ backToTaskDetail(); return; }
+  backToList();
+}
+
+// 嵌入工作台时，外层标题栏的返回先在预警模块内逐级回退。
+window.addEventListener('message', event => {
+  if (event.data?.type === 'warning-tasks:show-todo') {
+    backToList();
+    switchTab('todo');
+    return;
+  }
+  if (event.data?.type === 'warning-tasks:back') {
+    if (view.mode !== 'list') {
+      navBack();
+      return;
+    }
+    window.parent.postMessage({ type:'warning-tasks:close' }, '*');
+  }
+});
+
+function toast(type, msg){
+  const mark = { success:'✓', error:'!', info:'i', warning:'!' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span style="font-weight:800;font-size:12px;">${mark[type]||''}</span><span>${msg}</span>`;
+  $('toastWrap').appendChild(el);
+  setTimeout(() => { el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2400);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+/* =========================================================
+   标注连线
+   ========================================================= */
+function drawConnections(){
+  const svg = $('svgLines');
+  const main = document.querySelector('.main-panel');
+  const desc = $('descPanel');
+  if (!svg || window.innerWidth <= 960){ if (svg) svg.innerHTML = ''; return; }
+  const mr = main.getBoundingClientRect(), dr = desc.getBoundingClientRect();
+  const cons = [
+    { from:'tabContainer', to:'.desc-item[data-target="tabContainer"]' },
+    { from:'riskFilter',   to:'.desc-item[data-target="riskFilter"]' },
+    { from:'warningList',  to:'.desc-item[data-target="warningList"]' }
+  ];
+  let s = '';
+  cons.forEach((c,i) => {
+    const fe = $(c.from), te = document.querySelector(c.to);
+    if (!fe || !te) return;
+    const fr = fe.getBoundingClientRect(), tr = te.getBoundingClientRect();
+    const x1 = fr.right - mr.left, y1 = fr.top + fr.height/2 - mr.top;
+    const x2 = dr.left - mr.left + 6, y2 = tr.top + tr.height/2 - mr.top;
+    const cx = (x1 + x2)/2;
+    s += `<path d="M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}" fill="none" stroke="#F7A832" stroke-width="1.6" opacity=".55"/>`;
+  });
+  svg.innerHTML = s;
+  svg.style.height = Math.max(main.getBoundingClientRect().height, window.innerHeight) + 'px';
+}
+
+/* 初始化 */
+renderList();
+setTimeout(drawConnections, 120);
+window.addEventListener('resize', () => setTimeout(drawConnections, 120));
+</script>
+<script>
+const pageMode = new URLSearchParams(window.location.search);
+if (pageMode.get('embedded') === '1') {
+  document.documentElement.classList.add('is-embedded');
+  document.body.classList.add('is-embedded');
+}
+if (pageMode.get('description') === '1') {
+  document.documentElement.classList.add('is-description-only');
+  document.body.classList.add('is-description-only');
+}
+</script>
+</body>
+</html>

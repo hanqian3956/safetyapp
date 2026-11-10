@@ -17,6 +17,7 @@ let lastFocusedElement = null;
 let toastTimer = null;
 let preventionCatalogParent = "prevention";
 let inspectionParentPage = "preventionCatalog";
+let preventionTaskParent = "prevention";
 
 const sheetData = {
   messages: {
@@ -206,6 +207,10 @@ function closeOfflineManagement() {
   switchPage("profile", navItems.find((item) => item.dataset.pageTarget === "profile"));
 }
 
+function closePendingUploads() {
+  openDetailPage("offlineManagement");
+}
+
 function closePreventionPage() {
   closeDetailPage();
 }
@@ -215,9 +220,24 @@ function openPreventionCatalog(parentPage) {
   openDetailPage("preventionCatalog");
 }
 
+function openPreventionTaskPublish(parentPage = "prevention") {
+  preventionTaskParent = parentPage;
+  openDetailPage("preventionTaskPublish");
+}
+
 function openInspection(parentPage = "preventionCatalog") {
   inspectionParentPage = parentPage;
   openDetailPage("inspection");
+}
+
+function closeInspection() {
+  if (inspectionParentPage === "favorites") {
+    appShell.classList.remove("is-detail-page");
+    activePage = "";
+    switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
+    return;
+  }
+  openDetailPage(inspectionParentPage);
 }
 
 navItems.forEach((item) => {
@@ -287,6 +307,73 @@ function openWorkbenchSearch() {
 
 document.querySelector("[data-open-workbench-search]").addEventListener("click", openWorkbenchSearch);
 document.querySelector("[data-close-workbench-search]").addEventListener("click", closeDetailPage);
+const warningTasksFrame = document.querySelector(".warning-tasks-frame");
+const warningHelpToggle = document.querySelector("[data-warning-help-toggle]");
+const warningDescriptionPanel = document.querySelector("[data-warning-description-panel]");
+const taskTasksFrame = document.querySelector(".task-tasks-frame");
+const taskHelpToggle = document.querySelector("[data-task-help-toggle]");
+const taskDescriptionPanel = document.querySelector("[data-task-description-panel]");
+
+function openWarningTasks() {
+  warningHelpToggle.checked = false;
+  warningDescriptionPanel.hidden = true;
+  openDetailPage("warningTasks");
+}
+
+function openWarningTodo() {
+  openWarningTasks();
+  warningTasksFrame?.contentWindow?.postMessage({ type: "warning-tasks:show-todo" }, "*");
+}
+
+function closeWarningTasks() {
+  warningHelpToggle.checked = false;
+  warningDescriptionPanel.hidden = true;
+  closeDetailPage();
+}
+
+function goBackFromWarningTasks() {
+  warningTasksFrame?.contentWindow?.postMessage({ type: "warning-tasks:back" }, "*");
+}
+
+document.querySelectorAll("[data-open-warning-tasks]").forEach((trigger) => {
+  trigger.addEventListener("click", () => {
+    if (trigger.hasAttribute("data-warning-todo")) openWarningTodo();
+    else openWarningTasks();
+  });
+});
+document.querySelector("[data-close-warning-tasks]").addEventListener("click", goBackFromWarningTasks);
+warningHelpToggle.addEventListener("change", () => {
+  warningDescriptionPanel.hidden = !warningHelpToggle.checked;
+});
+window.addEventListener("message", (event) => {
+  if (event.source === warningTasksFrame?.contentWindow && event.data?.type === "warning-tasks:close") closeWarningTasks();
+  if (event.source === taskTasksFrame?.contentWindow && event.data?.type === "task-tasks:close") closeTaskTasks();
+});
+function openTaskTasks() {
+  taskHelpToggle.checked = false;
+  taskDescriptionPanel.hidden = true;
+  openDetailPage("taskTasks");
+}
+
+function openTaskTodo() {
+  openTaskTasks();
+  taskTasksFrame?.contentWindow?.postMessage({ type: "task-tasks:show-todo" }, "*");
+}
+
+function closeTaskTasks() {
+  taskHelpToggle.checked = false;
+  taskDescriptionPanel.hidden = true;
+  closeDetailPage();
+}
+
+document.querySelector("[data-open-task-tasks]").addEventListener("click", openTaskTasks);
+document.querySelector("[data-open-task-todo]").addEventListener("click", openTaskTodo);
+document.querySelector("[data-close-task-tasks]").addEventListener("click", () => {
+  taskTasksFrame?.contentWindow?.postMessage({ type: "task-tasks:back" }, "*");
+});
+taskHelpToggle.addEventListener("change", () => {
+  taskDescriptionPanel.hidden = !taskHelpToggle.checked;
+});
 document.querySelector("[data-clear-subsystem-search]").addEventListener("click", () => {
   workbenchSearchInput.value = "";
   applyWorkbenchSearch();
@@ -316,12 +403,22 @@ workbenchSearchItems.forEach((item) => {
 
 document.querySelector("[data-open-profile-center]").addEventListener("click", () => openDetailPage("profileCenter"));
 document.querySelector("[data-close-profile-center]").addEventListener("click", closeProfileCenter);
+document.querySelector("[data-open-signature-management]").addEventListener("click", openSignatureManagement);
+document.querySelector("[data-close-signature-management]").addEventListener("click", closeSignatureManagement);
 document.querySelector("[data-open-offline-management]").addEventListener("click", () => openDetailPage("offlineManagement"));
 document.querySelector("[data-close-offline-management]").addEventListener("click", closeOfflineManagement);
+document.querySelector("[data-open-pending-uploads]").addEventListener("click", () => openDetailPage("pendingUploads"));
+document.querySelector("[data-close-pending-uploads]").addEventListener("click", closePendingUploads);
 
 document.querySelectorAll("[data-open-prevention]").forEach((trigger) => trigger.addEventListener("click", () => openDetailPage("prevention")));
 document.querySelector("[data-close-prevention]").addEventListener("click", closePreventionPage);
 document.querySelector("[data-open-prevention-catalog]").addEventListener("click", () => openPreventionCatalog("prevention"));
+document.querySelectorAll("[data-open-prevention-task-publish]").forEach((trigger) => {
+  trigger.addEventListener("click", () => openPreventionTaskPublish(trigger.closest('[data-page]')?.dataset.page === "preventionTwoHazards" ? "preventionTwoHazards" : "prevention"));
+});
+document.querySelectorAll("[data-back-prevention-task-publish]").forEach((button) => {
+  button.addEventListener("click", () => openDetailPage(preventionTaskParent));
+});
 document.querySelectorAll("[data-open-prevention-two]").forEach((trigger) => trigger.addEventListener("click", () => openDetailPage("preventionTwo")));
 document.querySelector("[data-close-prevention-two]").addEventListener("click", closeDetailPage);
 document.querySelector("[data-open-prevention-two-hazards]").addEventListener("click", () => openDetailPage("preventionTwoHazards"));
@@ -330,7 +427,20 @@ document.querySelector("[data-open-prevention-two-catalog]").addEventListener("c
 document.querySelector("[data-back-prevention-parent]").addEventListener("click", () => openDetailPage(preventionCatalogParent));
 document.querySelector("[data-open-inspection]").addEventListener("click", () => openInspection());
 document.querySelectorAll("[data-back-prevention-catalog]").forEach((button) => {
-  button.addEventListener("click", () => openDetailPage(inspectionParentPage));
+  button.addEventListener("click", closeInspection);
+});
+
+document.querySelectorAll("[data-open-fire-management]").forEach((trigger) => {
+  trigger.addEventListener("click", () => openDetailPage("fireManagement"));
+});
+document.querySelector("[data-close-fire-management]").addEventListener("click", closeDetailPage);
+document.querySelector("[data-open-fire-inspection-menu]").addEventListener("click", () => openDetailPage("fireInspectionMenu"));
+document.querySelector("[data-back-fire-management]").addEventListener("click", () => openDetailPage("fireManagement"));
+document.querySelector("[data-open-fire-worksheets]").addEventListener("click", () => openDetailPage("fireWorksheets"));
+document.querySelector("[data-back-fire-inspection-menu]").addEventListener("click", () => openDetailPage("fireInspectionMenu"));
+document.querySelector("[data-open-fire-worksheet-form]").addEventListener("click", () => openDetailPage("fireWorksheetForm"));
+document.querySelectorAll("[data-back-fire-worksheets]").forEach((button) => {
+  button.addEventListener("click", () => openDetailPage("fireWorksheets"));
 });
 
 const favoriteAppGrid = document.querySelector("[data-favorite-app-grid]");
@@ -371,6 +481,10 @@ function openOrganizerApp(item) {
   }
   if (appId === "prevention-two") {
     openDetailPage("preventionTwo");
+    return;
+  }
+  if (appId === "fire-protection") {
+    openDetailPage("fireManagement");
     return;
   }
   showToast(`已进入${item.querySelector("strong").textContent}`);
@@ -496,11 +610,36 @@ hazardMenuToggle.addEventListener("click", () => {
 
 const inspectionForm = document.querySelector("#inspectionForm");
 const saveInspectionDraft = document.querySelector("#saveInspectionDraft");
+const preventionTaskPublishForm = document.querySelector("#preventionTaskPublishForm");
+const savePreventionTaskDraft = document.querySelector("[data-save-prevention-task-draft]");
 
 saveInspectionDraft.addEventListener("click", () => showToast("草稿已保存"));
 inspectionForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  if (!isNetworkAvailable()) {
+    saveInspectionForOfflineUpload();
+    showToast(autoUploadToggle.checked
+      ? "当前网络不可用，待网络恢复后自动上报"
+      : "当前网络不可用，保存在“我的”-“离线管理”中，当网络恢复后请手动点击上报");
+    return;
+  }
   showToast("排查记录已提交");
+});
+
+savePreventionTaskDraft.addEventListener("click", () => showToast("隐患排查任务已保存为草稿"));
+preventionTaskPublishForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  showToast("隐患排查任务已发布，已通知执行人员");
+});
+
+const fireWorksheetForm = document.querySelector("#fireWorksheetForm");
+const saveFireWorksheetDraft = document.querySelector("#saveFireWorksheetDraft");
+
+saveFireWorksheetDraft.addEventListener("click", () => showToast("消防巡检表已保存为草稿"));
+fireWorksheetForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  showToast("消防巡检表已提交");
+  openDetailPage("fireWorksheets");
 });
 
 const messageStatusTabs = [...document.querySelectorAll("[data-message-status]")];
@@ -1365,7 +1504,8 @@ function createCollectedRow(item) {
   row.innerHTML = `<button class="collected-remove" type="button" aria-label="取消收藏${item.title}"><span class="favorite-type" aria-hidden="true"><i class="ph-fill ph-star"></i></span></button><button class="collected-row-open" type="button"><span><strong>${item.title}</strong></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>`;
   row.querySelector(".collected-row-open").addEventListener("click", () => {
     const sourceEntry = collectableMenuEntries.find((entry) => entry.dataset.collectionId === item.id);
-    if (sourceEntry) sourceEntry.click();
+    if (sourceEntry?.matches("[data-open-inspection]")) openInspection("favorites");
+    else if (sourceEntry) sourceEntry.click();
     else showToast(`已打开${item.title}`);
   });
   row.querySelector(".collected-remove").addEventListener("click", (event) => openCollectionRemoveDialog(item, event.currentTarget));
@@ -1475,11 +1615,20 @@ const offlineStatus = document.querySelector("#offlineStatus");
 const autoUploadToggle = document.querySelector("#autoUploadToggle");
 const downloadAll = document.querySelector("#downloadAll");
 const downloadProgress = document.querySelector("#downloadProgress");
+const pendingUploadList = document.querySelector("[data-pending-upload-list]");
+const pendingUploadCount = document.querySelector("[data-pending-upload-count]");
+const pendingUploadSyncCount = document.querySelector("[data-pending-upload-sync-count]");
+let pendingUploadTotal = 4;
 const profileEditDialog = document.querySelector("[data-profile-edit-dialog]");
 const passwordDialog = document.querySelector("[data-password-dialog]");
 const logoutDialog = document.querySelector("[data-logout-dialog]");
 const profileEditForm = document.querySelector("[data-profile-edit-form]");
 const passwordForm = document.querySelector("[data-password-form]");
+const signatureCanvas = document.querySelector("#signatureCanvas");
+const signatureContext = signatureCanvas.getContext("2d");
+const signatureManagementPage = document.querySelector("[data-page=\"signatureManagement\"]");
+const signatureLandscapeButton = document.querySelector("#enableSignatureLandscape");
+const signatureStorageKey = "mobile-bottom-nav-electronic-signature";
 const profileValues = {
   name: "林舟",
   phone: "138 0000 2746",
@@ -1488,6 +1637,115 @@ const profileValues = {
   role: "安全管理员",
   status: "正常",
 };
+let isDrawingSignature = false;
+let signatureHasInk = false;
+
+function isNetworkAvailable() {
+  return navigator.onLine && !offlineToggle.checked;
+}
+
+function updatePendingUploadCount() {
+  pendingUploadCount.textContent = `${pendingUploadTotal} 项待上报记录`;
+  pendingUploadSyncCount.textContent = `本机有 ${pendingUploadTotal} 项待上报记录`;
+}
+
+function saveInspectionForOfflineUpload() {
+  pendingUploadTotal += 1;
+  updatePendingUploadCount();
+
+  const row = document.createElement("button");
+  row.className = "pending-upload-row";
+  row.type = "button";
+  row.dataset.showToast = "已打开平巷凿岩作业岗位隐患排查表";
+  row.innerHTML = `
+    <span class="pending-upload-type is-form">表单</span>
+    <span><strong>平巷凿岩作业岗位隐患排查表</strong><time>保存于刚刚</time></span>
+    <i class="ph ph-caret-right" aria-hidden="true"></i>`;
+  pendingUploadList.prepend(row);
+}
+
+function prepareSignatureContext() {
+  signatureContext.lineCap = "round";
+  signatureContext.lineJoin = "round";
+  signatureContext.lineWidth = 6;
+  signatureContext.strokeStyle = "#17263d";
+}
+
+function clearSignatureCanvas() {
+  signatureContext.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+  signatureHasInk = false;
+}
+
+function loadStoredSignature() {
+  clearSignatureCanvas();
+  try {
+    const savedSignature = window.localStorage.getItem(signatureStorageKey);
+    if (!savedSignature) return;
+    const image = new Image();
+    image.addEventListener("load", () => {
+      signatureContext.drawImage(image, 0, 0, signatureCanvas.width, signatureCanvas.height);
+      signatureHasInk = true;
+    }, { once: true });
+    image.src = savedSignature;
+  } catch {
+    // The signature remains usable for this session when storage is unavailable.
+  }
+}
+
+function openSignatureManagement() {
+  setSignatureLandscapeMode(false);
+  openDetailPage("signatureManagement");
+  loadStoredSignature();
+}
+
+function closeSignatureManagement() {
+  setSignatureLandscapeMode(false);
+  openDetailPage("profileCenter");
+}
+
+function setSignatureLandscapeMode(isLandscape) {
+  signatureManagementPage.classList.toggle("is-signature-landscape", isLandscape);
+  signatureLandscapeButton.textContent = isLandscape ? "竖屏" : "横屏";
+  signatureLandscapeButton.setAttribute("aria-pressed", String(isLandscape));
+  if (isLandscape) {
+    const orientationLock = window.screen.orientation?.lock?.("landscape");
+    orientationLock?.catch(() => {});
+  } else {
+    window.screen.orientation?.unlock?.();
+  }
+}
+
+function getSignaturePoint(event) {
+  const bounds = signatureCanvas.getBoundingClientRect();
+  return {
+    x: (event.clientX - bounds.left) * (signatureCanvas.width / bounds.width),
+    y: (event.clientY - bounds.top) * (signatureCanvas.height / bounds.height),
+  };
+}
+
+function startSignature(event) {
+  isDrawingSignature = true;
+  signatureCanvas.setPointerCapture(event.pointerId);
+  const point = getSignaturePoint(event);
+  signatureContext.beginPath();
+  signatureContext.moveTo(point.x, point.y);
+  event.preventDefault();
+}
+
+function drawSignature(event) {
+  if (!isDrawingSignature) return;
+  const point = getSignaturePoint(event);
+  signatureContext.lineTo(point.x, point.y);
+  signatureContext.stroke();
+  signatureHasInk = true;
+  event.preventDefault();
+}
+
+function finishSignature(event) {
+  if (!isDrawingSignature) return;
+  isDrawingSignature = false;
+  if (signatureCanvas.hasPointerCapture(event.pointerId)) signatureCanvas.releasePointerCapture(event.pointerId);
+}
 
 function updateProfileView() {
   document.querySelectorAll("[data-profile-field]").forEach((field) => {
@@ -1567,6 +1825,28 @@ passwordForm.addEventListener("submit", (event) => {
 document.querySelector("[data-confirm-logout]").addEventListener("click", () => {
   closeLogoutDialog();
   showToast("已退出登录");
+});
+
+prepareSignatureContext();
+signatureCanvas.addEventListener("pointerdown", startSignature);
+signatureCanvas.addEventListener("pointermove", drawSignature);
+signatureCanvas.addEventListener("pointerup", finishSignature);
+signatureCanvas.addEventListener("pointercancel", finishSignature);
+document.querySelector("#clearSignature").addEventListener("click", clearSignatureCanvas);
+signatureLandscapeButton.addEventListener("click", () => {
+  setSignatureLandscapeMode(!signatureManagementPage.classList.contains("is-signature-landscape"));
+});
+document.querySelector("#saveSignature").addEventListener("click", () => {
+  if (!signatureHasInk) {
+    showToast("请先完成电子签名");
+    return;
+  }
+  try {
+    window.localStorage.setItem(signatureStorageKey, signatureCanvas.toDataURL("image/png"));
+  } catch {
+    // Saving remains available in the visible session when storage is unavailable.
+  }
+  showToast("电子签名已保存");
 });
 
 document.addEventListener("keydown", (event) => {

@@ -1,0 +1,3060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>矿山安全任务管理系统 · 移动端任务模块原型（模块内部 · 一期）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+/* ============================================================
+   与 PC 端完全一致的 design tokens（澄明工作台）
+============================================================ */
+:root{
+  --accent:#0f6cbd; --accent-soft:#e7f2fb; --accent-glow:rgba(15,108,189,.20);
+  --nav:#172437; --nav-hover:#223a56;
+  --canvas:#f5f7fa; --surface:#ffffff; --surface-soft:#f4f7fb;
+  --text-primary:#182334; --text-secondary:#44526a; --text-muted:#657386;
+  --line:#e1e7ef; --line-soft:#eef2f6;
+  --danger:#c73d32; --danger-soft:#fdeceb;
+  --ok:#287d69; --ok-soft:#e3f4ef;
+  --warn:#ad6037; --warn-soft:#fff0e8;
+  --violet:#7259a4; --violet-soft:#eeeafa;
+  --radius:12px; --radius-sm:8px;
+  --shadow-sm:0 1px 2px rgba(23,35,55,.04),0 6px 18px rgba(23,35,55,.05);
+  --shadow-md:0 10px 28px rgba(23,35,55,.10);
+  --logic-bg:#f2f7fc; --logic-bg2:#e7f2fb; --logic-line:#cfe0f1;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:"Noto Sans SC","Segoe UI Variable Text","PingFang SC","Microsoft YaHei",sans-serif;
+  background:#e9eef5;color:var(--text-primary);height:100vh;overflow:hidden;
+  font-size:13px;line-height:1.5;
+}
+.mono{font-family:'JetBrains Mono',Consolas,monospace;font-size:11px;letter-spacing:-.2px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+
+/* ===== 布局 ===== */
+.app{display:flex;height:100vh}
+.stage{
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:auto;padding:24px;
+  background:
+    radial-gradient(1100px 560px at 18% -8%,#e2ecf8 0%,rgba(226,236,248,0) 60%),
+    radial-gradient(900px 520px at 92% 110%,#e6eef8 0%,rgba(230,238,248,0) 58%),
+    linear-gradient(180deg,#f7fafd 0%,#eef3f9 100%);
+}
+.stage::before{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(23,35,55,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(23,35,55,.035) 1px,transparent 1px);
+  background-size:26px 26px;
+  mask-image:radial-gradient(700px 460px at 50% 45%,#000 20%,transparent 78%);
+}
+.stage-tag{
+  position:absolute;top:18px;left:22px;z-index:3;display:flex;align-items:center;gap:8px;
+  font-size:11.5px;font-weight:700;color:var(--text-secondary);
+  background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.9);
+  padding:6px 11px;border-radius:20px;box-shadow:0 4px 14px rgba(23,35,55,.06);backdrop-filter:blur(6px);
+}
+.stage-tag span{font-weight:500;color:var(--text-muted);font-size:10.5px}
+
+/* ===== 手机外壳 ===== */
+.phone{
+  width:390px;height:812px;max-height:calc(100vh - 48px);flex:none;
+  background:var(--canvas);border-radius:40px;border:9px solid #131d2b;
+  box-shadow:0 30px 70px rgba(16,26,41,.28),0 2px 0 rgba(255,255,255,.4) inset;
+  position:relative;display:flex;flex-direction:column;overflow:hidden;z-index:2;
+}
+.statusbar{
+  flex:none;height:30px;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 20px 4px;background:var(--surface);font-size:11px;font-weight:700;color:var(--text-secondary);
+}
+.statusbar .sb-icons{display:flex;gap:5px;font-size:11px;color:var(--text-secondary)}
+.screens{flex:1;min-height:0;position:relative;background:var(--canvas)}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--canvas)}
+.screen.on{display:flex}
+
+/* ===== 顶部栏 ===== */
+.hd{flex:none;background:var(--surface);border-bottom:1px solid var(--line-soft);padding:8px 13px 9px;position:relative;z-index:6}
+.hd-row{display:flex;align-items:center;gap:8px}
+.hd h1{font-size:17px;font-weight:900;letter-spacing:-.3px;line-height:1.3}
+.hd .sub{font-size:10.5px;color:var(--text-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd .grow{flex:1;min-width:0}
+.hd .grow h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{
+  width:30px;height:30px;flex:none;border-radius:9px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:.15s;
+}
+.icon-btn:active{background:var(--accent-soft);color:var(--accent);border-color:#bcd6ee}
+.avatar{
+  width:30px;height:30px;flex:none;border-radius:50%;border:none;
+  background:linear-gradient(135deg,#172437,#31536f);color:#cfe4f7;
+  font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+
+/* ===== 页签 / 分段 ===== */
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-top:9px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:none;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;
+  color:var(--text-secondary);background:var(--surface-soft);border:1px solid transparent;
+  white-space:nowrap;transition:.15s;
+}
+.tab .n{opacity:.6;margin-left:2px;font-weight:700}
+.tab.on{background:var(--accent);color:#fff;box-shadow:0 3px 10px var(--accent-glow)}
+.seg{display:flex;background:var(--surface-soft);border-radius:10px;padding:3px;gap:2px;margin-top:9px}
+.seg .s{flex:1;text-align:center;padding:6px 0;border-radius:8px;font-size:12px;font-weight:600;color:var(--text-muted)}
+.seg .s.on{background:var(--surface);color:var(--accent);box-shadow:0 1px 4px rgba(23,35,55,.09)}
+.seg .s .n{opacity:.55;margin-left:2px}
+
+/* ===== 筛选条 ===== */
+.fbar{display:flex;align-items:center;gap:6px;padding-top:8px}
+.fchip{
+  display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface);color:var(--text-secondary);
+  font-size:11px;font-weight:600;
+}
+.fchip.on{border-color:#bcd6ee;background:var(--accent-soft);color:var(--accent)}
+.fcount{margin-left:auto;font-size:10.5px;color:var(--text-muted)}
+
+/* ===== 卡片 ===== */
+.screen-body{flex:1;min-height:0;overflow-y:auto;padding:11px 12px 16px}
+.screen-body::-webkit-scrollbar{width:4px}
+.screen-body::-webkit-scrollbar-thumb{background:#d3dbe6;border-radius:2px}
+.card{
+  position:relative;background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;
+  padding:11px 12px;margin-bottom:9px;box-shadow:var(--shadow-sm);overflow:hidden;
+}
+.card.late::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--danger)}
+.card-h{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+.c-name{font-size:13.5px;font-weight:700;line-height:1.4;letter-spacing:-.2px;word-break:break-word}
+.c-name.small{font-size:13px}
+.c-meta{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:11px;color:var(--text-muted);margin-top:5px}
+.c-meta .it{display:inline-flex;align-items:center;gap:3px;min-width:0}
+.c-meta .it i{font-size:10.5px;color:#93a2b5}
+.c-sub{font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.c-ops{display:flex;gap:6px;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line-soft)}
+.c-ops .btn{flex:1;min-width:0}
+.card.tapable:active{background:#fbfdff}
+
+/* ===== 标签 ===== */
+.tag{
+  display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:5px;
+  font-size:10.5px;font-weight:700;line-height:1.7;white-space:nowrap;flex:none;
+}
+.tag i{font-size:9.5px}
+.tag-gray{background:#e9eef5;color:#55637a;border:1px solid #dde4ee}
+.tag-accent{background:#e2effa;color:var(--accent);border:1px solid #c8e0f4}
+.tag-warn{background:#fdeee4;color:var(--warn);border:1px solid #f3d6c3}
+.tag-ok{background:#e0f2ec;color:var(--ok);border:1px solid #bfe0d6}
+.tag-danger{background:#fbe4e2;color:var(--danger);border:1px solid #f2c9c4}
+.tag-violet{background:#efeaf9;color:var(--violet);border:1px solid #ddd2f0}
+
+/* ===== 按钮 ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text-secondary);font-size:12px;font-weight:600;
+  white-space:nowrap;transition:.15s;
+}
+.btn:active{transform:scale(.98)}
+.btn i{font-size:11.5px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:active{background:#0d5ca3}
+.btn.danger{color:var(--danger);border-color:#ecc7c3;background:#fff}
+.btn.warn{color:var(--warn);border-color:#eed3c2;background:#fff}
+.btn.ghost{background:transparent}
+.btn.sm{height:26px;padding:0 8px;font-size:11.5px;border-radius:7px}
+.btn.block{width:100%;height:38px;border-radius:10px;font-size:13.5px}
+.btn:disabled,.btn.dis{opacity:.42;pointer-events:none}
+.link{color:var(--accent);font-weight:700;font-size:11.5px;background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
+.link.dim{color:var(--text-muted);font-weight:500;pointer-events:none}
+
+/* ===== 表单 ===== */
+.fld{margin-bottom:11px}
+.fld > label{display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px}
+.fld > label .req{color:var(--danger);margin-left:2px}
+.inp{
+  width:100%;height:38px;border:1px solid var(--line);border-radius:9px;padding:0 10px;
+  font-size:12.5px;color:var(--text-primary);background:var(--surface);outline:none;transition:.15s;
+}
+.inp::placeholder{color:#a9b5c4}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+textarea.inp{height:auto;min-height:74px;padding:9px 10px;resize:vertical;line-height:1.6}
+select.inp{
+  appearance:none;padding-right:28px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23657386' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;
+}
+.inp.ro,.inp:disabled{background:var(--surface-soft);color:var(--text-secondary);border-color:var(--line-soft)}
+.pick{display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer;gap:6px}
+.pick .ph{color:#a9b5c4}
+.pick.filled{color:var(--text-primary)}
+.pick i{color:#93a2b5;font-size:12px;flex:none}
+.hint{font-size:10.5px;color:var(--text-muted);line-height:1.65;margin-top:5px}
+.hint i{color:var(--accent);margin-right:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+
+/* ===== 开关 ===== */
+.sw{width:38px;height:22px;border-radius:11px;background:#cfd7e3;position:relative;flex:none;transition:.18s}
+.sw::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.18s;box-shadow:0 1px 3px rgba(16,26,41,.22)}
+.sw.on{background:var(--accent)}
+.sw.on::after{left:18px}
+.swrow{display:flex;align-items:flex-start;gap:9px;padding:4px 0}
+.swrow .txt{flex:1;min-width:0}
+.swrow .t{font-size:12.5px;font-weight:600}
+.swrow .d{font-size:10.5px;color:var(--text-muted);line-height:1.5;margin-top:1px}
+
+/* ===== 区块 ===== */
+.blk{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;margin-bottom:9px;overflow:hidden}
+.blk-h{
+  display:flex;align-items:center;gap:6px;padding:10px 12px;font-size:12.5px;font-weight:700;
+  border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg,#fbfdff,#fff);
+}
+.blk-h i{color:var(--accent);font-size:13px}
+.blk-h .r{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--text-muted)}
+.blk-b{padding:11px 12px}
+.blk-b.tight{padding:2px 12px 8px}
+.blk-sec{padding:9px 12px;border-bottom:1px dashed var(--line-soft)}
+.blk-sec:last-child{border-bottom:none}
+.blk-sec .st{font-size:11.5px;font-weight:700;color:var(--text-secondary);display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.blk-sec .st i{color:var(--accent);font-size:12px}
+
+/* ===== 信息表 ===== */
+.kv{display:grid;grid-template-columns:64px 1fr;gap:6px 8px;font-size:11.5px;align-items:start}
+.kv .k{color:var(--text-muted)}
+.kv .v{color:var(--text-primary);word-break:break-word}
+.kv .full{grid-column:1/-1;padding-top:2px}
+.kv .full .k{display:block;margin-bottom:2px}
+.kv .full .v{line-height:1.65;white-space:pre-wrap}
+.k-l{font-size:15px;font-weight:800;letter-spacing:-.2px;color:var(--text-primary)}
+
+/* ===== 状态胶囊 ===== */
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.pill{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;
+  font-size:10.5px;font-weight:700;background:var(--surface);border:1px solid var(--line);color:var(--text-secondary);
+}
+.pill.warn{background:var(--danger-soft);border-color:#f0c4c0;color:var(--danger)}
+.pill.done{background:var(--warn-soft);border-color:#eed3c2;color:var(--warn)}
+.pill.ok{background:var(--ok-soft);border-color:#b9ddd4;color:var(--ok)}
+.pill.accent{background:var(--accent-soft);border-color:#bcd6ee;color:var(--accent)}
+
+/* ===== 选择器弹层内的列表 ===== */
+.opt-list{display:flex;flex-direction:column;gap:6px}
+.opt{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid var(--line-soft);
+  border-radius:9px;background:var(--surface);font-size:12.5px;
+}
+.opt.on{border-color:#bcd6ee;background:var(--accent-soft)}
+.opt .nm{flex:1;min-width:0}
+.opt .ds{font-size:10.5px;color:var(--text-muted);margin-top:1px}
+.chk{width:16px;height:16px;border-radius:5px;border:1.5px solid #c6d1de;display:flex;align-items:center;justify-content:center;flex:none;color:#fff;font-size:10px;background:#fff}
+.opt.on .chk{background:var(--accent);border-color:var(--accent)}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid #c6d1de;flex:none;display:flex;align-items:center;justify-content:center;background:#fff}
+.opt.on .radio{border-color:var(--accent)}
+.opt.on .radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.custom-add{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line-soft)}
+.custom-add .mini{white-space:nowrap}
+
+/* 提醒条目：时间与提醒人各一行 */
+.remind-item{padding:8px 0;border-top:1px dashed var(--line-soft)}
+.remind-item:first-child{border-top:none}
+.remind-item .ri-h{display:flex;align-items:center;gap:8px}
+.remind-item .ri-l{font-size:11.5px;color:var(--text-secondary);min-width:76px}
+.remind-item .ri-v{flex:1;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11.5px;color:var(--text-primary);background:var(--surface-soft);border:1px solid var(--line);border-radius:7px;padding:5px 8px;min-width:0}
+.remind-item .ri-v span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.remind-item .ri-p{display:flex;align-items:center;gap:6px;margin-top:4px;padding-left:84px;font-size:11px;color:var(--text-muted)}
+.remind-item .ri-p button{font-size:11px;color:var(--accent);font-weight:600;background:none;border:none;padding:0;text-align:left}
+.year-row{display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line-soft);border-radius:8px;margin-bottom:6px}
+.year-row .yr-b{flex:1;display:flex;gap:6px;min-width:0}
+.year-row .yr-b button{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:11px;color:var(--text-secondary);background:var(--surface-soft);border:1px solid var(--line);border-radius:6px;padding:5px 6px}
+.year-row .yr-b button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 组织架构 */
+.org-search{position:relative;margin-bottom:8px}
+.org-search i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#a9b5c4}
+.org-search input{padding-left:30px}
+.dept{border-bottom:1px solid var(--line-soft)}
+.dept-h{display:flex;align-items:center;gap:6px;padding:9px 2px;font-size:12.5px;font-weight:700}
+.dept-h .cnt{font-size:10.5px;color:var(--text-muted);font-weight:500}
+.dept-h .all{margin-left:auto;font-size:10.5px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:3px}
+.dept-b{display:none;padding:0 2px 7px 8px}
+.dept.open .dept-b{display:block}
+.dept.open .caret{transform:rotate(90deg)}
+.caret{font-size:9px;color:#a9b5c4;transition:.15s}
+.mem{display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:7px}
+.mem:active{background:var(--surface-soft)}
+.mem .av{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.mem .nm{flex:1;font-size:12.5px}
+.mem .dp{font-size:10px;color:#a9b5c4}
+.selbar{background:var(--accent-soft);border:1px solid #cfe3f5;border-radius:8px;padding:7px 9px;font-size:11px;color:var(--accent);margin-top:9px;line-height:1.6}
+
+/* 表单分类选择 */
+.cat-wrap{display:flex;gap:8px;height:300px}
+.cat-l{width:36%;overflow-y:auto;border-right:1px solid var(--line-soft);padding-right:6px}
+.cat-i{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:7px;font-size:12px;color:var(--text-secondary);margin-bottom:3px}
+.cat-i.on{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.cat-i .c{font-size:10px;color:#a9b5c4}
+.cat-i.on .c{color:var(--accent)}
+.cat-r{flex:1;overflow-y:auto;padding-left:2px}
+.form-i{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line-soft);border-radius:8px;margin-bottom:6px}
+.form-i.on{border-color:#bcd6ee;background:var(--accent-soft)}
+.form-i .nm{font-size:12.5px;font-weight:600}
+.form-i .mt{font-size:10px;color:var(--text-muted);margin-top:1px}
+
+/* ===== 底部系统导航不在本原型范围（已移除） ===== */
+
+/* ===== 移动端交互优化：头部瘦身 / 吸底操作条 / 卡片操作收敛 ===== */
+.hd{padding:7px 13px 8px}
+.hd-row .seg.seg-title{flex:1;margin:0;padding:2px;min-width:0}
+.seg-title .s{padding:5px 0;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabs-row{display:flex;align-items:center;gap:8px;margin-top:7px}
+.tabs-row .tabs{flex:1;min-width:0;padding-top:0}
+.tabs-row .tab{padding:6px 10px}
+.fchip{width:30px;height:30px;padding:0;justify-content:center;flex:none;position:relative}
+.fchip .fdot{position:absolute;top:-5px;right:-5px;min-width:14px;height:14px;padding:0 3px;border-radius:7px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.action-bar{
+  flex:none;display:flex;gap:9px;padding:8px 13px calc(9px + env(safe-area-inset-bottom));
+  background:var(--surface);border-top:1px solid var(--line);position:relative;z-index:7;
+  box-shadow:0 -4px 14px rgba(23,35,55,.05);
+}
+.action-bar .btn{height:42px;border-radius:10px;font-size:14px}
+.action-bar .btn.ghost{flex:0 0 32%}
+.action-bar .btn.primary{flex:1}
+.c-ops .btn{height:32px;font-size:12px}
+.c-ops .btn.primary{flex:1.5}
+.c-go{font-size:12px;color:#b7c2d0;flex:none;margin-top:3px}
+.c-kicker{display:flex;align-items:center;gap:3px;font-family:'JetBrains Mono',Consolas,monospace;font-size:10px;line-height:1.4;color:#93a2b5;letter-spacing:.1px;margin-bottom:3px}
+.c-kicker i{font-size:9px;color:#b7c2d0}
+.mod-title{flex:1;font-size:17px;font-weight:900;letter-spacing:-.3px;color:var(--text-primary)}
+.seg .s .n{margin-left:4px}
+.more-list{display:flex;flex-direction:column;gap:6px}
+.more-i{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:10px;background:var(--surface);text-align:left}
+.more-i .mic{font-size:17px;color:var(--accent);flex:none}
+.more-i .mt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.more-i .mt b{font-size:13px;font-weight:600;color:var(--text-primary)}
+.more-i .mt em{font-style:normal;font-size:11px;color:var(--text-muted);line-height:1.45}
+.more-i .ar{font-size:12px;color:#a9b5c4;flex:none}
+.more-i.danger .mic{color:var(--danger)}
+.more-i.danger .mt b{color:var(--danger)}
+@media (max-width:520px){
+  body{height:100dvh}
+  .phone{height:100dvh}
+}
+
+/* ===== 底部弹层 ===== */
+#sheetRoot{position:absolute;inset:0;z-index:40;pointer-events:none}
+.sheet-ov{
+  position:absolute;inset:0;background:rgba(16,24,36,.44);pointer-events:auto;
+  display:flex;align-items:flex-end;animation:fadeIn .16s ease;
+}
+.sheet-ov.center{align-items:center;justify-content:center}
+.sheet{
+  width:100%;max-height:88%;background:var(--surface);border-radius:18px 18px 0 0;
+  display:flex;flex-direction:column;animation:slideUp .24s cubic-bezier(.2,.8,.2,1);
+}
+.sheet-ov.center .sheet{width:calc(100% - 36px);max-height:82%;border-radius:16px;animation:popIn .18s ease}
+.sheet-h{flex:none;padding:13px 15px 10px;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--line-soft)}
+.sheet-h .tt{flex:1;min-width:0}
+.sheet-h h3{font-size:14px;font-weight:800;letter-spacing:-.2px;line-height:1.35}
+.sheet-h .ds{font-size:10.5px;color:var(--text-muted);margin-top:2px;line-height:1.55}
+.sheet-h .x{width:26px;height:26px;border-radius:50%;border:none;background:var(--surface-soft);color:var(--text-muted);font-size:15px;display:flex;align-items:center;justify-content:center;flex:none}
+.sheet-b{flex:1;min-height:0;overflow-y:auto;padding:11px 15px 4px}
+.sheet-f{flex:none;padding:9px 15px 15px;display:flex;gap:8px;border-top:1px solid var(--line-soft)}
+.sheet-f .btn{flex:1;height:36px;font-size:13px;border-radius:9px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+
+/* ===== Toast ===== */
+.toast-wrap{position:absolute;bottom:92px;left:0;right:0;z-index:60;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{
+  max-width:88%;padding:8px 13px;border-radius:10px;background:rgba(23,35,55,.92);color:#fff;
+  font-size:11.5px;font-weight:500;line-height:1.5;box-shadow:0 8px 22px rgba(16,26,41,.25);
+  display:flex;align-items:center;gap:6px;animation:popIn .18s ease;
+}
+.toast i{font-size:12px}
+.toast.ok{background:rgba(40,125,105,.95)}
+.toast.err{background:rgba(199,61,50,.95)}
+.toast.warn{background:rgba(173,96,55,.95)}
+
+/* ===== 右侧规则面板 ===== */
+.logic{
+  width:404px;flex:none;background:linear-gradient(180deg,var(--logic-bg) 0%,var(--logic-bg2) 100%);
+  border-left:3px solid var(--accent);overflow-y:auto;padding:20px 18px 60px;position:relative;z-index:1;
+}
+.logic::-webkit-scrollbar{width:4px}
+.logic::-webkit-scrollbar-thumb{background:#cbdcf0;border-radius:2px}
+.logic h2{font-size:14.5px;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:7px;letter-spacing:-.2px}
+.logic .lg-sub{font-size:10.5px;color:var(--text-muted);margin:4px 0 14px;line-height:1.6}
+.note{background:var(--surface);border:1px solid var(--logic-line);border-left:4px solid var(--accent);border-radius:10px;padding:11px 12px;margin-bottom:11px;box-shadow:0 1px 3px rgba(15,108,189,.06)}
+.note h4{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.note h4 .idx{width:17px;height:17px;border-radius:50%;background:var(--accent);color:#fff;font-size:9.5px;display:inline-flex;align-items:center;justify-content:center;flex:none;font-weight:700}
+.note p,.note li{font-size:11px;line-height:1.72;color:var(--text-secondary)}
+.note ul{padding-left:14px;margin:2px 0}
+.note li{margin-bottom:3px}
+.note b{color:var(--text-primary);font-weight:700}
+.note .hl{color:var(--danger);font-weight:700}
+.note .ok{color:var(--ok);font-weight:700}
+.note .em{color:var(--accent);font-weight:700}
+.note code{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--surface-soft);padding:1px 4px;border-radius:4px;color:var(--accent)}
+.nt{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.5px;margin-top:3px}
+.nt th{text-align:left;color:var(--text-muted);font-weight:700;padding:3px 4px;border-bottom:1px solid var(--line)}
+.nt th:first-child{white-space:nowrap;width:54px}
+.nt td{padding:3px 4px;border-bottom:1px solid var(--line-soft);color:var(--text-secondary);line-height:1.55}
+.nt td:first-child{color:var(--text-primary);font-weight:600;white-space:nowrap;width:54px}
+.fd{display:grid;grid-template-columns:74px 1fr;gap:2px 8px;font-size:10.8px;line-height:1.62;padding:3.5px 0;border-bottom:1px dotted var(--line-soft)}
+.fd:last-child{border-bottom:none}
+.fd .f{color:var(--text-primary);font-weight:700}
+.fd .s{color:var(--text-secondary)}
+.fd .s b{font-weight:700}
+.fd-note{font-size:10.5px;color:var(--text-muted);line-height:1.65;margin-top:5px}
+.logic-toggle{
+  display:none;position:absolute;right:16px;bottom:18px;z-index:30;width:42px;height:42px;border-radius:50%;
+  border:none;background:var(--accent);color:#fff;font-size:17px;box-shadow:0 8px 20px var(--accent-glow);
+}
+@media (max-width:1260px){
+  .logic{display:none}
+  .logic.show{display:block;position:absolute;inset:0;width:auto;z-index:50}
+  .logic-toggle{display:flex;align-items:center;justify-content:center}
+}
+@media (max-height:840px) and (min-width:521px){
+  .phone{height:calc(100vh - 48px)}
+}
+/* 真机 / 窄屏预览：手机外壳铺满，去掉边框与说明面板 */
+@media (max-width:520px){
+  .stage{padding:0}
+  .phone{width:100%;height:100vh;max-height:none;border:0;border-radius:0;box-shadow:none}
+  .stage-tag{display:none}
+  .logic.show{display:block;position:fixed;inset:0;width:auto;z-index:80}
+}
+
+/* ===== 其它 ===== */
+.empty{text-align:center;padding:38px 16px;color:#a9b5c4}
+.empty i{font-size:30px;display:block;margin-bottom:8px;opacity:.45}
+.empty p{font-size:11.5px}
+.divider{height:1px;background:var(--line-soft);margin:9px 0}
+.mini{font-size:10.5px;color:var(--text-muted);line-height:1.6}
+.tipbox{background:var(--accent-soft);border:1px solid #cfe3f5;border-radius:9px;padding:8px 10px;font-size:10.5px;color:#255a86;line-height:1.65;margin-bottom:9px}
+.tipbox i{margin-right:3px}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block}
+.scroll-x{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.scroll-x::-webkit-scrollbar{display:none}
+.wrap-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  padding:5px 9px;border:1px solid var(--line);border-radius:7px;background:var(--surface);
+  font-size:11.5px;color:var(--text-secondary);font-weight:600;
+}
+.chip.on{border-color:#bcd6ee;background:var(--accent-soft);color:var(--accent)}
+.chip.mini{padding:3px 7px;font-size:10.5px}
+.num{width:64px;height:30px;text-align:center}
+@media (max-width:520px){
+  .logic-toggle{bottom:calc(78px + env(safe-area-inset-bottom));right:14px}
+}
+
+/* 嵌入主原型时只保留任务内容；说明由宿主页面的开关单独展示。 */
+html.is-embedded,body.is-embedded,html.is-description-only,body.is-description-only{
+  width:100%;height:100%;min-height:0;overflow:hidden;
+}
+body.is-embedded{background:var(--canvas);}
+body.is-embedded .app{display:block;width:100%;height:100%;}
+body.is-embedded .stage{display:block;width:100%;height:100%;padding:0;overflow:hidden;background:var(--canvas);}
+body.is-embedded .stage::before,body.is-embedded .stage-tag,body.is-embedded .statusbar,
+body.is-embedded .logic,body.is-embedded .logic-toggle{display:none;}
+body.is-embedded .phone{width:100%;height:100%;max-height:none;border:0;border-radius:0;box-shadow:none;}
+body.is-embedded #sc-task .hd-row > .icon-btn:first-child{display:none;}
+body.is-embedded #sc-task .avatar{display:none;}
+body.is-embedded #sc-detail .hd-row > .icon-btn:first-child{display:none;}
+body.is-description-only{background:var(--logic-bg);}
+body.is-description-only .app{display:block;width:100%;height:100%;}
+body.is-description-only .stage,body.is-description-only .logic-toggle{display:none;}
+body.is-description-only .logic{
+  display:block;width:100%;height:100%;padding:18px 16px 32px;border:0;
+  background:linear-gradient(180deg,var(--logic-bg) 0%,var(--logic-bg2) 100%);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= 左侧：手机原型 ================= -->
+  <div class="stage" id="stage">
+    <div class="stage-tag">移动端 · 任务模块（模块内部）<span>390 × 812 · 只设计模块，不涉及底部导航</span></div>
+
+    <div class="phone" id="phone">
+      <div class="statusbar"><span>09:30</span><span class="sb-icons"><i class="bi bi-reception-4"></i><i class="bi bi-wifi"></i><i class="bi bi-battery-full"></i></span></div>
+
+      <div class="screens">
+
+        <!-- ============ 任务模块（我的任务 / 发布任务） ============ -->
+        <div class="screen on" id="sc-task">
+          <div class="hd">
+            <div class="hd-row">
+              <button class="icon-btn" onclick="backToShell()" title="返回工作台"><i class="bi bi-arrow-left"></i></button>
+              <div class="seg seg-title" id="moduleSeg"></div>
+              <button class="icon-btn" onclick="openSearch()"><i class="bi bi-search"></i></button>
+              <button class="avatar" onclick="openRoleSheet()">张</button>
+            </div>
+            <div id="myHead">
+              <div class="tabs-row">
+                <div class="tabs" id="myTabs"></div>
+                <button class="fchip" id="myFchip" onclick="openMyFilter()" title="筛选"><i class="bi bi-funnel"></i></button>
+              </div>
+            </div>
+            <div id="pubHead" style="display:none">
+              <div class="tabs-row"><div class="tabs" id="pubTabs"></div></div>
+            </div>
+          </div>
+          <div class="screen-body" id="myList"></div>
+          <div class="screen-body" id="pubList" style="display:none"></div>
+        </div>
+
+        <!-- ============ 发布 / 编辑计划表单 ============ -->
+        <div class="screen" id="sc-pubform">
+          <div class="hd">
+            <div class="hd-row">
+              <button class="icon-btn" onclick="backFromPubForm()"><i class="bi bi-arrow-left"></i></button>
+              <div class="grow"><h1 id="pfTitle" style="font-size:14.5px">发布任务</h1><div class="sub" id="pfSub"></div></div>
+            </div>
+            <div class="seg" id="pfTabs">
+              <div class="s on" data-pt="basic" onclick="pfTab('basic')">基本信息</div>
+              <div class="s" data-pt="rule" onclick="pfTab('rule')">全局规则</div>
+            </div>
+          </div>
+          <div class="screen-body" id="pfBody"></div>
+          <div class="action-bar" id="pfActionBar">
+            <button class="btn ghost" id="pfDraftBtn" onclick="saveDraft()">存草稿</button>
+            <button class="btn primary" id="pfSubmitBtn" onclick="submitPublish()">发布</button>
+          </div>
+        </div>
+
+        <!-- ============ 执行任务 / 查看提交 ============ -->
+        <div class="screen" id="sc-exec">
+          <div class="hd">
+            <div class="hd-row">
+              <button class="icon-btn" onclick="backFromExec()"><i class="bi bi-arrow-left"></i></button>
+              <div class="grow"><h1 id="exTitle" style="font-size:14.5px">执行任务</h1><div class="sub" id="exSub"></div></div>
+            </div>
+          </div>
+          <div class="screen-body" id="exBody"></div>
+          <div class="action-bar" id="exActionBar">
+            <button class="btn ghost" id="exDraftBtn" onclick="saveExecDraft()">暂存</button>
+            <button class="btn primary" id="exSubmitBtn" onclick="submitExec()">提交</button>
+          </div>
+        </div>
+
+        <!-- ============ 任务详情（只读） ============ -->
+        <div class="screen" id="sc-detail">
+          <div class="hd">
+            <div class="hd-row">
+              <button class="icon-btn" onclick="backFromDetail()"><i class="bi bi-arrow-left"></i></button>
+              <div class="grow"><h1 id="dtTitle" style="font-size:14.5px">任务详情</h1><div class="sub">任务信息与执行日志</div></div>
+              <span class="tag tag-gray">只读</span>
+            </div>
+          </div>
+          <div class="screen-body" id="dtBody"></div>
+        </div>
+
+        <!-- ============ 搜索 ============ -->
+        <div class="screen" id="sc-search">
+          <div class="hd">
+            <div class="hd-row">
+              <button class="icon-btn" onclick="backFromSearch()"><i class="bi bi-arrow-left"></i></button>
+              <div class="grow">
+                <div class="org-search" style="margin-bottom:0">
+                  <i class="bi bi-search"></i>
+                  <input class="inp" id="searchInput" placeholder="搜索任务名称 / 执行人 / 编号" oninput="renderSearch()">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="screen-body" id="searchList"></div>
+        </div>
+
+      </div><!-- /screens -->
+
+      <div id="sheetRoot"></div>
+      <div class="toast-wrap" id="toastWrap"></div>
+    </div><!-- /phone -->
+  </div><!-- /stage -->
+
+  <!-- ================= 右侧：模块规则说明 ================= -->
+  <aside class="logic" id="logicPanel">
+    <h2><i class="bi bi-journal-text"></i> 任务模块 · 逻辑备注（开发用）</h2>
+    <p class="lg-sub">页面只保留用户可见内容；实现口径全部写在这里。演示时钟固定 <code>DEMO_NOW='2026-07-14 09:30'</code>，文中"当前时间"均指它，保证超期标记可复现。</p>
+
+    <div class="note">
+      <h4><span class="idx">1</span>对象模型与标识</h4>
+      <table class="nt">
+        <tr><th>对象</th><th>产生方式</th><th>说明</th></tr>
+        <tr><td>模板</td><td>PC 设计器</td><td>低代码表单 + 全局规则；界面只展示 <code>TPLxxx</code></td></tr>
+        <tr><td>任务</td><td>一次发布</td><td>单次只生成 1 条执行；周期按规则持续生成</td></tr>
+        <tr><td>执行</td><td>到点生成</td><td>有自己的计划起止，超期按它自己算</td></tr>
+        <tr><td>待办</td><td>执行 × 执行人</td><td>会签最小单位，一人一条、独立提交</td></tr>
+      </table>
+      <p><b>执行编号是唯一在界面展示的业务编码</b>：<code>任务名称首字母 4 位 + yyyyMMdd + 3 位流水号</code>，例 <code>WSND20260702001</code>（瓦斯浓度监测 · 2026-07-02 · 当日第 1 条）。流水号按「前缀 + 发布日」自增，跨天重置；生成即固化，改名不改号。任务编号、待办 ID 仍只在后台与导出中使用；模板编码 <code>TPLxxx</code> 继续展示。</p>
+      <p class="fd-note">原型里用「名称→首字母」映射表近似生成演示编号（未收录的名称回退到来源模板前缀，再兜底 <code>RWXX</code>）；真实实现请用拼音库生成并由服务端落库。</p>
+      <p>渲染数据全部来自 <code>TASKS / EXECS / DRAFTS / TEMPLATES</code> 常量，页面字段逐条对应其属性，见下文各表。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">2</span>我的任务 · 卡片字段来源</h4>
+      <p>以「待我执行」里的「瓦斯浓度监测」为例（<code>EXECS</code> 中 <code>I20260701007</code>）：</p>
+      <div class="fd"><span class="f">任务名称</span><span class="s">← <code>exec.name</code>，该次执行所属任务名，发布时快照；&gt;20 字截断加「…」</span></div>
+      <div class="fd"><span class="f">执行编号</span><span class="s">← <code>exec_no</code>，生成执行时由服务端按「名称首字母 4 位 + 发布日 yyyyMMdd + 3 位流水号」生成并<b>固化</b>，后续改名不变；卡片<b>标题上方单独一行 10px 等宽浅灰小字</b>（<code>#</code> 前缀），不占标题行、不与状态标签抢位。示例 <code>WSND20260702001</code></span></div>
+      <div class="fd"><span class="f">发布时间</span><span class="s">← <code>exec.pubTime</code>，该执行被生成的绝对时刻＝它的计划开始 − 提前量；周期任务每天一条，各不相同。示例值 <code>2026-07-02 08:00</code></span></div>
+      <div class="fd"><span class="f">执行人</span><span class="s">← 该执行全部执行人（<code>signers</code> 去掉已转出的），含我；1 人全名、2 人「A、B」、≥3 人「A、B 等 N 人」。示例值「张伟明」</span></div>
+      <div class="fd"><span class="f">状态</span><span class="s">← 服务端按 已提交人数/执行人总数 计算：0 → 未执行；0&lt;n&lt;m → 执行中 n/m；n=m → 已完成。本标签不会出现已完成（我一交就移出）。示例：0/1 → 未执行</span></div>
+      <div class="fd"><span class="f">超期</span><span class="s">← 人级判定：我未提交 且 当前时间 &gt; 该执行 <code>planEnd</code> → 红「超期」。示例：我未交，2026-07-14 09:30 &gt; 2026-07-02 12:00 → 超期</span></div>
+      <div class="fd"><span class="f">超期完成</span><span class="s">← 我已提交但 我的提交时间 &gt; <code>planEnd</code> → 橙「超期完成」，永久保留。出现在「已执行」</span></div>
+      <div class="fd"><span class="f">未到计划开始</span><span class="s">← 任务规则 <code>rule.execCtrl=true</code> 且 当前时间 &lt; 该执行 <code>planStart</code> → 执行按钮置灰，卡片提示「未到计划开始时间（<b>完整年月日时分</b>，如 2026-07-14 10:00）」。演示数据：<code>顶板离层专项观测</code>（<code>I20260714002</code>，plan_start=2026-07-14 10:00）</span></div>
+      <p class="fd-note">「执行」按钮点击＝进入执行页；「转办」＝打开转办弹窗。超期只标红和提醒，不限制提交 / 转办。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">3</span>我的任务 · 四个标签的差异</h4>
+      <table class="nt">
+        <tr><th>标签</th><th>行粒度</th><th>超期口径</th><th>操作</th></tr>
+        <tr><td>待我执行</td><td>我的待办</td><td>人级：我未交且过期</td><td>执行 · 转办</td></tr>
+        <tr><td>已执行</td><td>我的待办</td><td>人级：我的提交 &gt; plan_end → 超期完成</td><td>查看（我的提交只读页）</td></tr>
+        <tr><td>已转发</td><td>我的待办</td><td>不显示（进度归接手人）</td><td>查看（任务详情）</td></tr>
+        <tr><td>我参与的</td><td>整条执行</td><td>执行级：未闭环且过期</td><td>查看（任务详情）</td></tr>
+      </table>
+      <p>互斥归属：未交 → 待我执行；已交 → 已执行；已转出 → 已转发；仅参与 → 我参与的。同一执行同一人只出现一次。</p>
+      <p>「已转发」字段：转给 ← <code>signers[CU].fwdTo</code>；转出时间 ← <code>fwdAt</code>。「已执行」字段：我的提交时间 ← <code>signers[CU].at</code>（服务端提交时刻）。「我参与的」执行人列不含我（我是参与人）；执行被撤回 / 作废后从本列表移除。</p>
+      <p>排序：待我执行超期在前，其余按发布时间倒序。四类卡片（含已转发、我参与的）<b>都展示执行编号</b>，现场可直接按编号口述、搜索。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">4</span>发布任务 · 我发起的 字段来源</h4>
+      <div class="fd"><span class="f">类型</span><span class="s">← <code>task.rule.repeatOn</code>：开＝周期，关＝单次</span></div>
+      <div class="fd"><span class="f">执行人</span><span class="s">← <code>task.execs</code>（任务全部执行人，人员显示规则同上）</span></div>
+      <div class="fd"><span class="f">已发布次数</span><span class="s">← <code>count(EXECS.filter(taskId))</code>；0 次纯文本不可点，≥1 次为链接，点开执行明细</span></div>
+      <div class="fd"><span class="f">状态</span><span class="s">← 任务级 4 态（服务端下发）：进行中 / 已暂停 / 已完成 / 已终止；<b>任务级不出现超期</b>。注意「已完成」只代表执行已全部生成完毕，不代表做完</span></div>
+      <div class="fd"><span class="f">创建时间</span><span class="s">← <code>task.createdAt</code>＝<b>任务定义的创建时间</b>：直接发布＝点发布的时刻；先存草稿后发布＝<b>草稿创建时间</b>，发布不改变它（例：10-23 10:00 建草稿、10-25 08:00 发布 → 显示 10-23 10:00）。首条执行的发布时间在执行明细的「发布时间」列看；列表按创建时间倒序</span></div>
+      <p class="fd-note">范围：creator = 当前登录人。操作：进行中＝编辑计划·暂停·复制·终止；已暂停＝编辑计划·恢复·复制·终止；已完成/已终止＝查看·复制。编辑计划只影响之后生成的执行；终止需填原因 2–200 字。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">5</span>执行明细 / 执行详情</h4>
+      <p>入口：我发起的 → 点「已发布次数」。范围限<b>自己发起的任务</b>，按发布时间倒序；每行首位同样显示<b>执行编号</b>，与卡片同源。</p>
+      <div class="fd"><span class="f">发布时间</span><span class="s">← <code>exec.pubTime</code>（同上）</span></div>
+      <div class="fd"><span class="f">执行人</span><span class="s">← <code>signers</code> 去掉已转出的</span></div>
+      <div class="fd"><span class="f">状态</span><span class="s">← 已提交人数 / 执行人总数；必须带 n/m</span></div>
+      <div class="fd"><span class="f">超期</span><span class="s">← 执行级：未闭环 且 当前时间 &gt; plan_end → 超期；闭环 且 最后提交 &gt; plan_end → 超期完成；已撤回 / 已作废 → 不显示</span></div>
+      <div class="fd"><span class="f">操作</span><span class="s">← 详情恒有；撤回仅 0/n；作废仅 0&lt;n&lt;m；调整仅存在未提交者且目标≠现有执行人。撤回 / 作废必填原因 2–200 字；撤回不通知、作废通知、调整通知新旧执行人；都写执行日志</span></div>
+      <p>执行日志行（任务详情同源）：<code>系统·已发布</code>（←pubTime）/ 各执行人 <code>已提交</code>（←signer.at，标人级超期）/ <code>未提交</code>（置顶）/ 事件行：已转办（←signer.fwdTo / fwdAt / fwdReason）、已撤回、已作废、已调整执行人（←exec.events）。未提交置顶，其余按时间倒序；动作颜色：提交绿、转办蓝、撤回橙、作废红、调整紫。</p>
+      <p>「查看提交」＝进入该执行人的只读提交页；撤回 / 作废后提交记录与日志保留，仅从统计剔除。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">6</span>执行任务页 字段来源</h4>
+      <div class="fd"><span class="f">状态条</span><span class="s">状态 ← 服务端（n/m）；超期徽标 ← 人级判定；只读态标题换「查看提交 · 姓名」</span></div>
+      <div class="fd"><span class="f">执行编号</span><span class="s">← <code>execNo(e)</code>，只读展示在基本信息第一行（等宽字体），执行页与任务详情、执行详情三处一致，用于现场口述与拍照留痕</span></div>
+      <div class="fd"><span class="f">发起人</span><span class="s">← <code>task.creator</code></span></div>
+      <div class="fd"><span class="f">执行人</span><span class="s">← 该执行全部执行人（含已提交者）</span></div>
+      <div class="fd"><span class="f">参与人员</span><span class="s">← <code>exec.parts</code>（不产生待办）</span></div>
+      <div class="fd"><span class="f">执行表单</span><span class="s">← 模板快照 form；无表单显示「无（普通任务）」</span></div>
+      <div class="fd"><span class="f">工种 / 地点</span><span class="s">← <code>task.work / task.loc</code>，发布时快照</span></div>
+      <div class="fd"><span class="f">计划时间</span><span class="s">← <b>该执行自己的</b> plan_start ~ plan_end（跨天补日期），不是任务整体起止</span></div>
+      <div class="fd"><span class="f">执行说明</span><span class="s">← <code>task.desc</code>，单独占一整行</span></div>
+      <p>填写区：无表单 → 「执行完成情况」必填 + 附件（≤9 个、单个 ≤20MB）；有表单 → 按模板 components 渲染（原型里巡检区域等是<b>演示字段，开发不要写死</b>）。</p>
+      <p>提交：校验 → 写 <code>signers[CU].at</code>（服务端时间）→ 行移入已执行并写「我的提交时间」→ 静默返回；会签未满显示执行中 n/m。暂存存本地 <code>EXEC_DRAFTS</code>，不改状态、再次进入回填。转办：我的待办置已转出、给接收人生成新待办、移入已转发。开始时间控制：<code>exec_ctrl</code> 开且 now &lt; plan_start 时按钮置灰，服务端同样拦截。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">7</span>发布表单 · 基本信息来源与校验</h4>
+      <div class="fd"><span class="f">任务名称</span><span class="s">默认＝模板名，可改；必填</span></div>
+      <div class="fd"><span class="f">发起人</span><span class="s">＝当前登录人，只读</span></div>
+      <div class="fd"><span class="f">参与人员</span><span class="s">组织架构多选，模板默认值；不产生待办、不参与会签</span></div>
+      <div class="fd"><span class="f">执行人</span><span class="s">组织架构多选，模板默认值；≥1 人，产生待办</span></div>
+      <div class="fd"><span class="f">执行表单</span><span class="s">模板带入（无 / 普通业务表单 / BPM）；发布后不可改</span></div>
+      <div class="fd"><span class="f">工种 / 地点 / 说明</span><span class="s">模板默认值，可改</span></div>
+      <div class="fd"><span class="f">计划起止</span><span class="s">默认次日 08:00~17:00；含义＝<b>第一条执行</b>的起止；校验：结束 &gt; 开始、开始 ≥ 当前时间；后续执行＝日期按频率后推，时刻与时长沿用首条</span></div>
+      <p>发布成功：创建任务（生成编号）→ 生成首条执行 → 跳「我发起的」。存草稿：只存定义不生成执行。编辑计划：只改任务定义，已生成的执行不回改。复制：照抄配置新建，名称加「（副本）」，所有状态可用。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">8</span>全局规则 · 字段与默认值（与 PC 一致）</h4>
+      <p><b>执行控制</b> <code>execCtrl</code>：默认开。开＝未到该执行 plan_start 不能提交（服务端同校验）；关＝收到待办即可执行。</p>
+      <p><b>自动推送提醒</b> <code>remindOn</code>：默认开。关＝三类提醒全不发。</p>
+      <p><b>计划开始前</b> <code>beforeStart</code>：多选，准时 / 提前10分 / 30分 / 1小时 / 2小时 / 1天 / 2天 + 自定义（1–999 分钟·小时·天）；<b>选项中没有「不提醒」，全部取消＝该提醒不发</b>；多选时每个选项各发 1 次；触发时刻＝plan_start − 提前量。<b>提醒人</b> <code>beforeStartPersons</code> 默认＝执行人，可单独改，≥1 人。</p>
+      <p><b>计划结束前</b> <code>beforeEnd</code> / <code>beforeEndPersons</code>：同上，基准＝plan_end。</p>
+      <p><b>超期未处理</b> <code>overdue</code>：单选，每10分 / 每30分 / 每1小时 / 每1天 + 自定义「每N单位」；<b>选项中没有「不提醒」</b>；未选择时字段显示「请选择」、内部状态记为 <code>不提醒</code>（未配置），此时重复次数不可编辑；选定后按该间隔重复，第 1 次提醒＝plan_end + 间隔；<b>重复次数</b> <code>overdueCount</code> 1–10 默认 2（总发送次数含第 1 次），在「超期未处理」下拉弹层内配置，与 PC 端一致；提醒人 <code>overduePersons</code> 默认＝执行人。</p>
+      <p><b>重复发布</b> <code>repeatOn</code>：默认关；开＝按频率持续生成执行。</p>
+      <div class="fd"><span class="f">频率</span><span class="s"><code>freq</code>：按天 / 周 / 月 / 年；没有「不重复」选项，是否重复由开关决定</span></div>
+      <div class="fd"><span class="f">重复日期</span><span class="s">按天＝每天；按周 <code>week</code>＝星期多选（下拉弹层，含全选 / 清空）；按月 <code>month</code>＝1~31日 + 最后一天（按当月实际天数取，2月28/29）；按年 <code>yearRows</code>＝多行「月份 × 日期」下拉多选，行内笛卡尔积，行 ≤10，无效日期（2/30 等）自动跳过</span></div>
+      <div class="fd"><span class="f">停止日期</span><span class="s"><code>stopDate</code> ≥ 首条日期；<code>noEnd</code> 永不截止；到点后任务转「已完成」，不再生成</span></div>
+      <div class="fd"><span class="f">发布时间</span><span class="s"><code>delay</code>：准时 / 提前1小时 / 2小时 / 1天 / 2天 / 自定义；发布时刻＝计划开始 − 提前量</span></div>
+      <div class="fd"><span class="f">立即发布</span><span class="s"><code>imm</code>：默认关；开＝保存 / 发布时立刻生成第一条，不等发布时间</span></div>
+      <p class="fd-note">发布前校验顺序：名称 → 执行人 ≥1 → 起止有值 → 结束 &gt; 开始 → 开始 ≥ 当前时间 → 重复日期 ≥1 → 停止日期 → 各类提醒人 ≥1。<b>规则改动只影响本次发布，不回写模板</b>；模板默认值带入，发布时可覆盖。「下一次任务详情」按当前填写值实时推算下一条的发布时间与计划起止。</p>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">9</span>只读与边界</h4>
+      <ul>
+        <li><b>留 PC</b>：模板设计 / 启停 / 删除；任务总台账（全域视图 / 导出 / 跨人暂停终止撤回作废调整）。</li>
+        <li><b>移动端只读</b>：任务详情、执行详情、执行明细、提交详情。</li>
+        <li><b>模板</b>：只在「发布时选择」出现；不展示来源模板，不提供任何模板管理。</li>
+        <li><b>一期无审批</b>：提交即闭环，表单数据进业务台账。</li>
+        <li>角色：普通执行者隐藏「发布任务」段；按钮权限由服务端按角色 × 关系 × 状态下发。</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <h4><span class="idx">10</span>移动端交互约定（开发实现要求）</h4>
+      <ul>
+        <li><b>主操作吸底</b>：「发布 / 提交」固定在页面底部操作条，右侧主按钮占 68%、高 42px；左侧次要按钮（存草稿 / 暂存）占 32%。只读态整条隐藏，滚动区自动占满。</li>
+        <li><b>头部两层</b>：标题行内放「我的任务 / 发布任务」分段（单角色时降级为标题文字），其下才是页签 + 筛选图标；头部总高控制在 90px 内，不再堆三层。</li>
+        <li><b>整卡可点</b>：点卡片任意位置进详情 / 编辑，卡片内按钮与「已发布次数」链接必须 <code>stopPropagation</code>，避免误触。</li>
+        <li><b>操作收敛</b>：卡片最多 2 个按钮；暂停 / 恢复 / 复制 / 终止、编辑 / 删除草稿一律收进「更多」底部弹层，危险项置底且标红。</li>
+        <li><b>触控尺寸</b>：卡片按钮高 32px，吸底主按钮 42px，图标按钮 30–32px；文字链改为整行可点，不再使用 11px 行内文字。</li>
+        <li><b>Toast</b>：距底 92px 居中，避免遮挡头部与吸底操作条；页面用 <code>100dvh</code> 适配移动端浏览器地址栏。</li>
+        <li><b>执行编号</b>：卡片标题上方、执行明细每行标题上方、执行页/任务详情/执行详情基本信息第一行，四处同一取值；等宽字体、10px、浅灰（#93a2b5），只做弱提示，不抢标题。</li>
+      </ul>
+    </div>
+  </aside>
+
+  <button class="logic-toggle" onclick="document.getElementById('logicPanel').classList.toggle('show')"><i class="bi bi-list-ul"></i></button>
+
+</div><!-- /app -->
+
+<script>
+"use strict";
+/* ================================================================
+   0. 常量
+=============================================================== */
+const CU = '张伟明';                  // 当前登录人（与 PC 一致）
+const DEMO_NOW = '2026-07-14 09:30';  // 演示时钟：固定时刻，保证超期标记可复现
+const ROLE_LIST = [
+  {key:'超级管理员', desc:'我的任务 + 发布任务，可管理自己发起的全部任务', icon:'bi-shield-check'},
+  {key:'任务发布者', desc:'我的任务 + 发布任务，发布范围限本部门', icon:'bi-send-check'},
+  {key:'普通执行者', desc:'仅我的任务；发布任务段隐藏', icon:'bi-person-check'}
+];
+
+const ORG = [
+  {dept:'安全监察部', members:['张伟明','李强','王建国','赵志远']},
+  {dept:'机电运输部', members:['刘明辉','陈安平','周文博']},
+  {dept:'通风防突部', members:['孙建华','马永刚','郑海峰','黄志强']},
+  {dept:'地测防治水部', members:['吴秀英','冯立军','许文涛']},
+  {dept:'采掘一队', members:['杨帆','何磊','罗成']},
+  {dept:'调度室', members:['钱多','范伟','邓超']}
+];
+const ALL_PEOPLE = ORG.reduce((a,g)=>a.concat(g.members),[]);
+
+const TEMPLATES = [
+  {code:'TPL001', name:'日常巡检任务模板', form:'普通业务表单', status:'启用', creator:'张伟明', created:'2026-06-15 09:00', refs:4,
+   fields:['任务名称','发起人','参与人员','执行人','执行任务@表单','执行工种','执行地点','计划开始','计划结束','执行说明']},
+  {code:'TPL002', name:'设备维修任务模板', form:'无', status:'启用', creator:'张伟明', created:'2026-06-18 14:30', refs:3,
+   fields:['任务名称','发起人','参与人员','执行人','执行任务@表单','执行工种','执行地点','计划开始','计划结束','执行说明']},
+  {code:'TPL003', name:'隐患整改任务模板', form:'BPM流程表单', status:'启用', creator:'张伟明', created:'2026-06-20 10:15', refs:1,
+   fields:['任务名称','发起人','参与人员','执行人','执行任务@表单','执行工种','执行地点','计划开始','计划结束','执行说明','整改期限','验收人']},
+  {code:'TPL004', name:'应急演练任务模板', form:'普通业务表单', status:'停用', creator:'张伟明', created:'2026-06-22 16:00', refs:2,
+   fields:['任务名称','发起人','参与人员','执行人','执行任务@表单','执行工种','执行地点','计划开始','计划结束','执行说明']},
+  {code:'TPL005', name:'班前会记录模板', form:'无', status:'停用', creator:'张伟明', created:'2026-06-18 09:30', refs:0,
+   fields:['任务名称','发起人','参与人员','执行人','执行任务@表单','计划开始','计划结束','执行说明']}
+];
+
+/* ---------- 任务（任务级，一行 = 一个任务） ---------- */
+const TASKS = [
+  {id:'REC20260625', name:'东区3号矿井日常巡检', type:'周期', status:'进行中', creator:'张伟明',
+   execs:['张伟明','王建国'], parts:['刘明辉'], form:'普通业务表单', work:'巡检工', loc:'东区3号矿井',
+   desc:'每日东区3号矿井例行巡检，重点看顶板离层与通风状态。',
+   planStart:'2026-07-01 08:00', planEnd:'2026-12-31 17:00', createdAt:'2026-06-25 09:00', execCount:4,
+   tpl:'TPL001', rule:{execCtrl:true, repeatOn:true, freq:'按天', stopDate:'2026-12-31', noEnd:false, delay:'0', imm:true}},
+
+  {id:'T20260627005', name:'中央水泵房安全检查', type:'单次', status:'已完成', creator:'张伟明',
+   execs:['陈安平','张伟明'], parts:[], form:'普通业务表单', work:'安全员', loc:'中央水泵房',
+   desc:'检查水泵及配电设备运行状态。',
+   planStart:'2026-06-27 09:00', planEnd:'2026-06-27 17:00', createdAt:'2026-06-27 08:30', execCount:1,
+   tpl:'TPL001', rule:{execCtrl:true, repeatOn:false}},
+
+  {id:'T20260701007', name:'瓦斯浓度监测', type:'单次', status:'已完成', creator:'张伟明',
+   execs:['张伟明'], parts:[], form:'无', work:'瓦检工', loc:'东区3号矿井',
+   desc:'监测瓦斯浓度并记录，超限立即上报调度室。',
+   planStart:'2026-07-02 08:00', planEnd:'2026-07-02 12:00', createdAt:'2026-07-01 10:00', execCount:1,
+   tpl:'TPL002', rule:{execCtrl:true, repeatOn:false}},
+
+  {id:'T20260901001', name:'南区排水系统巡检', type:'单次', status:'进行中', creator:'张伟明',
+   execs:['赵志远'], parts:['张伟明'], form:'普通业务表单', work:'巡检工', loc:'南区排水系统',
+   desc:'检查排水泵与管路是否畅通。',
+   planStart:'2026-06-30 14:00', planEnd:'2026-07-01 14:00', createdAt:'2026-06-30 14:00', execCount:1,
+   tpl:'TPL001', rule:{execCtrl:true, repeatOn:false}},
+
+  {id:'REC20260701', name:'西区通风系统巡检', type:'周期', status:'已暂停', creator:'张伟明',
+   execs:['刘明辉'], parts:['张伟明'], form:'普通业务表单', work:'通风工', loc:'西区通风机房',
+   desc:'检查主扇运行状态与风量。',
+   planStart:'2026-06-01 09:00', planEnd:'2026-12-31 17:00', createdAt:'2026-06-01 09:00', execCount:12,
+   tpl:'TPL001', rule:{execCtrl:true, repeatOn:true, freq:'按天', stopDate:'2026-12-31', delay:'60'}},
+
+  {id:'REC20260520', name:'北区提升机检修', type:'周期', status:'已终止', creator:'张伟明',
+   execs:['张伟明','赵志远'], parts:[], form:'无', work:'机电维修工', loc:'北区提升机房',
+   desc:'更换闸瓦、试运行。',
+   planStart:'2026-05-01 07:00', planEnd:'2026-06-30 17:00', createdAt:'2026-05-20 07:00', execCount:5,
+   tpl:'TPL002', rule:{execCtrl:true, repeatOn:true, freq:'按月', stopDate:'2026-06-30', stopReason:'检修计划取消'}},
+
+  {id:'T20260620013', name:'西区回风巷巡检', type:'单次', status:'已完成', creator:'王建国',
+   execs:['张伟明','刘明辉'], parts:[], form:'普通业务表单', work:'巡检工', loc:'西区回风巷',
+   desc:'回风巷支护与瓦斯检查。',
+   planStart:'2026-06-20 08:00', planEnd:'2026-06-21 08:00', createdAt:'2026-06-20 08:00', execCount:1,
+   tpl:'TPL001', rule:{execCtrl:true, repeatOn:false}},
+
+  {id:'T20260625003', name:'东区3号矿井巡检', type:'单次', status:'进行中', creator:'李强',
+   execs:['张伟明'], parts:[], form:'普通业务表单', work:'巡检工', loc:'东区3号矿井',
+   desc:'日常巡检，重点看通风与顶板。',
+   planStart:'2026-06-30 08:00', planEnd:'2026-06-30 17:00', createdAt:'2026-06-30 08:00', execCount:1,
+   tpl:'TPL001', rule:{execCtrl:true, repeatOn:false}},
+
+  {id:'T20260714002', name:'顶板离层专项观测', type:'单次', status:'进行中', creator:'李强',
+   execs:['张伟明'], parts:[], form:'普通业务表单', work:'巡检工', loc:'东区3号矿井',
+   desc:'按「开始时间后才可执行」配置：10:00 前不能提交。',
+   planStart:'2026-07-14 10:00', planEnd:'2026-07-14 17:00', createdAt:'2026-07-14 09:00', execCount:1,
+   tpl:'TPL001', rule:{execCtrl:true, repeatOn:false}}
+];
+
+/* ---------- 执行（执行级，一行 = 一次执行） ---------- */
+const EXECS = [
+  {id:'I20260714001', taskId:'REC20260625', name:'东区3号矿井日常巡检', pubTime:'2026-07-14 08:00',
+   planStart:'2026-07-14 08:00', planEnd:'2026-07-14 17:00',
+   signers:[{n:'张伟明',at:null},{n:'王建国',at:'2026-07-14 09:10'}], parts:['刘明辉'],
+   form:'普通业务表单', work:'巡检工', loc:'东区3号矿井', desc:'例行巡检，重点看顶板离层。', starter:'张伟明', events:[]},
+
+  {id:'I20260701007', taskId:'T20260701007', name:'瓦斯浓度监测', pubTime:'2026-07-02 08:00',
+   planStart:'2026-07-02 08:00', planEnd:'2026-07-02 12:00',
+   signers:[{n:'张伟明',at:null}], parts:[],
+   form:'无', work:'瓦检工', loc:'东区3号矿井', desc:'监测瓦斯浓度并记录，超限立即上报调度室。', starter:'张伟明', events:[]},
+
+  {id:'I20260626004', taskId:'REC20260520', name:'北区提升机检修', pubTime:'2026-06-28 08:00',
+   planStart:'2026-06-28 08:00', planEnd:'2026-06-29 09:00',
+   signers:[{n:'张伟明',at:'2026-06-29 10:12'},{n:'赵志远',at:'2026-06-29 09:20'}], parts:[],
+   form:'无', work:'机电维修工', loc:'北区提升机房', desc:'更换闸瓦、试运行。', starter:'张伟明', events:[]},
+
+  {id:'I20260627005', taskId:'T20260627005', name:'中央水泵房安全检查', pubTime:'2026-06-27 09:00',
+   planStart:'2026-06-27 09:00', planEnd:'2026-06-27 17:00',
+   signers:[{n:'陈安平',at:'2026-06-27 15:00'},{n:'张伟明',at:'2026-06-27 15:20'}], parts:[],
+   form:'普通业务表单', work:'安全员', loc:'中央水泵房', desc:'检查水泵及配电设备运行状态。', starter:'张伟明', events:[]},
+
+  {id:'I20260620013', taskId:'T20260620013', name:'西区回风巷巡检', pubTime:'2026-06-20 08:00',
+   planStart:'2026-06-20 08:00', planEnd:'2026-06-21 08:00',
+   signers:[{n:'张伟明',at:'2026-06-20 09:00'},{n:'刘明辉',at:null}], parts:[],
+   form:'普通业务表单', work:'巡检工', loc:'西区回风巷', desc:'回风巷支护与瓦斯检查。', starter:'王建国',
+   voided:true, events:[{act:'已作废',who:'王建国',time:'2026-06-21 10:00',reason:'安排有误，取消本次',kind:'void'}]},
+
+  {id:'I20260625003', taskId:'T20260625003', name:'东区3号矿井巡检', pubTime:'2026-06-30 08:00',
+   planStart:'2026-06-30 08:00', planEnd:'2026-06-30 17:00',
+   signers:[{n:'张伟明',at:null,fwdTo:'王建国',fwdAt:'2026-06-30 09:15',fwdReason:'临时下井检修，无法按时到场'},{n:'王建国',at:null}], parts:[],
+   form:'普通业务表单', work:'巡检工', loc:'东区3号矿井', desc:'日常巡检，重点看通风与顶板。', starter:'李强',
+   events:[{act:'已转办',who:'张伟明 → 王建国',time:'2026-06-30 09:15',reason:'临时下井检修，无法按时到场',kind:'transfer',from:'张伟明',to:'王建国'}]},
+
+  {id:'I20260630008', taskId:'T20260901001', name:'南区排水系统巡检', pubTime:'2026-06-30 14:00',
+   planStart:'2026-06-30 14:00', planEnd:'2026-07-01 14:00',
+   signers:[{n:'赵志远',at:null}], parts:['张伟明'],
+   form:'普通业务表单', work:'巡检工', loc:'南区排水系统', desc:'检查排水泵与管路是否畅通。', starter:'张伟明', events:[]},
+
+  {id:'I20260628002', taskId:'REC20260701', name:'西区通风系统巡检', pubTime:'2026-06-28 09:00',
+   planStart:'2026-06-28 09:00', planEnd:'2026-06-28 17:00',
+   signers:[{n:'刘明辉',at:'2026-06-28 15:30'}], parts:['张伟明'],
+   form:'普通业务表单', work:'通风工', loc:'西区通风机房', desc:'检查主扇运行状态与风量。', starter:'张伟明', events:[]},
+
+  {id:'I20260714021', taskId:'REC20260701', name:'西区通风系统巡检', pubTime:'2026-07-14 09:00',
+   planStart:'2026-07-14 09:00', planEnd:'2026-07-14 17:00',
+   signers:[{n:'刘明辉',at:null}], parts:['张伟明'],
+   form:'普通业务表单', work:'通风工', loc:'西区通风机房', desc:'检查主扇运行状态与风量。', starter:'张伟明', events:[]},
+
+  {id:'I20260714002', taskId:'T20260714002', name:'顶板离层专项观测', pubTime:'2026-07-14 09:00',
+   planStart:'2026-07-14 10:00', planEnd:'2026-07-14 17:00',
+   signers:[{n:'张伟明',at:null}], parts:[],
+   form:'普通业务表单', work:'巡检工', loc:'东区3号矿井', desc:'按「开始时间后才可执行」配置：10:00 前不能提交。', starter:'李强', events:[]},
+
+  /* 东区3号矿井日常巡检的历史执行 */
+  {id:'I20260701006', taskId:'REC20260625', name:'东区3号矿井日常巡检', pubTime:'2026-07-01 08:00',
+   planStart:'2026-07-01 08:00', planEnd:'2026-07-01 17:00',
+   signers:[{n:'李强',at:null}], parts:['刘明辉'],
+   form:'普通业务表单', work:'巡检工', loc:'东区3号矿井', desc:'例行巡检。', starter:'张伟明', events:[]},
+
+  {id:'I20260630012', taskId:'REC20260625', name:'东区3号矿井日常巡检', pubTime:'2026-06-30 08:00',
+   planStart:'2026-06-30 08:00', planEnd:'2026-06-30 17:00',
+   signers:[{n:'李强',at:'2026-06-30 16:20'},{n:'王建国',at:'2026-06-30 17:40'}], parts:['刘明辉'],
+   form:'普通业务表单', work:'巡检工', loc:'东区3号矿井', desc:'例行巡检。', starter:'张伟明', events:[]},
+
+  {id:'I20260629009', taskId:'REC20260625', name:'东区3号矿井日常巡检', pubTime:'2026-06-29 08:00',
+   planStart:'2026-06-29 08:00', planEnd:'2026-06-29 17:00',
+   signers:[{n:'李强',at:null},{n:'王建国',at:null}], parts:['刘明辉'],
+   form:'普通业务表单', work:'巡检工', loc:'东区3号矿井', desc:'例行巡检。', starter:'张伟明', withdrawn:true,
+   events:[{act:'已撤回',who:'张伟明',time:'2026-06-29 09:10',reason:'内容有误',kind:'withdraw'}]},
+
+  /* 北区提升机检修的历史执行（含作废） */
+  {id:'I20260519031', taskId:'REC20260520', name:'北区提升机检修', pubTime:'2026-06-19 07:00',
+   planStart:'2026-06-19 07:00', planEnd:'2026-06-19 12:00',
+   signers:[{n:'王建国',at:'2026-06-19 09:10'},{n:'赵志远',at:null}], parts:[],
+   form:'无', work:'机电维修工', loc:'北区提升机房', desc:'更换闸瓦、试运行。', starter:'张伟明', voided:true,
+   events:[{act:'已作废',who:'张伟明',time:'2026-06-19 10:00',reason:'备件未到，本次取消',kind:'void'}]}
+];
+
+/* 执行编号：4 位名称首字母 + 发布日 yyyyMMdd + 3 位流水号，例 WSND20260702001
+   真实环境由服务端生成并固化；此处用名称映射表 + 本地自增复现演示值 */
+const CODE4 = {
+  '东区3号矿井日常巡检':'DQHK', '东区3号矿井巡检':'DQHK',
+  '瓦斯浓度监测':'WSND', '中央水泵房安全检查':'ZYSB',
+  '西区回风巷巡检':'XQHF', '南区排水系统巡检':'NQPS',
+  '西区通风系统巡检':'XQTF', '北区提升机检修':'BQTS',
+  '顶板离层专项观测':'DBLC',
+  '日常巡检任务模板':'RCXJ', '设备维修任务模板':'SBWX',
+  '隐患整改任务模板':'YHZG', '应急演练任务模板':'YJYL', '班前会记录模板':'BQHJ'
+};
+function code4OfName(name, tplCode){
+  if(CODE4[name]) return CODE4[name];
+  const lat=(String(name||'').match(/[A-Za-z]/g)||[]).join('').toUpperCase();
+  if(lat.length>=4) return lat.slice(0,4);
+  const tpl=TEMPLATES.find(x=>x.code===tplCode);
+  if(tpl && CODE4[tpl.name]) return CODE4[tpl.name];
+  return 'RWXX';
+}
+const NO_SEQ = {};
+function assignExecNo(e){
+  const t=taskOf(e.taskId)||{};
+  const prefix=code4OfName(e.name||t.name, t.tpl);
+  const day=String(e.pubTime||'').slice(0,10).replace(/-/g,'');
+  const key=prefix+day;
+  NO_SEQ[key]=(NO_SEQ[key]||0)+1;
+  e.no=prefix+day+String(NO_SEQ[key]).padStart(3,'0');
+  return e.no;
+}
+function execNo(e){
+  if(!e) return '';
+  return e.no || assignExecNo(e);
+}
+EXECS.slice().sort((a,b)=>a.pubTime.localeCompare(b.pubTime)).forEach(assignExecNo);
+
+/* ---------- 草稿（任务级，未发布、不生成执行） ---------- */
+const DRAFTS = [
+  {id:'D20260713001', name:'西区通风系统专项检查', type:'单次', creator:'张伟明', execs:['赵志远','刘明辉'], parts:[],
+   form:'普通业务表单', work:'通风工', loc:'西区通风机房', desc:'专项检查主扇与风量。',
+   createdAt:'2026-07-13 09:20', planStart:'2026-07-16 08:00', planEnd:'2026-07-16 17:00', tpl:'TPL001',
+   rule:{execCtrl:true, repeatOn:false, freq:'按天'}},
+  {id:'D20260712002', name:'班前会安全交底', type:'周期', creator:'张伟明', execs:['张伟明'], parts:[],
+   form:'无', work:'', loc:'调度室', desc:'每班班前会安全交底并记录。',
+   createdAt:'2026-07-12 07:50', planStart:'2026-07-17 07:30', planEnd:'2026-07-17 08:00', tpl:'TPL002',
+   rule:{execCtrl:true, repeatOn:true, freq:'按周', week:['周一','周三','周五'], stopDate:'', noEnd:true, delay:'60'}}
+];
+
+/* ---------- 表单分类（与 PC 同一套演示表单） ---------- */
+const FORM_CATS = [
+  {key:'inspect', label:'巡检类', forms:[{id:'F101',name:'日常巡检记录表'},{id:'F102',name:'瓦斯浓度记录表'},{id:'F103',name:'顶板离层观测表'}]},
+  {key:'repair',  label:'检修类', forms:[{id:'F201',name:'设备维修报告表'},{id:'F202',name:'提升机检修记录表'}]},
+  {key:'hidden',  label:'隐患类', forms:[{id:'F301',name:'隐患排查登记表'},{id:'F302',name:'整改验收表'}]},
+  {key:'drill',   label:'演练类', forms:[{id:'F401',name:'应急演练评估表'},{id:'F402',name:'应急预案演练记录'}]}
+];
+
+/* ================================================================
+   1. 工具函数
+=============================================================== */
+const $ = id => document.getElementById(id);
+const pad = n => (n<10?'0':'')+n;
+function parseT(t){ return new Date(String(t||'').replace(' ','T')); }
+function nowStr(){ return DEMO_NOW; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function byId(list,id){ return list.find(x=>x.id===id); }
+function taskOf(id){ return TASKS.find(t=>t.id===id); }
+function execOf(id){ return EXECS.find(e=>e.id===id); }
+function execsOfTask(tid){ return EXECS.filter(e=>e.taskId===tid); }
+function activeSigners(e){ return e.signers.filter(s=>!s.fwdTo); }
+function progress(e){
+  const a = activeSigners(e);
+  const done = a.filter(s=>s.at).length;
+  return {done, total:a.length};
+}
+function statusOf(e){
+  if(e.withdrawn) return {label:'已撤回', cls:'tag-gray'};
+  if(e.voided) return {label:'已作废', cls:'tag-gray'};
+  const p = progress(e);
+  if(p.total && p.done>=p.total) return {label:'已完成', cls:'tag-ok'};
+  if(p.done===0) return {label:'未执行', cls:'tag-gray'};
+  return {label:'执行中 '+p.done+'/'+p.total, cls:'tag-warn'};
+}
+/* 执行级超期：撤回/作废 → 无；已闭环 → 看最后提交；未闭环 → 看当前时间 */
+function execOver(e){
+  if(e.withdrawn || e.voided) return '';
+  const p = progress(e);
+  if(p.total===0) return '';
+  if(p.done>=p.total){
+    const last = activeSigners(e).map(s=>s.at).filter(Boolean).sort().pop();
+    return last && parseT(last) > parseT(e.planEnd) ? 'done' : '';
+  }
+  return parseT(DEMO_NOW) > parseT(e.planEnd) ? 'late' : '';
+}
+/* 人级超期：我没提交 → 过期即超期；我已提交 → 晚于计划结束即超期完成 */
+function personOver(e,s){
+  if(!s) return '';
+  if(!s.at) return parseT(DEMO_NOW) > parseT(e.planEnd) ? 'late' : '';
+  return parseT(s.at) > parseT(e.planEnd) ? 'done' : '';
+}
+function overTag(kind){
+  if(kind==='late') return '<span class="tag tag-danger"><i class="bi bi-exclamation-triangle-fill"></i>超期</span>';
+  if(kind==='done') return '<span class="tag tag-warn"><i class="bi bi-exclamation-triangle-fill"></i>超期完成</span>';
+  return '';
+}
+function taskStatusTag(st){
+  const map = {'进行中':'tag-accent','已暂停':'tag-warn','已完成':'tag-ok','已终止':'tag-gray'};
+  return '<span class="tag '+(map[st]||'tag-gray')+'">'+st+'</span>';
+}
+/* 人员显示：1 人全名 / 2 人 A、B / ≥3 人 A、B 等 N 人 */
+function fmtPpl(names){
+  const a = (names||[]).filter(Boolean);
+  if(!a.length) return '—';
+  if(a.length===1) return a[0];
+  if(a.length===2) return a[0]+'、'+a[1];
+  return a[0]+'、'+a[1]+' 等 '+a.length+' 人';
+}
+/* 名称截断：列表最多 20 字 */
+function cut(s,n){
+  s = String(s||'');
+  n = n||20;
+  return s.length>n ? s.slice(0,n)+'…' : s;
+}
+/* 计划时间：MM-DD HH:mm ~ HH:mm（跨天补日期） */
+function fmtSpan(a,b){
+  if(!a||!b) return '—';
+  const da = a.slice(5), db = b.slice(5);
+  if(a.slice(0,10)===b.slice(0,10)) return da+' ~ '+b.slice(11);
+  return da+' ~ '+db;
+}
+function mySigner(e){ return e.signers.find(s=>s.n===CU && !s.fwdTo); }
+function myFwdSigner(e){ return e.signers.find(s=>s.n===CU && s.fwdTo); }
+
+/* ---------- 我的任务四张清单（互斥归属） ---------- */
+function listTodo(){
+  return EXECS.filter(e=>{
+    if(e.withdrawn||e.voided) return false;
+    const s = mySigner(e);
+    return !!s && !s.at;
+  });
+}
+function listDone(){
+  return EXECS.filter(e=>{
+    const s = mySigner(e);
+    return !!s && !!s.at;
+  });
+}
+function listFwd(){
+  return EXECS.filter(e=>!!myFwdSigner(e));
+}
+function listJoin(){
+  return EXECS.filter(e=>{
+    if(e.withdrawn||e.voided) return false;
+    return (e.parts||[]).includes(CU) && !mySigner(e);
+  });
+}
+const MY_TABS = [
+  {key:'t-exec', label:'待我执行'},
+  {key:'t-done', label:'已执行'},
+  {key:'t-fwd',  label:'已转发'},
+  {key:'t-join', label:'我参与的'}
+];
+
+/* ---------- 全局 UI 状态 ---------- */
+const UI = {
+  page:'my',
+  moduleTab:'my',
+  role:'超级管理员',
+  myTab:'t-exec',
+  myFilter:{status:'', over:''},
+  pubTab:'pt-new',
+  searchFrom:'my'
+};
+let EXEC_CTX = null;   // {exec, mode:'exec'|'view', person, backTab}
+let DT_CTX = null;     // 任务详情上下文
+let EXEC_DRAFTS = {};  // 执行页暂存
+/* ================================================================
+   2. 模块内导航（底部系统导航不在本原型范围）
+=============================================================== */
+function canPublish(){ return UI.role !== '普通执行者'; }
+function renderModuleSeg(){
+  const box = $('moduleSeg');
+  if(!canPublish()){
+    box.className = 'mod-title';
+    box.innerHTML = '我的任务';
+    return;
+  }
+  box.className = 'seg seg-title';
+  box.innerHTML = `
+    <div class="s ${UI.moduleTab==='my'?'on':''}" data-mt="my" onclick="switchModule('my')">
+      我的任务<span class="n">${listTodo().length}</span>
+    </div>
+    <div class="s ${UI.moduleTab==='publish'?'on':''}" data-mt="publish" onclick="switchModule('publish')">
+      发布任务
+    </div>`;
+}
+function switchModule(tab){
+  if(tab==='publish' && !canPublish()){ toast('当前角色没有发布入口','warn'); return; }
+  UI.moduleTab = tab;
+  UI.page = tab;
+  UI.execListTid = null;
+  renderModuleSeg();
+  $('myHead').style.display = tab==='my' ? '' : 'none';
+  $('pubHead').style.display = tab==='publish' ? '' : 'none';
+  $('myList').style.display = tab==='my' ? '' : 'none';
+  $('pubList').style.display = tab==='publish' ? '' : 'none';
+  if(tab==='my') renderMy(); else renderPublish();
+}
+function openModule(tab){
+  showScreen('sc-task');
+  switchModule(tab || UI.moduleTab || 'my');
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');
+}
+function backToShell(){
+  if(document.body.classList.contains('is-embedded')){
+    window.parent.postMessage({type:'task-tasks:close'},'*');
+    return;
+  }
+  toast('返回系统工作台（模块外，不在本原型范围）','');
+}
+
+/* ================================================================
+   3. 我的任务
+=============================================================== */
+function myTabCount(tab){
+  return { 't-exec':listTodo().length, 't-done':listDone().length, 't-fwd':listFwd().length, 't-join':listJoin().length }[tab];
+}
+function renderMyTabs(){
+  $('myTabs').innerHTML = MY_TABS.map(t=>`
+    <div class="tab ${UI.myTab===t.key?'on':''}" onclick="switchMyTab('${t.key}')">
+      ${t.label}<span class="n">${myTabCount(t.key)}</span>
+    </div>`).join('');
+}
+function switchMyTab(k){
+  UI.myTab = k;
+  UI.myFilter = {status:'',over:''};
+  renderMy();
+}
+function renderMy(){
+  renderMyTabs();
+
+  let list = UI.myTab==='t-exec' ? listTodo()
+           : UI.myTab==='t-done' ? listDone()
+           : UI.myTab==='t-fwd'  ? listFwd()
+           : listJoin();
+
+  /* 筛选 */
+  const f = UI.myFilter;
+  if(f.status){
+    list = list.filter(e=>statusOf(e).label.indexOf(f.status)===0);
+  }
+  if(f.over){
+    list = list.filter(e=>{
+      const k = (UI.myTab==='t-exec'||UI.myTab==='t-done')
+        ? personOver(e, mySigner(e))
+        : execOver(e);
+      const has = (k==='late'||k==='done');
+      return f.over==='1' ? has : !has;
+    });
+  }
+
+  /* 排序：待我执行超期在前，其余按发布时间倒序 */
+  list = list.slice().sort((a,b)=>{
+    if(UI.myTab==='t-exec'){
+      const oa = personOver(a,mySigner(a))==='late'?1:0;
+      const ob = personOver(b,mySigner(b))==='late'?1:0;
+      if(oa!==ob) return ob-oa;
+    }
+    return b.pubTime.localeCompare(a.pubTime);
+  });
+
+  const fc = $('myFchip');
+  const fOn = !!(f.status||f.over);
+  fc.classList.toggle('on', fOn);
+  fc.innerHTML = `<i class="bi ${fOn?'bi-funnel-fill':'bi-funnel'}"></i>${fOn?`<span class="fdot">${list.length}</span>`:''}`;
+
+  if(!list.length){
+    const emptyTxt = {
+      't-exec':'当前没有待执行的任务',
+      't-done':'还没有已执行的任务',
+      't-fwd':'还没有转出记录',
+      't-join':'暂无参与的任务'
+    }[UI.myTab];
+    const filtered = !!(f.status||f.over);
+    $('myList').innerHTML = `<div class="empty"><i class="bi bi-inbox"></i>
+      <p>${filtered?'没有符合条件的结果':emptyTxt}</p>
+      ${filtered?'<button class="btn sm ghost" style="margin-top:10px" onclick="UI.myFilter={status:\'\',over:\'\'};renderMy()">重置筛选</button>':''}
+    </div>`;
+    return;
+  }
+  $('myList').innerHTML = list.map(e=>myCard(e, UI.myTab)).join('');
+}
+
+function myCard(e, tab){
+  const st = statusOf(e);
+  const task = taskOf(e.taskId) || {};
+  const over = tab==='t-join' ? execOver(e) : personOver(e, mySigner(e));
+  const lateCls = (over==='late' || (tab==='t-join' && execOver(e)==='late')) ? 'late' : '';
+  const signers = activeSigners(e).map(s=>s.n);
+  const shownNames = tab==='t-join' ? signers.filter(n=>n!==CU) : signers;
+
+  let meta = `<div class="c-meta">
+      <span class="it"><i class="bi bi-clock"></i>${e.pubTime}</span>
+      <span class="it"><i class="bi bi-people"></i>${fmtPpl(shownNames)}</span>
+    </div>`;
+  let sub = '';
+  let ops = '';
+
+  if(tab==='t-exec'){
+    sub = over ? `<div class="c-sub">${overTag(over)}</div>` : '';
+    const notStarted = task.rule && task.rule.execCtrl && parseT(DEMO_NOW) < parseT(e.planStart);
+    ops = `<button class="btn primary sm ${notStarted?'dis':''}" ${notStarted?'':`onclick="event.stopPropagation();startExec('${e.id}')"`}>
+             <i class="bi bi-play-fill"></i>执行</button>
+           <button class="btn ghost sm" onclick="event.stopPropagation();openForwardSheet('${e.id}')"><i class="bi bi-arrow-left-right"></i>转办</button>`;
+    if(notStarted){
+      sub += `<div class="mini" style="margin-top:4px;color:var(--warn)"><i class="bi bi-lock"></i> 未到计划开始时间（${e.planStart}），暂不可执行</div>`;
+    }
+  } else if(tab==='t-done'){
+    const s = mySigner(e);
+    sub = `<div class="c-sub"><span><i class="bi bi-check2-circle"></i> 我的提交 ${s.at}</span>${overTag(over)}</div>`;
+    ops = `<button class="btn ghost sm" onclick="event.stopPropagation();viewMySubmit('${e.id}')"><i class="bi bi-eye"></i>查看我的提交</button>`;
+  } else if(tab==='t-fwd'){
+    const sg = myFwdSigner(e);
+    sub = `<div class="c-sub"><span><i class="bi bi-arrow-right"></i> 转给 <b style="color:var(--text-secondary)">${sg.fwdTo}</b></span>
+           <span>转出 ${sg.fwdAt}</span></div>`;
+  } else {
+    sub = over ? `<div class="c-sub">${overTag(over)}</div>` : '';
+  }
+
+  return `<div class="card tapable ${lateCls}" onclick="openTaskDetail('${e.id}')">
+    <div class="c-kicker"><i class="bi bi-hash"></i>${execNo(e)}</div>
+    <div class="card-h">
+      <div class="c-name">${cut(e.name,20)}</div>
+      <span class="tag ${st.cls}">${st.label}</span>
+      <i class="bi bi-chevron-right c-go"></i>
+    </div>
+    ${meta}${sub}
+    ${ops?`<div class="c-ops">${ops}</div>`:''}
+  </div>`;
+}
+
+/* ================================================================
+   4. 发布任务（3 个标签）
+=============================================================== */
+function renderPublishTabs(){
+  const draftN = DRAFTS.filter(d=>d.creator===CU).length;
+  const launchN = TASKS.filter(t=>t.creator===CU).length;
+  const items = [
+    {k:'pt-new',label:'发布任务'},
+    {k:'pt-draft',label:'草稿任务',n:draftN},
+    {k:'pt-launch',label:'我发起的',n:launchN}
+  ];
+  $('pubTabs').innerHTML = items.map(i=>`
+    <div class="tab ${UI.pubTab===i.k?'on':''}" onclick="switchPubTab('${i.k}')">
+      ${i.label}${i.n!==undefined?`<span class="n">${i.n}</span>`:''}
+    </div>`).join('');
+}
+function switchPubTab(k){ UI.pubTab=k; renderPublish(); }
+
+function renderPublish(){
+  renderPublishTabs();
+  const box = $('pubList');
+  if(UI.pubTab==='pt-new'){
+    const tpls = TEMPLATES.filter(t=>t.status==='启用');
+    box.innerHTML = (tpls.length ? tpls.map(t=>`
+        <div class="card">
+          <div class="card-h">
+            <div class="c-name small">${cut(t.name,20)}</div>
+            <span class="tag tag-ok">启用</span>
+          </div>
+          <div class="c-meta">
+            <span class="it mono">${t.code}</span>
+            <span class="it"><i class="bi bi-file-earmark"></i>${t.form}</span>
+            <span class="it"><i class="bi bi-person"></i>${t.creator}</span>
+          </div>
+          <div class="c-ops">
+            <button class="btn primary sm" onclick="startPublish('${t.code}')"><i class="bi bi-send-check"></i>用它发布任务</button>
+          </div>
+        </div>`).join('')
+      : `<div class="empty"><i class="bi bi-layers"></i><p>暂无可用模板，请先到任务模板中启用</p></div>`);
+    return;
+  }
+
+  if(UI.pubTab==='pt-draft'){
+    const list = DRAFTS.filter(d=>d.creator===CU).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+    box.innerHTML = list.length ? list.map(d=>`
+      <div class="card tapable" onclick="editDraft('${d.id}')">
+        <div class="card-h">
+          <div class="c-name">${cut(d.name,20)}</div>
+          <span class="tag tag-gray">草稿</span>
+          <i class="bi bi-chevron-right c-go"></i>
+        </div>
+        <div class="c-meta">
+          <span class="it"><i class="bi bi-arrow-repeat"></i>${d.type}</span>
+          <span class="it"><i class="bi bi-people"></i>${fmtPpl(d.execs)}</span>
+          <span class="it"><i class="bi bi-send-check"></i>已发布 0 次</span>
+        </div>
+        <div class="c-sub"><span>创建于 ${d.createdAt}</span></div>
+        <div class="c-ops">
+          <button class="btn ghost sm" onclick="event.stopPropagation();openDraftMore('${d.id}')"><i class="bi bi-three-dots"></i>更多</button>
+          <button class="btn primary sm" onclick="event.stopPropagation();publishDraft('${d.id}')"><i class="bi bi-send-check"></i>发布</button>
+        </div>
+      </div>`).join('')
+      : `<div class="empty"><i class="bi bi-file-earmark-text"></i><p>暂无草稿，发布时点「存草稿」会出现在这里</p></div>`;
+    return;
+  }
+
+  const list = TASKS.filter(t=>t.creator===CU).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  box.innerHTML = list.length ? list.map(t=>{
+    const n = execsOfTask(t.id).length || t.execCount;
+    let ops = '';
+    if(t.status==='进行中' || t.status==='已暂停'){
+      ops = `<button class="btn ghost sm" onclick="event.stopPropagation();editPlan('${t.id}')">编辑计划</button>
+             <button class="btn ghost sm" onclick="event.stopPropagation();openTaskMore('${t.id}')"><i class="bi bi-three-dots"></i>更多</button>`;
+    } else {
+      ops = `<button class="btn ghost sm" onclick="event.stopPropagation();viewPlan('${t.id}')">查看</button>
+             <button class="btn ghost sm" onclick="event.stopPropagation();openTaskMore('${t.id}')"><i class="bi bi-three-dots"></i>更多</button>`;
+    }
+    return `<div class="card tapable" onclick="viewPlan('${t.id}')">
+      <div class="card-h">
+        <div class="c-name">${cut(t.name,20)}</div>
+        ${taskStatusTag(t.status)}
+        <i class="bi bi-chevron-right c-go"></i>
+      </div>
+      <div class="c-meta">
+        <span class="it"><i class="bi bi-arrow-repeat"></i>${t.type}</span>
+        <span class="it"><i class="bi bi-people"></i>${fmtPpl(t.execs)}</span>
+      </div>
+      <div class="c-meta" style="margin-top:4px">
+        <span class="it"><i class="bi bi-send-check"></i>已发布
+          ${n>0?`<button class="link" onclick="event.stopPropagation();openExecList('${t.id}')">${n} 次</button>`
+               :`<span class="mini">0 次</span>`}
+        </span>
+        <span class="it"><i class="bi bi-calendar3"></i>${t.createdAt}</span>
+      </div>
+      <div class="c-ops">${ops}</div>
+    </div>`;
+  }).join('')
+  : `<div class="empty"><i class="bi bi-send-check"></i><p>还没有发起过任务</p></div>`;
+}
+
+/* ================================================================
+   5. 模板：不设管理入口，只在发布时选择、详情里看来源
+=============================================================== */
+
+/* ================================================================
+   6. Toast
+=============================================================== */
+function toast(msg, type){
+  const icons = {ok:'bi-check-circle-fill',err:'bi-x-circle-fill',warn:'bi-exclamation-circle-fill'};
+  const el = document.createElement('div');
+  el.className = 'toast '+(type||'');
+  el.innerHTML = `<i class="bi ${icons[type]||'bi-info-circle-fill'}"></i><span>${msg}</span>`;
+  $('toastWrap').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(6px)'; el.style.transition='.2s'; setTimeout(()=>el.remove(),200); }, 2100);
+}
+/* ================================================================
+   8. 弹层系统（支持叠加：列表 → 详情 → 原因）
+=============================================================== */
+function openSheet(opt){
+  const root = $('sheetRoot');
+  const ov = document.createElement('div');
+  ov.className = 'sheet-ov' + (opt.center ? ' center' : '');
+  ov.innerHTML = `<div class="sheet">
+    <div class="sheet-h">
+      <div class="tt"><h3>${opt.title||''}</h3>${opt.desc?`<div class="ds">${opt.desc}</div>`:''}</div>
+      <button class="x" onclick="popSheet()">&times;</button>
+    </div>
+    <div class="sheet-b">${opt.body||''}</div>
+    ${opt.foot?`<div class="sheet-f">${opt.foot}</div>`:''}
+  </div>`;
+  ov.addEventListener('click', ev=>{ if(ev.target===ov) popSheet(); });
+  root.appendChild(ov);
+  root.style.pointerEvents = 'auto';
+  return ov;
+}
+function popSheet(){
+  const root = $('sheetRoot');
+  if(root.lastElementChild) root.removeChild(root.lastElementChild);
+  if(!root.children.length) root.style.pointerEvents = 'none';
+}
+function closeSheets(){
+  const root = $('sheetRoot');
+  root.innerHTML = '';
+  root.style.pointerEvents = 'none';
+}
+
+/* ---------- 组织架构选择器 ---------- */
+let ORG_CTX = null;
+function openOrgPicker(opt){
+  ORG_CTX = {
+    mode: opt.mode||'multi',
+    sel: (opt.selected||[]).slice(),
+    exclude: opt.exclude||[],
+    onOk: opt.onOk,
+    kw: '',
+    open: {0:true}
+  };
+  openSheet({
+    title: opt.title || '选择人员',
+    desc: opt.desc || (ORG_CTX.mode==='single' ? '单选 1 人 · 仅在职人员' : '可多选 · 支持按部门整选'),
+    body: `<div class="org-search"><i class="bi bi-search"></i>
+             <input class="inp" id="orgKw" placeholder="搜索姓名 / 部门" oninput="ORG_CTX.kw=this.value;renderOrgTree()"></div>
+           <div id="orgTree"></div>
+           <div class="selbar" id="orgBar"></div>`,
+    foot: `<button class="btn ghost" onclick="popSheet()">取消</button>
+           <button class="btn primary" onclick="okOrg()">确定</button>`
+  });
+  renderOrgTree();
+}
+function renderOrgTree(){
+  const kw = (ORG_CTX.kw||'').trim().toLowerCase();
+  let html = '';
+  ORG.forEach((g,gi)=>{
+    const hitDept = g.dept.toLowerCase().includes(kw);
+    const mems = g.members.filter(m=>{
+      if(ORG_CTX.exclude.includes(m)) return false;
+      return !kw || hitDept || m.toLowerCase().includes(kw);
+    });
+    if(!mems.length) return;
+    const open = kw ? true : !!ORG_CTX.open[gi];
+    const allOn = mems.every(m=>ORG_CTX.sel.includes(m));
+    html += `<div class="dept ${open?'open':''}">
+      <div class="dept-h" onclick="toggleDept(${gi})">
+        <i class="bi bi-chevron-right caret"></i>
+        <span>${g.dept}</span><span class="cnt">${g.members.length} 人</span>
+        ${ORG_CTX.mode==='single'?'':`<span class="all" onclick="event.stopPropagation();deptAll(${gi},${!allOn})">
+          <i class="bi ${allOn?'bi-check-square-fill':'bi-square'}"></i>全选</span>`}
+      </div>
+      <div class="dept-b">
+        ${mems.map(m=>`<div class="mem" onclick="toggleMem('${m}')">
+          <span class="av">${m.slice(0,1)}</span>
+          <span class="nm">${m}</span>
+          <span class="dp">${g.dept}</span>
+          <span class="${ORG_CTX.mode==='single'?'radio':'chk'} ${ORG_CTX.sel.includes(m)?'':''}">
+            ${ORG_CTX.sel.includes(m)&&ORG_CTX.mode!=='single'?'<i class="bi bi-check"></i>':''}
+          </span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  $('orgTree').innerHTML = html || '<div class="empty" style="padding:24px"><i class="bi bi-person-x"></i><p>未找到匹配人员</p></div>';
+  const names = ORG_CTX.sel;
+  $('orgBar').innerHTML = names.length
+    ? `已选 ${names.length} 人：${names.slice(0,6).join('、')}${names.length>6?'…':''}`
+    : '尚未选择人员';
+}
+function toggleDept(gi){ ORG_CTX.open[gi] = !ORG_CTX.open[gi]; renderOrgTree(); }
+function deptAll(gi, on){
+  const g = ORG[gi];
+  if(on){
+    g.members.forEach(m=>{ if(!ORG_CTX.exclude.includes(m) && !ORG_CTX.sel.includes(m)) ORG_CTX.sel.push(m); });
+  } else {
+    ORG_CTX.sel = ORG_CTX.sel.filter(x=>!g.members.includes(x));
+  }
+  renderOrgTree();
+}
+function toggleMem(m){
+  if(ORG_CTX.mode==='single'){
+    ORG_CTX.sel = [m];
+  } else {
+    if(ORG_CTX.sel.includes(m)) ORG_CTX.sel = ORG_CTX.sel.filter(x=>x!==m);
+    else ORG_CTX.sel.push(m);
+  }
+  renderOrgTree();
+}
+function okOrg(){
+  if(!ORG_CTX.sel.length){ toast('请先选择人员','warn'); return; }
+  const sel = ORG_CTX.sel.slice();
+  const cb = ORG_CTX.onOk;
+  popSheet();
+  if(cb) cb(sel);
+}
+
+/* ---------- 表单选择器（左分类 / 右表单） ---------- */
+let FP_CTX = null;
+function openFormPicker(current, onOk){
+  FP_CTX = {cat:FORM_CATS[0].key, pick:current||'', kw:'', onOk};
+  if(current){
+    const c = FORM_CATS.find(c=>c.forms.some(f=>f.name===current));
+    if(c) FP_CTX.cat = c.key;
+    FP_CTX.pick = current;
+  }
+  openSheet({
+    title:'选择执行表单',
+    desc:'三类表单：无 / 普通业务表单 / BPM流程表单（原型只展示业务表单）',
+    body:`<div class="org-search"><i class="bi bi-search"></i>
+            <input class="inp" id="fpKw" placeholder="搜索表单名称" oninput="FP_CTX.kw=this.value;renderFormPick()"></div>
+          <div class="cat-wrap">
+            <div class="cat-l" id="fpCats"></div>
+            <div class="cat-r" id="fpForms"></div>
+          </div>`,
+    foot:`<button class="btn ghost" onclick="popSheet()">取消</button>
+          <button class="btn primary" onclick="okFormPick()">确定</button>`
+  });
+  renderFormPick();
+}
+function renderFormPick(){
+  const kw = (FP_CTX.kw||'').trim().toLowerCase();
+  $('fpCats').innerHTML = FORM_CATS.map(c=>{
+    const n = c.forms.filter(f=>!kw||f.name.toLowerCase().includes(kw)).length;
+    return `<div class="cat-i ${FP_CTX.cat===c.key?'on':''}" onclick="pickCat('${c.key}')">
+      ${c.label}<span class="c">${n}</span></div>`;
+  }).join('');
+  const cat = FORM_CATS.find(c=>c.key===FP_CTX.cat) || FORM_CATS[0];
+  const forms = cat.forms.filter(f=>!kw||f.name.toLowerCase().includes(kw));
+  $('fpForms').innerHTML = forms.length ? forms.map(f=>`
+    <div class="form-i ${FP_CTX.pick===f.name?'on':''}" onclick="pickForm('${f.name}')">
+      <span class="${FP_CTX.pick===f.name?'radio':'radio'}"></span>
+      <div><div class="nm">${f.name}</div><div class="mt">${cat.label} · ${f.id}</div></div>
+    </div>`).join('')
+    : '<div class="empty" style="padding:20px"><p>该分类暂无表单</p></div>';
+}
+function pickCat(k){ FP_CTX.cat=k; renderFormPick(); }
+function pickForm(n){ FP_CTX.pick=n; renderFormPick(); }
+function okFormPick(){
+  if(!FP_CTX.pick){ toast('请选择一个表单','warn'); return; }
+  const v = FP_CTX.pick; const cb = FP_CTX.onOk;
+  popSheet();
+  if(cb) cb(v);
+}
+
+/* ---------- 多选 / 单选弹层（支持全选、自定义值） ---------- */
+const REMIND_TIME_OPTS = ['准时','提前10分钟','提前30分钟','提前1小时','提前2小时','提前1天','提前2天'];
+const OVERDUE_OPTS = ['每10分钟','每30分钟','每1小时','每1天'];
+let PICK = null;
+function openPickSheet(opt){
+  const base = opt.options.slice();
+  const extra = (opt.selected||[]).filter(x=>!base.includes(x) && x!=='不提醒');
+  PICK = {
+    mode: opt.mode||'multi',
+    options: base.concat(extra),
+    sel: (opt.selected||[]).slice().filter(x=>x!=='不提醒'),
+    custom: !!opt.custom,
+    allowEmpty: !!opt.allowEmpty,
+    prefix: opt.prefix||'提前',
+    withAll: !!opt.withAll,
+    count: opt.count ? { val: Number(opt.countVal)||2 } : null,
+    onOk: opt.onOk
+  };
+  openSheet({
+    title: opt.title,
+    desc: opt.desc,
+    body: `<div id="pickBody"></div>`,
+    foot: `<button class="btn ghost" onclick="popSheet()">取消</button>
+           <button class="btn primary" onclick="okPick()">确定</button>`
+  });
+  renderPickBody();
+}
+function renderPickBody(){
+  const st = PICK;
+  let h = '';
+  if(st.withAll) h += `<div style="display:flex;gap:12px;margin-bottom:7px">
+      <button class="link" onclick="pickAll(true)">全选</button>
+      <button class="link" onclick="pickAll(false)">清空</button></div>`;
+  h += `<div class="opt-list">${st.options.map(o=>{
+    const on = st.sel.includes(o);
+    return `<div class="opt ${on?'on':''}" onclick="togglePickOpt('${o}')">
+      <span class="${st.mode==='single'?'radio':'chk'}">${on&&st.mode!=='single'?'<i class="bi bi-check"></i>':''}</span>
+      <span class="nm">${o}</span></div>`;
+  }).join('')}</div>`;
+  if(st.count){
+    const off = (st.mode==='single' && (!st.sel.length || st.sel[0]==='不提醒'));
+    h += `<div class="remind-item" style="border-top:1px dashed var(--line-soft)">
+        <div class="ri-h"><span class="ri-l">重复次数</span>
+          <input class="inp num" type="number" min="1" max="10" value="${st.count.val}" ${off?'disabled':''}
+                 onchange="PICK.count.val=Math.min(10,Math.max(1,Number(this.value)||2))">
+          <span class="mini" style="margin-left:auto">1–10 次，含第 1 次</span>
+        </div>
+      </div>`;
+  }
+  if(st.custom) h += `<div class="custom-add">
+      <span class="mini">${st.prefix}</span>
+      <input class="inp num" id="pickNum" type="number" min="1" max="999" placeholder="0">
+      <select class="inp" id="pickUnit" style="width:76px">
+        ${['分钟','小时','天'].map(u=>`<option>${u}</option>`).join('')}
+      </select>
+      <button class="btn sm primary" onclick="addPickCustom()">添加</button>
+    </div>`;
+  $('pickBody').innerHTML = h;
+}
+function togglePickOpt(val){
+  const st = PICK;
+  if(st.mode==='single') st.sel = [val];
+  else if(val==='不提醒') st.sel = st.sel.includes('不提醒') ? [] : ['不提醒'];
+  else {
+    st.sel = st.sel.filter(x=>x!=='不提醒');
+    if(st.sel.includes(val)) st.sel = st.sel.filter(x=>x!==val);
+    else st.sel.push(val);
+  }
+  renderPickBody();
+}
+function pickAll(on){
+  PICK.sel = on ? PICK.options.filter(x=>x!=='不提醒') : [];
+  renderPickBody();
+}
+function addPickCustom(){
+  const n = Number($('pickNum') ? $('pickNum').value : '');
+  if(!n || n<1 || n>999){ toast('请输入 1–999 的自定义数值','warn'); return; }
+  const unit = ($('pickUnit') || {}).value || '分钟';
+  const val = PICK.prefix + n + unit;
+  if(!PICK.options.includes(val)) PICK.options.push(val);
+  if(PICK.mode==='single') PICK.sel = [val];
+  else {
+    PICK.sel = PICK.sel.filter(x=>x!=='不提醒');
+    if(!PICK.sel.includes(val)) PICK.sel.push(val);
+  }
+  renderPickBody();
+  toast('已添加：'+val,'ok');
+}
+function okPick(){
+  const st = PICK;
+  if(!st) return;
+  if(st.mode!=='single' && !st.sel.length && !st.allowEmpty){ toast('请至少选择 1 项','warn'); return; }
+  const sel = st.mode==='single' ? (st.sel[0]||'') : st.sel.slice();
+  const cb = st.onOk;
+  if(st.count) window.__pickCount = st.count.val;
+  PICK = null;
+  popSheet();
+  if(cb) cb(sel);
+}
+
+/* ---------- 原因填写（撤回 / 作废 / 终止） ---------- */
+function openReasonSheet(opt){
+  openSheet({
+    title: opt.title,
+    desc: opt.desc,
+    body: `${opt.notice?`<div class="tipbox">${opt.notice}</div>`:''}
+      <div class="fld">
+        <label>${opt.label||'原因'}<span class="req">*</span></label>
+        ${opt.quick?`<div class="wrap-chips" style="margin-bottom:7px">
+          ${opt.quick.map(q=>`<button class="chip mini" onclick="document.getElementById('rsnInput').value='${q}'">${q}</button>`).join('')}
+        </div>`:''}
+        <textarea class="inp" id="rsnInput" placeholder="${opt.placeholder||'请填写原因（2–200 字）'}"></textarea>
+        <div class="hint"><i class="bi bi-info-circle"></i>${opt.footHint||'原因将写入执行日志，2–200 字，不可为空。'}</div>
+      </div>`,
+    foot: `<button class="btn ghost" onclick="popSheet()">取消</button>
+           <button class="btn ${opt.danger?'danger':'primary'}" onclick="okReason()">${opt.okText||'确认'}</button>`
+  });
+  window.__reasonCb = opt.onOk;
+}
+function okReason(){
+  const v = ($('rsnInput').value||'').trim();
+  if(v.length<2){ toast('请填写原因（至少 2 个字）','warn'); return; }
+  if(v.length>200){ toast('原因不能超过 200 字','warn'); return; }
+  const cb = window.__reasonCb;
+  popSheet();
+  if(cb) cb(v);
+}
+
+/* ---------- 二次确认 ---------- */
+function openConfirmSheet(opt){
+  openSheet({
+    title: opt.title,
+    body: `<div style="font-size:12.5px;line-height:1.75;color:var(--text-secondary)">${opt.desc||''}</div>`,
+    center:false,
+    foot: `<button class="btn ghost" onclick="popSheet()">取消</button>
+           <button class="btn ${opt.danger?'danger':'primary'}" onclick="okConfirm()">${opt.okText||'确认'}</button>`
+  });
+  window.__confirmCb = opt.onOk;
+}
+function okConfirm(){
+  const cb = window.__confirmCb;
+  popSheet();
+  if(cb) cb();
+}
+
+/* ================================================================
+   9. 执行任务 / 查看提交
+=============================================================== */
+function startExec(id){
+  const e = execOf(id); if(!e) return;
+  const s = mySigner(e); if(!s || s.at) return;
+  const t = taskOf(e.taskId);
+  if(t && t.rule && t.rule.execCtrl && parseT(DEMO_NOW) < parseT(e.planStart)){
+    toast('未到计划开始时间','warn'); return;
+  }
+  EXEC_CTX = {exec:e, mode:'exec', person:CU, backTab:'t-exec', backPage:'my'};
+  renderExecScreen();
+  showScreen('sc-exec');
+}
+function viewMySubmit(id){
+  const e = execOf(id); if(!e) return;
+  EXEC_CTX = {exec:e, mode:'view', person:CU, backTab:'t-done', backPage:'my'};
+  renderExecScreen();
+  showScreen('sc-exec');
+}
+function viewPersonSubmit(execId, person, backDetail){
+  const e = execOf(execId); if(!e) return;
+  closeSheets();
+  EXEC_CTX = {exec:e, mode:'view', person, backTab:UI.myTab, backDetail:!!backDetail, backPage:UI.page};
+  renderExecScreen();
+  showScreen('sc-exec');
+}
+function backFromExec(){
+  if(EXEC_CTX && EXEC_CTX.backDetail && DT_CTX){
+    EXEC_CTX = null;
+    renderDetail();
+    showScreen('sc-detail');
+    return;
+  }
+  const tab = EXEC_CTX ? EXEC_CTX.backTab : 't-exec';
+  const page = EXEC_CTX ? EXEC_CTX.backPage : 'my';
+  EXEC_CTX = null;
+  if(page==='publish'){ openModule('publish'); switchPubTab('pt-launch'); return; }
+  openModule('my');
+  switchMyTab(tab);
+}
+function submittedDemo(e, person){
+  if(!e.form || e.form==='无') return {desc:'已按要求完成本次执行内容，现场无异常。', files:'现场照片.jpg'};
+  return {
+    f1:e.loc || '东区3号矿井', f2:'正常', f3:'无', f4:'已记录并归档',
+    f5:'设备运行正常，未发现新增隐患。', files:'巡检照片.jpg'
+  };
+}
+function renderExecScreen(){
+  const ctx = EXEC_CTX, e = ctx.exec, isView = ctx.mode==='view';
+  const signer = e.signers.find(s=>s.n===ctx.person);
+  const t = taskOf(e.taskId);
+  $('exTitle').textContent = isView
+    ? ('查看提交 · ' + (ctx.person && ctx.person!==CU ? ctx.person+' · ' : '') + cut(e.name,12))
+    : ('执行任务 · ' + cut(e.name,12));
+  $('exSub').textContent = '发布时间 ' + e.pubTime + ' · 计划 ' + fmtSpan(e.planStart,e.planEnd);
+  $('exDraftBtn').style.display = isView ? 'none' : '';
+  $('exSubmitBtn').style.display = isView ? 'none' : '';
+  $('exActionBar').style.display = isView ? 'none' : '';
+
+  const ov = isView ? personOver(e, signer) : execOver(e);
+  const st = statusOf(e);
+  let html = `<div class="pills">
+      <span class="pill accent">状态 · ${st.label}</span>
+      ${ov==='late'?'<span class="pill warn"><i class="bi bi-exclamation-triangle-fill"></i>超期</span>'
+        : ov==='done'?'<span class="pill done">超期完成</span>'
+        : '<span class="pill ok">未超期</span>'}
+    </div>`;
+
+  /* 区块① 任务基本信息（只读，9 项，含执行编号） */
+  html += `<div class="blk">
+    <div class="blk-h"><i class="bi bi-info-circle"></i>任务基本信息<span class="r">只读</span></div>
+    <div class="blk-b">
+      <div class="kv">
+        <span class="k">执行编号</span><span class="v mono">${execNo(e)}</span>
+        <span class="k">发起人</span><span class="v">${e.starter||'—'}</span>
+        <span class="k">执行人</span><span class="v">${fmtPpl(activeSigners(e).map(s=>s.n))}</span>
+        <span class="k">参与人员</span><span class="v">${fmtPpl(e.parts||[])}</span>
+        <span class="k">执行表单</span><span class="v">${e.form==='无'?'无（普通任务）':e.form}</span>
+        <span class="k">执行工种</span><span class="v">${e.work||'—'}</span>
+        <span class="k">执行地点</span><span class="v">${e.loc||'—'}</span>
+        <span class="k">计划时间</span><span class="v">${fmtSpan(e.planStart,e.planEnd)}</span>
+        <div class="full"><span class="k">执行说明</span><span class="v">${e.desc||'—'}</span></div>
+      </div>
+    </div>
+  </div>`;
+
+  /* 区块② 执行填写 / 提交内容 */
+  const notSubmitted = isView && signer && !signer.at;
+  const secTitle = isView ? '提交内容' : '任务执行填写';
+  html += `<div class="blk">
+    <div class="blk-h"><i class="bi bi-pencil-square"></i>${secTitle}
+      </div>
+    <div class="blk-b">`;
+
+  if(notSubmitted){
+    html += `<div class="hint" style="margin:0"><i class="bi bi-hourglass-split"></i>
+      ${ctx.person} 尚未提交，本次没有可查看的提交内容；上方任务基本信息照常展示。</div>`;
+  } else {
+    if(isView && signer && signer.at){
+      html += `<div class="hint" style="margin:0 0 10px"><i class="bi bi-person-check"></i>
+        <b>${ctx.person===CU?'我':ctx.person}</b> 提交于 ${signer.at}</div>`;
+    }
+    if(e.form==='无'){
+      if(!isView){
+        html += `<div class="hint" style="margin:0 0 10px"><i class="bi bi-info-circle"></i>
+          本任务<b>未绑定固定表单</b>：只需填写执行完成情况，并可上传附件。</div>`;
+      }
+      const val = EXEC_DRAFTS[e.id]?.desc || (isView ? (submittedDemo(e,ctx.person).desc||'') : '');
+      html += `<div class="fld"><label>执行完成情况<span class="req">*</span></label>
+        <textarea class="inp" id="exDesc" ${isView?'readonly':''} placeholder="请详细描述任务执行完成情况">${esc(val)}</textarea></div>`;
+    } else {
+      const demo = submittedDemo(e,ctx.person);
+      const draft = EXEC_DRAFTS[e.id]||{};
+      const v = k => isView ? (demo[k]||'') : (draft[k]||'');
+      html += `<div class="row2">
+        <div class="fld"><label>巡检区域</label>
+          <input class="inp" id="exF1" ${isView?'readonly':''} value="${esc(v('f1'))}" placeholder="${isView?'':'东区3号矿井'}"></div>
+        <div class="fld"><label>设备状态</label>
+          <select class="inp" id="exF2" ${isView?'disabled':''}>
+            ${['正常','异常','待维修'].map(o=>`<option ${v('f2')===o?'selected':''}>${o}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="row2">
+        <div class="fld"><label>安全隐患</label>
+          <select class="inp" id="exF3" ${isView?'disabled':''}>
+            ${['无','轻微','严重'].map(o=>`<option ${v('f3')===o?'selected':''}>${o}</option>`).join('')}
+          </select></div>
+        <div class="fld"><label>处理措施</label>
+          <input class="inp" id="exF4" ${isView?'readonly':''} value="${esc(v('f4'))}" placeholder="${isView?'':'填写处理措施'}"></div>
+      </div>
+      <div class="fld"><label>备注</label>
+        <textarea class="inp" id="exF5" ${isView?'readonly':''} rows="2" placeholder="${isView?'':'其他说明'}">${esc(v('f5'))}</textarea></div>`;
+    }
+    html += `<div class="fld" style="margin-bottom:0"><label>附件</label>
+      ${isView
+        ? `<div class="inp ro" style="display:flex;align-items:center;gap:6px;height:36px">
+             <i class="bi bi-paperclip"></i>${submittedDemo(e,ctx.person).files||'无附件'}</div>`
+        : `<div class="inp ro" style="display:flex;align-items:center;justify-content:center;gap:6px;height:66px;border-style:dashed;cursor:pointer" onclick="toast('原型演示：选择图片 / 文件','')">
+             <i class="bi bi-cloud-arrow-up" style="font-size:18px"></i>
+             <span style="font-size:11px">点击上传（≤9 个，单个 ≤20MB）</span></div>`}
+    </div>`;
+  }
+  html += `</div></div>`;
+  $('exBody').innerHTML = html;
+}
+function saveExecDraft(){
+  const e = EXEC_CTX.exec;
+  const d = {};
+  const map = {exDesc:'desc',exF1:'f1',exF2:'f2',exF3:'f3',exF4:'f4',exF5:'f5'};
+  Object.keys(map).forEach(id=>{ const el=$(id); if(el) d[map[id]] = el.value; });
+  EXEC_DRAFTS[e.id] = d;
+  toast('已暂存，下次进入会自动带出','ok');
+}
+function submitExec(){
+  const e = EXEC_CTX.exec;
+  const s = mySigner(e); if(!s || s.at) return;
+  if(e.form==='无'){
+    const d = $('exDesc');
+    if(!d || !d.value.trim()){ toast('请填写执行完成情况','warn'); return; }
+  } else {
+    const f1 = $('exF1');
+    if(f1 && !f1.value.trim()){ toast('请填写巡检区域','warn'); return; }
+  }
+  s.at = nowStr();
+  delete EXEC_DRAFTS[e.id];
+  EXEC_CTX = null;
+  openModule('my');
+  switchMyTab('t-done');
+}
+
+/* ================================================================
+   10. 转办 / 撤回 / 作废 / 调整
+=============================================================== */
+function openForwardSheet(id){
+  const e = execOf(id); if(!e) return;
+  const s = mySigner(e); if(!s || s.at) return;
+  openOrgPicker({
+    title:'转办 · 选择接收人',
+    desc:'单选 1 人 · 排除自己与已在执行人名单中的人',
+    mode:'single',
+    selected:[],
+    exclude: activeSigners(e).map(x=>x.n),
+    onOk(sel){
+      const to = sel[0];
+      s.fwdTo = to; s.fwdAt = nowStr(); s.fwdReason = '';
+      e.signers.push({n:to, at:null});
+      e.events.push({act:'已转办', who:CU+' → '+to, time:nowStr(), reason:'', kind:'transfer', from:CU, to});
+      toast('已转办给 '+to+'，本条移入「已转发」','ok');
+      closeSheets();
+      openModule('my'); switchMyTab('t-fwd');
+    }
+  });
+}
+function openWithdrawSheet(id){
+  const e = execOf(id); if(!e) return;
+  const isLate = execOver(e)==='late';
+  openReasonSheet({
+    title:'撤回本次执行',
+    desc:e.name + ' · 尚未有人提交',
+    notice: isLate ? '<i class="bi bi-exclamation-triangle-fill"></i>该执行已超期。' : '',
+    quick:['内容有误','时间冲突','任务取消','重复发布'],
+    placeholder:'请填写撤回原因（必填，2–200 字）',
+    okText:'确认撤回',
+    danger:true,
+    footHint:'撤回后本次执行从执行人待办中移除，不可恢复。',
+    onOk(reason){
+      e.withdrawn = true;
+      e.events.push({act:'已撤回', who:CU, time:nowStr(), reason, kind:'withdraw'});
+      closeSheets();
+      toast('已撤回（已记入执行日志）','ok');
+      refreshAfterExecOp();
+    }
+  });
+}
+function openVoidSheet(id){
+  const e = execOf(id); if(!e) return;
+  openReasonSheet({
+    title:'作废本次执行',
+    desc:e.name + ' · 已有人提交',
+    notice:'<i class="bi bi-info-circle"></i>作废后本次执行失效，并通知执行人。',
+    quick:['安排有误','重复执行','任务取消','现场条件不具备'],
+    placeholder:'请填写作废原因（必填，2–200 字）',
+    okText:'确认作废',
+    danger:true,
+    
+    onOk(reason){
+      e.voided = true;
+      e.events.push({act:'已作废', who:CU, time:nowStr(), reason, kind:'void'});
+      closeSheets();
+      toast('已作废（已通知执行人，已记入执行日志）','ok');
+      refreshAfterExecOp();
+    }
+  });
+}
+
+let ADJ = null;
+function openAdjustSheet(id){
+  const e = execOf(id); if(!e) return;
+  const pend = activeSigners(e).filter(s=>!s.at).map(s=>s.n);
+  if(!pend.length){ toast('本次执行没有可调整的执行人（都已提交）','warn'); return; }
+  ADJ = {e, from: pend.length===1?pend[0]:'', to:'', reason:''};
+  renderAdjustSheet();
+}
+function renderAdjustSheet(){
+  const {e, from, to} = ADJ;
+  const pend = activeSigners(e).filter(s=>!s.at).map(s=>s.n);
+  openSheet({
+    title:'调整执行人',
+    desc:e.name + ' · 只改这一条执行',
+    body:`<div class="fld">
+        <label>原执行人<span class="req">*</span></label>
+        ${pend.length===1
+          ? `<div class="inp ro" style="display:flex;align-items:center">${pend[0]}<span class="mini" style="margin-left:auto">唯一未提交者</span></div>`
+          : `<div class="opt-list">${pend.map(n=>`
+              <div class="opt ${from===n?'on':''}" onclick="ADJ.from='${n}';renderAdjustSheet()">
+                <span class="radio"></span><span class="nm">${n}</span>
+                <span class="mini">未提交</span>
+              </div>`).join('')}</div>`}
+        <div class="hint">已提交的人不能调整。</div>
+      </div>
+      <div class="fld">
+        <label>调整给<span class="req">*</span></label>
+        <button class="inp pick ${to?'filled':''}" onclick="pickAdjustTo()">
+          <span id="adjToTxt" class="${to?'':'ph'}">${to||'点击选择新执行人'}</span><i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+      <div class="fld" style="margin-bottom:0">
+        <label>调整原因</label>
+        <input class="inp" id="adjReason" placeholder="选填，≤200 字，会记入执行日志" value="${esc(ADJ.reason||'')}">
+      </div>`,
+    foot:`<button class="btn ghost" onclick="popSheet()">取消</button>
+          <button class="btn primary" onclick="okAdjust()">确认调整</button>`
+  });
+}
+function pickAdjustTo(){
+  const e = ADJ.e;
+  openOrgPicker({
+    title:'选择新执行人',
+    mode:'single',
+    selected:[],
+    exclude: activeSigners(e).map(s=>s.n),
+    onOk(sel){
+      ADJ.to = sel[0];
+      const t = $('adjToTxt');
+      if(t){
+        t.textContent = ADJ.to;
+        t.classList.remove('ph');
+        t.closest('.pick').classList.add('filled');
+      }
+    }
+  });
+}
+function okAdjust(){
+  if(!ADJ.from){ toast('请选择原执行人','warn'); return; }
+  if(!ADJ.to){ toast('请选择调整给谁','warn'); return; }
+  if(ADJ.to===ADJ.from){ toast('新旧执行人不能相同','warn'); return; }
+  const reason = ($('adjReason')?.value||'').trim();
+  const e = ADJ.e;
+  const s = e.signers.find(x=>x.n===ADJ.from && !x.fwdTo);
+  if(s) s.n = ADJ.to;
+  e.events.push({act:'已调整执行人', who:ADJ.from+' → '+ADJ.to, time:nowStr(), reason, kind:'adjust'});
+  closeSheets();
+  toast('已调整，已通知新旧执行人（已记入执行日志）','ok');
+  refreshAfterExecOp();
+}
+function refreshAfterExecOp(){
+  const tid = UI.execListTid;
+  UI.execListTid = null;
+  renderMy(); renderPublish();
+  if(tid) openExecList(tid);
+}
+
+/* ================================================================
+   11. 执行明细 / 执行详情
+=============================================================== */
+function openExecList(tid){
+  const t = taskOf(tid); if(!t) return;
+  UI.execListTid = tid;
+  const list = execsOfTask(tid).sort((a,b)=>b.pubTime.localeCompare(a.pubTime));
+  openSheet({
+    title:'执行明细 · ' + cut(t.name,14),
+    desc: list.length ? ('按发布时间倒序 · 共 '+list.length+' 条') : '该任务尚未生成执行',
+    body: list.length ? list.map(e=>{
+      const st = statusOf(e), ov = execOver(e), p = progress(e);
+      const ops = `<button class="btn ghost sm" onclick="openExecDetail('${e.id}')">详情</button>`
+        + (!e.withdrawn && !e.voided && p.done===0 ? `<button class="btn ghost sm" onclick="openWithdrawSheet('${e.id}')">撤回</button>`:'')
+        + (!e.withdrawn && !e.voided && p.done>0 && p.done<p.total ? `<button class="btn danger sm" onclick="openVoidSheet('${e.id}')">作废</button>`:'')
+        + (!e.withdrawn && !e.voided && p.done<p.total ? `<button class="btn ghost sm" onclick="openAdjustSheet('${e.id}')">调整</button>`:'');
+      return `<div class="card" style="box-shadow:none;margin-bottom:8px">
+        <div class="c-kicker"><i class="bi bi-hash"></i>${execNo(e)}</div>
+        <div class="card-h"><div class="c-name small">${fmtPpl(activeSigners(e).map(s=>s.n))}</div><span class="tag ${st.cls}">${st.label}</span></div>
+        <div class="c-meta"><span class="it"><i class="bi bi-clock"></i>${e.pubTime}</span>
+          ${ov?`<span class="it">${overTag(ov)}</span>`:''}</div>
+        <div class="c-ops">${ops}</div>
+      </div>`;
+    }).join('')
+    : `<div class="empty" style="padding:26px"><i class="bi bi-hourglass"></i><p>该任务尚未到发布时间，暂无执行记录</p></div>`,
+    foot:`<button class="btn ghost" onclick="popSheet()">关闭</button>`
+  });
+}
+function openExecDetail(id){
+  const e = execOf(id); if(!e) return;
+  const st = statusOf(e), ov = execOver(e), p = progress(e);
+  openSheet({
+    title:'执行详情 · ' + cut(e.name,14),
+    desc:'本次执行的任务信息与执行日志',
+    body:`<div class="pills">
+        <span class="pill accent">完成进度 ${p.done}/${p.total}</span>
+        ${ov==='late'?'<span class="pill warn">超期</span>':ov==='done'?'<span class="pill done">超期完成</span>':'<span class="pill ok">未超期</span>'}
+        <span class="pill">计划结束 ${e.planEnd}</span>
+      </div>
+      <div class="blk" style="margin-bottom:9px">
+        <div class="blk-h"><i class="bi bi-info-circle"></i>任务信息</div>
+        <div class="blk-b"><div class="kv">
+          <span class="k">执行编号</span><span class="v mono">${execNo(e)}</span>
+        <span class="k">发起人</span><span class="v">${e.starter||'—'}</span>
+          <span class="k">执行人</span><span class="v">${fmtPpl(activeSigners(e).map(s=>s.n))}</span>
+          <span class="k">参与人员</span><span class="v">${fmtPpl(e.parts||[])}</span>
+          <span class="k">执行表单</span><span class="v">${e.form==='无'?'无（普通任务）':e.form}</span>
+          <span class="k">执行工种</span><span class="v">${e.work||'—'}</span>
+          <span class="k">执行地点</span><span class="v">${e.loc||'—'}</span>
+          <span class="k">计划时间</span><span class="v">${fmtSpan(e.planStart,e.planEnd)}</span>
+          <div class="full"><span class="k">执行说明</span><span class="v">${e.desc||'—'}</span></div>
+        </div></div>
+      </div>
+      <div class="blk" style="margin-bottom:0">
+        <div class="blk-h"><i class="bi bi-journal-text"></i>执行日志</div>
+        <div class="blk-b tight">${logRowsHtml(e, true)}</div>
+      </div>`,
+    foot:`<button class="btn ghost" onclick="popSheet()">关闭</button>`
+  });
+}
+
+/* ================================================================
+   12. 任务详情（只读：基本信息 + 执行日志）
+=============================================================== */
+function openTaskDetail(id){
+  const e = execOf(id); if(!e) return;
+  DT_CTX = {exec:e, backTab:UI.myTab, backPage:UI.page};
+  renderDetail();
+  showScreen('sc-detail');
+}
+function renderDetail(){
+  const e = DT_CTX.exec;
+  const st = statusOf(e), ov = execOver(e);
+  $('dtTitle').textContent = '查看任务 · ' + cut(e.name,12);
+  $('dtBody').innerHTML = `
+    <div class="pills">
+      <span class="pill accent">状态 · ${st.label}</span>
+      ${ov==='late'?'<span class="pill warn"><i class="bi bi-exclamation-triangle-fill"></i>超期</span>'
+        : ov==='done'?'<span class="pill done">超期完成</span>':'<span class="pill ok">未超期</span>'}
+    </div>
+    <div class="blk">
+      <div class="blk-h"><i class="bi bi-info-circle"></i>任务基本信息</div>
+      <div class="blk-b"><div class="kv">
+        <span class="k">执行编号</span><span class="v mono">${execNo(e)}</span>
+        <span class="k">发起人</span><span class="v">${e.starter||'—'}</span>
+        <span class="k">执行人</span><span class="v">${fmtPpl(activeSigners(e).map(s=>s.n))}</span>
+        <span class="k">参与人员</span><span class="v">${fmtPpl(e.parts||[])}</span>
+        <span class="k">执行表单</span><span class="v">${e.form==='无'?'无（普通任务）':e.form}</span>
+        <span class="k">执行工种</span><span class="v">${e.work||'—'}</span>
+        <span class="k">执行地点</span><span class="v">${e.loc||'—'}</span>
+        <span class="k">计划时间</span><span class="v">${fmtSpan(e.planStart,e.planEnd)}</span>
+        <div class="full"><span class="k">执行说明</span><span class="v">${e.desc||'—'}</span></div>
+      </div></div>
+    </div>
+    <div class="blk">
+      <div class="blk-h"><i class="bi bi-journal-text"></i>执行日志</div>
+      <div class="blk-b tight">${logRowsHtml(e,false)}</div>
+    </div>`;
+}
+function logRowsHtml(e, inSheet){
+  const rows = [];
+  activeSigners(e).forEach(s=>{
+    const po = personOver(e,s);
+    if(s.at) rows.push({who:s.n, act:'已提交', time:s.at, over:po, kind:'submit', person:s.n});
+    else rows.push({who:s.n, act:'未提交', time:'', over:po, kind:'pending'});
+  });
+  (e.events||[]).forEach(ev=>{
+    if(ev.kind==='transfer' || ev.act==='已转办') rows.push({who:ev.who, act:'已转办', time:ev.time, kind:'transfer', from:ev.from, to:ev.to, reason:ev.reason});
+    else if(ev.act==='已撤回') rows.push({who:ev.who, act:'已撤回', time:ev.time, kind:'withdraw', reason:ev.reason});
+    else if(ev.act==='已作废') rows.push({who:ev.who, act:'已作废', time:ev.time, kind:'void', reason:ev.reason});
+    else if(ev.act==='已调整执行人') rows.push({who:ev.who, act:'已调整执行人', time:ev.time, kind:'adjust', reason:ev.reason});
+  });
+  rows.push({who:'系统', act:'已发布', time:e.pubTime, kind:'publish'});
+  const pend = rows.filter(r=>r.kind==='pending');
+  const rest = rows.filter(r=>r.kind!=='pending').sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')));
+  const all = pend.concat(rest);
+  const meta = {
+    '已发布':['tag-gray','bi-send'], '已提交':['tag-ok','bi-check2'], '未提交':['tag-gray','bi-hourglass'],
+    '已转办':['tag-accent','bi-arrow-left-right'], '已撤回':['tag-warn','bi-arrow-return-left'],
+    '已作废':['tag-danger','bi-slash-circle'], '已调整执行人':['tag-violet','bi-person-gear']
+  };
+  return all.map((r,i)=>{
+    const m = meta[r.act]||['tag-gray','bi-dot'];
+    let op = '<span class="mini">—</span>';
+    if(r.kind==='submit') op = `<button class="btn ghost sm" onclick="viewPersonSubmit('${e.id}','${r.person}',${inSheet?false:true})">查看提交</button>`;
+    else if(r.kind==='transfer') op = `<button class="btn ghost sm" onclick="openTransferDetail(${i})">转办详情</button>`;
+    else if(r.kind==='withdraw'||r.kind==='void'||r.kind==='adjust') op = `<button class="btn ghost sm" onclick="openEventDetail(${i})">详情</button>`;
+    window.__logs = all;
+    return `<div style="display:flex;gap:8px;padding:9px 0;border-bottom:1px solid var(--line-soft)">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:600">${r.who}</span>
+          <span class="tag ${m[0]}"><i class="bi ${m[1]}"></i>${r.act}</span>
+          ${overTag(r.over)}
+        </div>
+        <div class="mini" style="margin-top:2px">${r.time||'—'}${r.reason?' · '+esc(r.reason):''}</div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center">${op}</div>
+    </div>`;
+  }).join('');
+}
+function openTransferDetail(i){
+  const r = window.__logs[i];
+  openSheet({
+    title:'转办详情',
+    body:`<div class="kv">
+      <span class="k">转出人</span><span class="v">${r.from||r.who}</span>
+      <span class="k">接收人</span><span class="v">${r.to||'—'}</span>
+      <span class="k">转办时间</span><span class="v">${r.time||'—'}</span>
+      <span class="k">转办原因</span><span class="v">${r.reason||'—'}</span>
+    </div>`,
+    foot:`<button class="btn ghost" onclick="popSheet()">关闭</button>`
+  });
+}
+function openEventDetail(i){
+  const r = window.__logs[i];
+  openSheet({
+    title:'操作详情',
+    body:`<div class="kv">
+      <span class="k">动作</span><span class="v">${r.act}</span>
+      <span class="k">操作人</span><span class="v">${r.who||'—'}</span>
+      <span class="k">时间</span><span class="v">${r.time||'—'}</span>
+      <span class="k">原因</span><span class="v">${r.reason||'—'}</span>
+    </div>`,
+    foot:`<button class="btn ghost" onclick="popSheet()">关闭</button>`
+  });
+}
+function backFromDetail(){
+  const tab = DT_CTX ? DT_CTX.backTab : 't-done';
+  const page = DT_CTX ? DT_CTX.backPage : 'my';
+  DT_CTX = null;
+  if(page==='publish'){ openModule('publish'); switchPubTab('pt-launch'); return; }
+  openModule('my');
+  switchMyTab(tab);
+}
+
+/* ================================================================
+   13. 任务级操作（我发起的 / 编辑计划）
+=============================================================== */
+function togglePause(tid){
+  const t = taskOf(tid); if(!t) return;
+  const paused = t.status==='已暂停';
+  openConfirmSheet({
+    title: paused?'恢复任务':'暂停任务',
+    desc: paused
+      ? '恢复后从下一条按规则继续生成，<b>暂停期间的不会补生成</b>。'
+      : '暂停后不再生成新的执行，<b>已生成的照常进行</b>，可随时恢复。',
+    okText: paused?'确认恢复':'确认暂停',
+    onOk(){
+      t.status = paused?'进行中':'已暂停';
+      renderPublish();
+      toast(paused?'已恢复，按规则继续生成':'已暂停，不再生成新执行','ok');
+    }
+  });
+}
+function openStopTask(tid){
+  const t = taskOf(tid); if(!t) return;
+  openReasonSheet({
+    title:'终止任务',
+    desc:t.name,
+    notice:'<i class="bi bi-exclamation-triangle-fill"></i>终止后<b>不可恢复</b>，不再生成新的执行；已生成的执行照常走完。',
+    quick:['计划取消','重复创建','排班调整','任务合并'],
+    placeholder:'请填写终止原因（必填，2–200 字）',
+    okText:'确认终止',
+    danger:true,
+    footHint:'终止后不可恢复。',
+    onOk(reason){
+      t.status='已终止'; t.stopReason=reason;
+      renderPublish();
+      toast('任务已终止，不再生成新的执行','ok');
+    }
+  });
+}
+function copyPlan(tid){
+  const t = taskOf(tid); if(!t) return;
+  openPlanForm('copy', tid);
+}
+function editPlan(tid){ openPlanForm('edit', tid); }
+function viewPlan(tid){ openPlanForm('view', tid); }
+
+/* 卡片「更多」：把低频/危险操作收进弹层，主操作留在卡片上 */
+function openTaskMore(tid){
+  const t = taskOf(tid); if(!t) return;
+  const live = (t.status==='进行中' || t.status==='已暂停');
+  const rows = [];
+  if(live){
+    rows.push({a:'pause', ic:t.status==='已暂停'?'bi-play-circle':'bi-pause-circle',
+      t:t.status==='已暂停'?'恢复任务':'暂停任务',
+      d:t.status==='已暂停'?'按规则继续生成执行':'暂停后不再生成新执行'});
+  }
+  rows.push({a:'copy', ic:'bi-files', t:'复制任务', d:'照抄配置新建一条任务'});
+  if(live){
+    rows.push({a:'stop', ic:'bi-x-octagon', t:'终止任务', d:'终止后不可恢复，不再生成新执行', danger:true});
+  }
+  openSheet({
+    title:'更多操作',
+    desc:cut(t.name,18) + ' · ' + t.status,
+    body:`<div class="more-list">${rows.map(r=>`
+      <button class="more-i ${r.danger?'danger':''}" onclick="taskMoreDo('${r.a}','${tid}')">
+        <i class="bi ${r.ic} mic"></i>
+        <span class="mt"><b>${r.t}</b><em>${r.d}</em></span>
+        <i class="bi bi-chevron-right ar"></i>
+      </button>`).join('')}</div>`
+  });
+}
+function taskMoreDo(act, tid){
+  popSheet();
+  setTimeout(()=>{
+    if(act==='pause') togglePause(tid);
+    else if(act==='copy') copyPlan(tid);
+    else if(act==='stop') openStopTask(tid);
+  }, 170);
+}
+function openDraftMore(id){
+  const d = DRAFTS.find(x=>x.id===id); if(!d) return;
+  openSheet({
+    title:'更多操作',
+    desc:cut(d.name,18) + ' · 草稿',
+    body:`<div class="more-list">
+      <button class="more-i" onclick="draftMoreDo('edit','${id}')">
+        <i class="bi bi-pencil-square mic"></i>
+        <span class="mt"><b>编辑草稿</b><em>继续填写后发布</em></span>
+        <i class="bi bi-chevron-right ar"></i>
+      </button>
+      <button class="more-i danger" onclick="draftMoreDo('del','${id}')">
+        <i class="bi bi-trash3 mic"></i>
+        <span class="mt"><b>删除草稿</b><em>删除后不可恢复</em></span>
+        <i class="bi bi-chevron-right ar"></i>
+      </button>
+    </div>`
+  });
+}
+function draftMoreDo(act, id){
+  popSheet();
+  setTimeout(()=>{ act==='edit' ? editDraft(id) : askDelDraft(id); }, 170);
+}
+
+/* ================================================================
+   14. 搜索
+=============================================================== */
+function openSearch(){
+  UI.searchFrom = UI.page;
+  showScreen('sc-search');
+  $('searchInput').value = '';
+  renderSearch();
+  setTimeout(()=>$('searchInput').focus(), 60);
+}
+function backFromSearch(){
+  openModule(UI.searchFrom||'my');
+}
+function renderSearch(){
+  const kw = ($('searchInput').value||'').trim().toLowerCase();
+  if(!kw){
+    $('searchList').innerHTML = `<div class="empty"><i class="bi bi-search"></i><p>输入任务名称、执行人或执行编号</p></div>`;
+    return;
+  }
+  const tasks = TASKS.filter(t=>t.name.toLowerCase().includes(kw) || t.execs.some(n=>n.toLowerCase().includes(kw)));
+  const execs = EXECS.filter(e=>e.name.toLowerCase().includes(kw) || execNo(e).toLowerCase().includes(kw) || activeSigners(e).some(s=>s.n.toLowerCase().includes(kw)));
+  let html = '';
+  if(tasks.length){
+    html += `<div class="mini" style="margin:2px 2px 7px">任务 · ${tasks.length}</div>`;
+    html += tasks.map(t=>`<div class="card tapable" onclick="viewPlan('${t.id}')">
+      <div class="card-h"><div class="c-name small">${cut(t.name,20)}</div>${taskStatusTag(t.status)}</div>
+      <div class="c-meta"><span class="it">${t.type}</span><span class="it"><i class="bi bi-people"></i>${fmtPpl(t.execs)}</span></div>
+    </div>`).join('');
+  }
+  if(execs.length){
+    html += `<div class="mini" style="margin:10px 2px 7px">执行 · ${execs.length}</div>`;
+    html += execs.slice(0,12).map(e=>`<div class="card tapable" onclick="openTaskDetail('${e.id}')">
+      <div class="c-kicker"><i class="bi bi-hash"></i>${execNo(e)}</div>
+      <div class="card-h"><div class="c-name small">${cut(e.name,20)}</div><span class="tag ${statusOf(e).cls}">${statusOf(e).label}</span></div>
+      <div class="c-meta"><span class="it"><i class="bi bi-clock"></i>${e.pubTime}</span><span class="it"><i class="bi bi-people"></i>${fmtPpl(activeSigners(e).map(s=>s.n))}</span></div>
+    </div>`).join('');
+  }
+  $('searchList').innerHTML = html || `<div class="empty"><i class="bi bi-search"></i><p>没有找到匹配的任务</p></div>`;
+}
+
+/* ================================================================
+   15. 角色 / 筛选 / 模板详情
+=============================================================== */
+function openRoleSheet(){
+  const body = `<div class="mini" style="margin-bottom:8px">当前登录：${CU}。切换后模块内可见范围立即变化。</div>
+    <div class="opt-list">${ROLE_LIST.map(r=>`
+      <div class="opt ${UI.role===r.key?'on':''}" onclick="setRole('${r.key}')">
+        <i class="bi ${r.icon}" style="font-size:16px;color:var(--accent)"></i>
+        <div class="nm"><div>${r.key}</div><div class="ds">${r.desc}</div></div>
+        <span class="radio"></span>
+      </div>`).join('')}</div>
+    <div class="tipbox" style="margin-top:10px;margin-bottom:0"><i class="bi bi-info-circle"></i>
+      具体能看到哪些按钮，由服务端按角色下发。</div>`;
+  openSheet({title:'角色与可见范围', body, foot:`<button class="btn ghost" onclick="popSheet()">关闭</button>`});
+}
+function setRole(role){
+  UI.role = role;
+  closeSheets();
+  if(!canPublish() && UI.moduleTab==='publish') UI.moduleTab = 'my';
+  UI.page = UI.moduleTab;
+  renderModuleSeg();
+  if(UI.moduleTab==='my'){ renderMy(); } else { renderPublish(); }
+  $('myHead').style.display = UI.moduleTab==='my' ? '' : 'none';
+  $('pubHead').style.display = UI.moduleTab==='publish' ? '' : 'none';
+  $('myList').style.display = UI.moduleTab==='my' ? '' : 'none';
+  $('pubList').style.display = UI.moduleTab==='publish' ? '' : 'none';
+  toast('当前角色：'+role+'（已按权限调整可见范围）','ok');
+}
+function openMyFilter(){
+  const tab = UI.myTab;
+  const statusOpts = tab==='t-exec' ? ['','未执行','执行中','已完成']
+                  : tab==='t-done' ? ['','已完成','已作废','已撤回']
+                  : tab==='t-fwd' ? []
+                  : ['','未执行','执行中','已完成','已撤回','已作废'];
+  const body = `
+    ${statusOpts.length?`<div class="fld"><label>状态</label>
+      <div class="wrap-chips">${statusOpts.map(s=>`<button class="chip ${UI.myFilter.status===s?'on':''}" onclick="setMyFilter('status','${s}')">${s||'全部'}</button>`).join('')}</div>
+    </div>`:''}
+    ${tab!=='t-fwd'?`<div class="fld" style="margin-bottom:0"><label>是否超期</label>
+      <div class="wrap-chips">
+        <button class="chip ${UI.myFilter.over===''?'on':''}" onclick="setMyFilter('over','')">全部</button>
+        <button class="chip ${UI.myFilter.over==='1'?'on':''}" onclick="setMyFilter('over','1')">仅超期</button>
+        <button class="chip ${UI.myFilter.over==='0'?'on':''}" onclick="setMyFilter('over','0')">未超期</button>
+      </div></div>`:''}
+    <div class="hint" style="margin-top:10px"><i class="bi bi-info-circle"></i>${
+      tab==='t-exec' ? '「超期」为人级口径：我没提交且当前时间已过该执行的计划结束。'
+      : tab==='t-done' ? '「超期完成」也算超期（晚交要留痕），筛选只按是否超期判断。'
+      : '「我参与的」按<b>执行级</b>口径：整条执行超期，不是「我」超期。'
+    }</div>`;
+  openSheet({
+    title:'筛选 · ' + (MY_TABS.find(t=>t.key===tab)||{}).label,
+    body,
+    foot:`<button class="btn ghost" onclick="UI.myFilter={status:'',over:''};popSheet();renderMy()">重置</button>
+          <button class="btn primary" onclick="popSheet();renderMy()">查看结果</button>`
+  });
+}
+function setMyFilter(k,v){ UI.myFilter[k]=v; popSheet(); openMyFilter(); }
+
+/* ================================================================
+   16. 发布 / 编辑计划表单
+=============================================================== */
+const WEEK_LIST = ['周一','周二','周三','周四','周五','周六','周日'];
+let PF = null;
+let SEQ = 0;
+
+function blankRule(){
+  return {
+    execCtrl:true, remindOn:true,
+    beforeStart:['提前30分钟'], beforeStartPersons:[],
+    beforeEnd:['提前1小时'], beforeEndPersons:[],
+    overdue:'不提醒', overdueCount:2, overduePersons:[],
+    repeatOn:false, freq:'按天', week:[], month:[], yearRows:[], stopDate:'', noEnd:false,
+    delay:'0', delayCustomNum:'', delayUnit:'小时', imm:false
+  };
+}
+function pfBase(){
+  return {
+    mode:'publish', taskId:null, draftId:null, tpl:'', originTab:'pt-new',
+    name:'', execs:[], parts:[], form:'普通业务表单', work:'', loc:'', desc:'',
+    start:'2026-07-15T08:00', end:'2026-07-15T17:00', rule:blankRule(), tab:'basic'
+  };
+}
+function hydrateRule(r){
+  const src = Object.assign({}, r||{});
+  /* 旧结构的「统一提醒人」兼容：拆到三类提醒各自的提醒人 */
+  if(src.remindTo && !src.beforeStartPersons){
+    src.beforeStartPersons = src.remindTo.slice();
+    src.beforeEndPersons = src.remindTo.slice();
+    src.overduePersons = src.remindTo.slice();
+  }
+  const out = Object.assign(blankRule(), src);
+  delete out.remindTo;
+  return out;
+}
+function ensureRemindPersons(){
+  if(!PF) return;
+  const r = PF.rule;
+  if(!r.beforeStartPersons) r.beforeStartPersons = [];
+  if(!r.beforeEndPersons) r.beforeEndPersons = [];
+  if(!r.overduePersons) r.overduePersons = [];
+  if(!r.beforeStartPersons.length) r.beforeStartPersons = PF.execs.slice();
+  if(!r.beforeEndPersons.length) r.beforeEndPersons = PF.execs.slice();
+  if(!r.overduePersons.length) r.overduePersons = PF.execs.slice();
+}
+function startPublish(code){
+  const t = TEMPLATES.find(x=>x.code===code);
+  PF = pfBase();
+  PF.tpl = code;
+  PF.name = t ? t.name : '';
+  PF.form = t ? t.form : '普通业务表单';
+  if(t && t.form==='BPM流程表单') PF.form = '隐患排查登记表';
+  renderPubForm();
+  showScreen('sc-pubform');
+}
+function openPlanForm(mode, tid){
+  const t = taskOf(tid); if(!t) return;
+  PF = pfBase();
+  PF.mode = mode;
+  PF.taskId = tid;
+  PF.tpl = t.tpl||'';
+  PF.originTab = 'pt-launch';
+  PF.name = mode==='copy' ? t.name+'（副本）' : t.name;
+  PF.execs = t.execs.slice();
+  PF.parts = (t.parts||[]).slice();
+  PF.form = t.form;
+  PF.work = t.work||'';
+  PF.loc = t.loc||'';
+  PF.desc = t.desc||'';
+  if(mode==='copy'){
+    const dur = parseT(t.planEnd) - parseT(t.planStart);
+    const s = new Date('2026-07-15T08:00:00');
+    PF.start = '2026-07-15T08:00';
+    PF.end = fmtDT(new Date(s.getTime()+Math.max(dur, 3600000)));
+  } else {
+    PF.start = t.planStart.replace(' ','T');
+    PF.end = t.planEnd.replace(' ','T');
+  }
+  PF.rule = hydrateRule(t.rule);
+  ensureRemindPersons();
+  renderPubForm();
+  showScreen('sc-pubform');
+}
+function editDraft(id){
+  const d = DRAFTS.find(x=>x.id===id); if(!d) return;
+  PF = pfBase();
+  PF.mode = 'draft'; PF.draftId = id; PF.tpl = d.tpl||''; PF.originTab='pt-draft';
+  PF.name = d.name; PF.execs = d.execs.slice(); PF.parts = (d.parts||[]).slice();
+  PF.form = d.form; PF.work = d.work||''; PF.loc = d.loc||''; PF.desc = d.desc||'';
+  PF.start = d.planStart.replace(' ','T');
+  PF.end = d.planEnd.replace(' ','T');
+  PF.rule = hydrateRule(d.rule);
+  ensureRemindPersons();
+  renderPubForm();
+  showScreen('sc-pubform');
+}
+function fmtDT(dt){
+  return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())+'T'+pad(dt.getHours())+':'+pad(dt.getMinutes());
+}
+function pfTab(k){
+  PF.tab = k;
+  document.querySelectorAll('#pfTabs .s').forEach(el=>el.classList.toggle('on', el.dataset.pt===k));
+  $('pfBasicPane').style.display = k==='basic' ? '' : 'none';
+  $('pfRulePane').style.display = k==='rule' ? '' : 'none';
+}
+function renderPubForm(){
+  if(!PF) return;
+  const ro = PF.mode==='view';
+  const titles = {
+    publish:'发布任务', edit:'编辑计划', view:'查看任务', copy:'复制任务', draft:'编辑草稿'
+  };
+  $('pfTitle').textContent = titles[PF.mode] + (PF.name?(' · '+cut(PF.name,10)):'');
+  $('pfSub').textContent = PF.mode==='edit' ? '修改只影响之后生成的执行'
+    : PF.mode==='view' ? '只读模式 · 内容不可修改'
+    : PF.mode==='copy' ? '照抄原任务 · 确认后发布新任务'
+    : PF.mode==='draft' ? '草稿不生成执行'
+    : '选择模板 → 填写内容 → 配置规则';
+
+  $('pfSubmitBtn').style.display = ro ? 'none' : '';
+  $('pfSubmitBtn').textContent = PF.mode==='edit' ? '保存' : '发布';
+  $('pfDraftBtn').style.display = (ro||PF.mode==='edit') ? 'none' : '';
+  $('pfActionBar').style.display = ro ? 'none' : '';
+
+  const exTxt = PF.execs.length ? fmtPpl(PF.execs) : (ro?'—':'点击选择执行人');
+  const paTxt = PF.parts.length ? fmtPpl(PF.parts) : (ro?'—':'点击选择参与人');
+  const formTxt = PF.form==='无' ? '无（普通任务）' : (PF.form||'点击选择表单');
+  const dis = ro ? 'disabled' : '';
+
+  const basic = `<div class="blk">
+    <div class="blk-h"><i class="bi bi-sliders"></i>基本信息配置${ro?'<span class="r">只读</span>':''}</div>
+    <div class="blk-b">
+      <div class="fld"><label>任务名称<span class="req">*</span></label>
+        <input class="inp" id="pfName" value="${esc(PF.name)}" ${dis} placeholder="输入任务名称"
+               oninput="PF.name=this.value" onchange="PF.name=this.value">
+      </div>
+      <div class="fld"><label>发起人</label><input class="inp ro" value="${CU}" disabled></div>
+      <div class="row2">
+        <div class="fld"><label>参与人员</label>
+          <button class="inp pick ${PF.parts.length?'filled':''}" ${dis} onclick="pickPFParts()">
+            <span class="${PF.parts.length?'':'ph'}">${paTxt}</span><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <div class="fld"><label>执行人<span class="req">*</span></label>
+          <button class="inp pick ${PF.execs.length?'filled':''}" ${dis} onclick="pickPFExecs()">
+            <span class="${PF.execs.length?'':'ph'}">${exTxt}</span><i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="fld"><label>执行任务@表单<span class="req">*</span></label>
+        <button class="inp pick filled" ${dis} onclick="pickPFForm()">
+          <span>${formTxt}</span><i class="bi bi-chevron-right"></i></button>
+        <div class="hint">任务发布后不可更改表单类型。</div>
+      </div>
+      <div class="row2">
+        <div class="fld"><label>执行工种</label>
+          <input class="inp" id="pfWork" ${dis} value="${esc(PF.work)}" placeholder="工种" oninput="PF.work=this.value"></div>
+        <div class="fld"><label>执行地点</label>
+          <input class="inp" id="pfLoc" ${dis} value="${esc(PF.loc)}" placeholder="地点" oninput="PF.loc=this.value"></div>
+      </div>
+      <div class="row2">
+        <div class="fld"><label>计划开始<span class="req">*</span></label>
+          <input class="inp" type="datetime-local" id="pfStart" ${dis} value="${PF.start}" onchange="PF.start=this.value;renderPubForm()"></div>
+        <div class="fld"><label>计划结束<span class="req">*</span></label>
+          <input class="inp" type="datetime-local" id="pfEnd" ${dis} value="${PF.end}" onchange="PF.end=this.value;renderPubForm()"></div>
+      </div>
+      <div class="fld"><label>执行说明</label>
+        <textarea class="inp" id="pfDesc" ${dis} rows="2" placeholder="对执行内容的补充说明"
+                  oninput="PF.desc=this.value">${esc(PF.desc)}</textarea></div>
+      <div class="hint">计划开始 / 结束指<b>第一条执行</b>的时间。</div>
+    </div></div>`;
+
+  const r = PF.rule;
+  const disabledCls = ro ? 'style="pointer-events:none;opacity:.72"' : '';
+  const rule = `<div ${disabledCls}>
+    <div class="tipbox"><i class="bi bi-sliders"></i>当前规则：${ruleSummary()}</div>
+    <div class="blk">
+      <div class="blk-h"><i class="bi bi-clock-history"></i>执行控制</div>
+      <div class="blk-b">
+        ${switchRow('开始时间后才可执行','未到计划开始时间时，执行按钮不可用', 'execCtrl')}
+      </div>
+    </div>
+
+    <div class="blk">
+      <div class="blk-h"><i class="bi bi-bell"></i>任务提醒</div>
+      <div class="blk-b">
+        ${switchRow('自动推送提醒','关闭后三类提醒都不再发送','remindOn')}
+        ${r.remindOn ? `<div style="margin-top:2px">
+          ${remindItem('计划开始前', remindSummary(r.beforeStart),
+            "openPickSheet({title:'计划开始时间前',desc:'可多选，每个选项各提醒 1 次；全部取消＝该提醒不发',options:REMIND_TIME_OPTS,selected:PF.rule.beforeStart,custom:true,allowEmpty:true,onOk(v){PF.rule.beforeStart=v;renderPubForm();}})",
+            "pickRemindPersons('beforeStart')", r.beforeStartPersons)}
+          ${remindItem('计划结束前', remindSummary(r.beforeEnd),
+            "openPickSheet({title:'计划结束时间前',desc:'可多选，每个选项各提醒 1 次；全部取消＝该提醒不发',options:REMIND_TIME_OPTS,selected:PF.rule.beforeEnd,custom:true,allowEmpty:true,onOk(v){PF.rule.beforeEnd=v;renderPubForm();}})",
+            "pickRemindPersons('beforeEnd')", r.beforeEndPersons)}
+          ${remindItem('超期未处理', r.overdue==='不提醒' ? '请选择' : r.overdue,
+            "openPickSheet({title:'超期未处理提醒',desc:'单选，进入超期后按该间隔重复提醒',options:OVERDUE_OPTS,selected:[PF.rule.overdue],mode:'single',custom:true,prefix:'每',count:true,countVal:PF.rule.overdueCount,onOk(v){PF.rule.overdue=v||'不提醒';if(window.__pickCount)PF.rule.overdueCount=window.__pickCount;renderPubForm();}})",
+            "pickRemindPersons('overdue')", r.overduePersons)}
+          ${r.overdue!=='不提醒' ? `<div class="remind-item" style="padding-bottom:2px">
+              <div class="ri-h"><span class="ri-l">重复次数</span>
+                <input class="inp num" type="number" min="1" max="10" value="${r.overdueCount}"
+                       onchange="PF.rule.overdueCount=Math.min(10,Math.max(1,Number(this.value)||2))">
+                <span class="mini" style="margin-left:auto">1–10 次，含第 1 次</span>
+              </div>
+            </div>`:''}
+        </div>` : ''}
+      </div>
+    </div>
+
+    <div class="blk">
+      <div class="blk-h"><i class="bi bi-arrow-repeat"></i>重复发布</div>
+      <div class="blk-b">
+        ${switchRow('开启重复发布','关闭后只生成 1 条执行','repeatOn')}
+        ${r.repeatOn ? `
+          <div class="fld" style="margin-top:6px"><label>重复频率<span class="req">*</span></label>
+            <select class="inp" onchange="setFreq(this.value)">
+              ${['按天','按周','按月','按年'].map(f=>`<option ${r.freq===f?'selected':''}>${f}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fld"><label>重复日期<span class="req">*</span></label>${dimsHtml()}</div>
+          <div class="fld">
+            <label>停止日期<span class="req">*</span></label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input class="inp" type="date" value="${r.stopDate}" ${r.noEnd?'disabled':''} onchange="PF.rule.stopDate=this.value">
+              <label class="mini" style="display:flex;align-items:center;gap:4px;white-space:nowrap">
+                <input type="checkbox" ${r.noEnd?'checked':''} onchange="PF.rule.noEnd=this.checked;renderPubForm()">永不截止</label>
+            </div>
+          </div>
+          <div class="fld">
+            <label>发布时间<span class="req">*</span></label>
+            <select class="inp" onchange="setDelay(this.value)">
+              <option value="0" ${r.delay==='0'?'selected':''}>准时</option>
+              <option value="60" ${r.delay==='60'?'selected':''}>提前 1 小时</option>
+              <option value="120" ${r.delay==='120'?'selected':''}>提前 2 小时</option>
+              <option value="1440" ${r.delay==='1440'?'selected':''}>提前 1 天</option>
+              <option value="2880" ${r.delay==='2880'?'selected':''}>提前 2 天</option>
+              <option value="custom" ${r.delay==='custom'?'selected':''}>自定义…</option>
+            </select>
+            ${r.delay==='custom' ? `<div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+                <span class="mini">提前</span>
+                <input class="inp num" type="number" min="1" max="999" value="${r.delayCustomNum||''}" placeholder="0"
+                       onchange="PF.rule.delayCustomNum=this.value">
+                <select class="inp" style="width:88px" onchange="PF.rule.delayUnit=this.value;renderPubForm()">
+                  ${['分钟','小时','天'].map(u=>`<option ${r.delayUnit===u?'selected':''}>${u}</option>`).join('')}
+                </select>
+              </div>`:''}
+            <div class="hint">发布时间＝计划开始 − 提前量。</div>
+          </div>
+          <div style="padding:4px 0">${switchRow('立即发布第一条任务','开启后不等发布时间，立刻生成第一条','imm')}</div>
+          <button class="btn ghost sm" style="width:100%" onclick="openNextPreview()">
+            <i class="bi bi-eye"></i>下一次任务详情（按当前填写值预览）</button>
+        ` : ''}
+      </div>
+    </div>
+  </div>`;
+
+  $('pfBody').innerHTML = `<div id="pfBasicPane" style="display:${PF.tab==='basic'?'':'none'}">${basic}</div>
+                           <div id="pfRulePane" style="display:${PF.tab==='rule'?'':'none'}">${rule}</div>`;
+}
+function switchRow(t,d,key){
+  return `<div class="swrow">
+    <div class="sw ${PF.rule[key]?'on':''}" onclick="toggleRule('${key}')"></div>
+    <div class="txt"><div class="t">${t}</div><div class="d">${d}</div></div>
+  </div>`;
+}
+function toggleRule(key){
+  PF.rule[key] = !PF.rule[key];
+  if(key==='remindOn' && PF.rule.remindOn) ensureRemindPersons();
+  if(key==='repeatOn' && PF.rule.repeatOn && !PF.rule.week.length) PF.rule.week = ['周一'];
+  if(key==='repeatOn' && PF.rule.repeatOn && !PF.rule.month.length) PF.rule.month = [1];
+  if(key==='repeatOn' && PF.rule.repeatOn && PF.rule.freq==='按年' && !PF.rule.yearRows.length) PF.rule.yearRows = [{months:[],days:[]}];
+  renderPubForm();
+}
+/* 一条提醒：时间可多选/自定义，提醒人单独配置 */
+function remindItem(label, value, timeOnclick, personOnclick, persons){
+  const txt = (persons && persons.length) ? ('已选 '+persons.length+' 人：'+fmtPpl(persons)) : '点击选择提醒人';
+  return `<div class="remind-item">
+    <div class="ri-h">
+      <span class="ri-l">${label}</span>
+      <button class="ri-v" onclick="${timeOnclick.replace(/"/g,'&quot;')}">
+        <span>${value}</span><i class="bi bi-chevron-down"></i></button>
+    </div>
+    <div class="ri-p">提醒人 <button onclick="${personOnclick}">${txt}</button></div>
+  </div>`;
+}
+function pickRemindPersons(field){
+  const key = field + 'Persons';
+  openOrgPicker({
+    title:'选择提醒人',
+    desc:'只对本类提醒生效；默认为执行人',
+    mode:'multi',
+    selected:PF.rule[key]||[],
+    onOk(sel){ PF.rule[key] = sel; renderPubForm(); }
+  });
+}
+function remindSummary(arr){
+  if(!arr || !arr.length) return '不提醒';
+  return arr.length>2 ? arr.slice(0,2).join('、')+' 等 '+arr.length+' 项' : arr.join('、');
+}
+function ruleSummary(){
+  const r = PF.rule;
+  const rep = r.repeatOn
+    ? (r.freq + (r.freq==='按周' && r.week.length ? ' ' + r.week.join('、') : '')
+             + (r.freq==='按月' && r.month.length ? ' ' + r.month.slice(0,3).join('、') : '')
+             + (r.freq==='按年' && r.yearRows.length ? ' ' + r.yearRows.length + ' 条规则' : ''))
+    : '单次';
+  if(!r.remindOn) return `执行控制${r.execCtrl?'开':'关'} · 不提醒 · ${rep}`;
+  const od = r.overdue==='不提醒' ? '超期未设置' : ('超期 ' + r.overdue + ' ×' + r.overdueCount);
+  return `执行控制${r.execCtrl?'开':'关'} · 开始前 ${remindSummary(r.beforeStart)} · 结束前 ${remindSummary(r.beforeEnd)} · ${od} · ${rep}`;
+}
+function setDelay(v){
+  PF.rule.delay = v;
+  if(v==='custom' && !PF.rule.delayCustomNum) PF.rule.delayCustomNum = '30';
+  renderPubForm();
+}
+function setFreq(f){
+  PF.rule.freq = f;
+  if(f==='按周' && !PF.rule.week.length) PF.rule.week = ['周一'];
+  if(f==='按月' && !PF.rule.month.length) PF.rule.month = [1];
+  if(f==='按年' && !PF.rule.yearRows.length) PF.rule.yearRows = [{months:[],days:[]}];
+  renderPubForm();
+}
+function monthSummary(arr){
+  return arr.length>4 ? arr.slice(0,4).join('、')+' 等 '+arr.length+' 项' : arr.join('、');
+}
+function dimsHtml(){
+  const r = PF.rule;
+  if(r.freq==='按天') return `<div class="inp ro" style="display:flex;align-items:center">每天</div>`;
+  if(r.freq==='按周'){
+    return `<button class="inp pick filled" onclick="pickWeek()">
+      <span class="${r.week.length?'':'ph'}">${r.week.length?r.week.join('、'):'点击选择星期'}</span>
+      <i class="bi bi-chevron-down"></i></button>`;
+  }
+  if(r.freq==='按月'){
+    return `<button class="inp pick filled" onclick="pickMonth()">
+      <span class="${r.month.length?'':'ph'}">${r.month.length?monthSummary(r.month):'点击选择日期'}</span>
+      <i class="bi bi-chevron-down"></i></button>`;
+  }
+  if(!r.yearRows.length) r.yearRows = [{months:[],days:[]}];
+  return r.yearRows.map((row,i)=>`
+    <div class="year-row">
+      <span class="mini" style="width:16px">${i+1}</span>
+      <div class="yr-b">
+        <button onclick="pickYearPart(${i},'months')">
+          <span class="${row.months.length?'':'ph'}">${row.months.length?row.months.map(x=>x+'月').join('、'):'月份'}</span>
+          <i class="bi bi-chevron-down"></i></button>
+        <button onclick="pickYearPart(${i},'days')">
+          <span class="${row.days.length?'':'ph'}">${row.days.length?row.days.map(x=>x+'日').join('、'):'日期'}</span>
+          <i class="bi bi-chevron-down"></i></button>
+      </div>
+      ${r.yearRows.length>1?`<button class="btn sm ghost" onclick="delYearRow(${i})"><i class="bi bi-x-lg"></i></button>`:''}
+    </div>`).join('')
+    + `<button class="btn ghost sm" style="width:100%" onclick="addYearRow()"><i class="bi bi-plus-lg"></i>添加一条规则</button>`;
+}
+function pickWeek(){
+  openPickSheet({
+    title:'选择星期', desc:'可多选，按所选星期各生成一条',
+    options:WEEK_LIST, selected:PF.rule.week, withAll:true,
+    onOk(v){ PF.rule.week = v; renderPubForm(); }
+  });
+}
+function pickMonth(){
+  const days = [];
+  for(let i=1;i<=31;i++) days.push(i+'日');
+  days.push('最后一天');
+  openPickSheet({
+    title:'选择日期', desc:'可多选；「最后一天」按当月实际天数',
+    options:days, selected:PF.rule.month, withAll:true,
+    onOk(v){ PF.rule.month = v; renderPubForm(); }
+  });
+}
+function pickYearPart(i, kind){
+  const row = PF.rule.yearRows[i];
+  if(kind==='months'){
+    openPickSheet({
+      title:'第 '+(i+1)+' 条 · 选择月份',
+      options:Array.from({length:12},(_,k)=>(k+1)+'月'),
+      selected:row.months.map(m=>m+'月'), withAll:true,
+      onOk(v){ row.months = v.map(x=>parseInt(x)).sort((a,b)=>a-b); renderPubForm(); }
+    });
+  } else {
+    openPickSheet({
+      title:'第 '+(i+1)+' 条 · 选择日期',
+      options:Array.from({length:31},(_,k)=>(k+1)+'日'),
+      selected:row.days.map(d=>d+'日'), withAll:true,
+      onOk(v){ row.days = v.map(x=>parseInt(x)).sort((a,b)=>a-b); renderPubForm(); }
+    });
+  }
+}
+function yearRowText(row){
+  if(!row.months.length || !row.days.length) return '未选择月份 / 日期';
+  const m = row.months.slice().sort((a,b)=>a-b).map(x=>x+'月').join('、');
+  const d = row.days.slice().sort((a,b)=>a-b).map(x=>x+'日').join('、');
+  return m+' × '+d;
+}
+function addYearRow(){
+  if(PF.rule.yearRows.length>=10){ toast('一条规则最多 10 行','warn'); return; }
+  PF.rule.yearRows.push({months:[],days:[]});
+  renderPubForm();
+}
+function delYearRow(i){
+  if(PF.rule.yearRows.length<=1) return;
+  PF.rule.yearRows.splice(i,1);
+  renderPubForm();
+}
+
+/* ---------- 发布表单内的各种选择 ---------- */
+function pickPFExecs(){
+  openOrgPicker({
+    title:'选择执行人', mode:'multi', selected:PF.execs,
+    onOk(sel){
+      PF.execs = sel;
+      ensureRemindPersons();
+      renderPubForm();
+    }
+  });
+}
+function pickPFParts(){
+  openOrgPicker({
+    title:'选择参与人员', mode:'multi', selected:PF.parts,
+    desc:'参与人员只读关注，不参与会签、不产生待办',
+    onOk(sel){ PF.parts = sel; renderPubForm(); }
+  });
+}
+function pickPFForm(){
+  openFormPicker(PF.form==='无'?'':PF.form, name=>{
+    PF.form = name;
+    renderPubForm();
+  });
+}
+
+/* ---------- 下一次任务详情 ---------- */
+function delayMinutes(){
+  const r = PF.rule;
+  if(r.delay!=='custom') return Number(r.delay)||0;
+  const n = Number(r.delayCustomNum)||0;
+  return n * (r.delayUnit==='分钟'?1:(r.delayUnit==='小时'?60:1440));
+}
+function nextOccurrence(){
+  if(!PF.start || !PF.end) return null;
+  const s = parseT(PF.start), e = parseT(PF.end);
+  const dur = e - s;
+  let next = new Date(s);
+  if(!PF.rule.repeatOn){
+    return {start:new Date(s), end:new Date(e), single:true};
+  }
+  const freq = PF.rule.freq;
+  if(freq==='按天'){
+    next.setDate(next.getDate()+1);
+  } else if(freq==='按周'){
+    const set = (PF.rule.week||[]).map(w=>WEEK_LIST.indexOf(w)).filter(x=>x>=0);
+    if(!set.length) return null;
+    let guard=0;
+    do{ next.setDate(next.getDate()+1); guard++; }
+    while(!set.includes((next.getDay()+6)%7) && guard<60);
+  } else if(freq==='按月'){
+    const days = (PF.rule.month||[]).map(x=>x==='最后一天'?'L':parseInt(x)).filter(Boolean);
+    if(!days.length) return null;
+    let guard=0, found=null;
+    while(!found && guard<36){
+      const y = next.getFullYear(), m = next.getMonth()+guard;
+      const last = new Date(y, m+1, 0).getDate();
+      const cds = days.map(x=>x==='L'?last:x).filter(x=>x<=last).sort((a,b)=>a-b);
+      for(const dnum of cds){
+        const cand = new Date(y, m, dnum, s.getHours(), s.getMinutes());
+        if(cand > s){ found = cand; break; }
+      }
+      guard++;
+    }
+    if(!found) return null;
+    next = found;
+  } else {
+    /* 按年：多行月份 × 日期 */
+    const rows = PF.rule.yearRows||[];
+    let best = null;
+    rows.forEach(row=>{
+      if(!row.months.length || !row.days.length) return;
+      row.months.forEach(mo=>{
+        const last = new Date(s.getFullYear(), mo, 0).getDate();
+        row.days.forEach(dd=>{
+          if(dd>last) return;
+          [0,1,2].forEach(off=>{
+            const cand = new Date(s.getFullYear()+off, mo-1, dd, s.getHours(), s.getMinutes());
+            if(cand > s && (!best || cand < best)) best = cand;
+          });
+        });
+      });
+    });
+    if(!best) return null;
+    next = best;
+  }
+  return {start:next, end:new Date(next.getTime()+dur), single:false};
+}
+function openNextPreview(){
+  if(!PF.start || !PF.end){ toast('请先填写计划开始与结束时间','warn'); return; }
+  const n = nextOccurrence();
+  const fmt = dt => dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())+' '+pad(dt.getHours())+':'+pad(dt.getMinutes());
+  const r = PF.rule;
+  const cycle = r.repeatOn
+    ? (r.freq + (r.freq==='按周'?'（'+(r.week.join('、')||'未选')+'）'
+              : r.freq==='按月'?'（'+(r.month.join('、')||'未选')+'）'
+              : r.freq==='按年'?'（'+(r.yearRows.map(yearRowText).join(' / ')||'未选')+'）':''))
+    : '单次任务';
+  const body = n ? `<div class="pills">
+      <span class="pill accent">${cycle}</span>
+      <span class="pill">${n.single?'唯一一条执行':'下一条执行'}</span>
+    </div>
+    <div class="blk" style="margin-bottom:9px">
+      <div class="blk-h"><i class="bi bi-send-check"></i>发布时间</div>
+      <div class="blk-b"><div class="k-l">${fmt(new Date(n.start.getTime()-delayMinutes()*60000))}</div>
+        <div class="hint">＝ 计划开始 − 提前量（${delayMinutes()} 分钟）</div></div>
+    </div>
+    <div class="blk" style="margin-bottom:9px">
+      <div class="blk-h"><i class="bi bi-calendar3"></i>计划起止</div>
+      <div class="blk-b"><div class="kv">
+        <span class="k">计划开始</span><span class="v">${fmt(n.start)}</span>
+        <span class="k">计划结束</span><span class="v">${fmt(n.end)}</span>
+        <span class="k">执行时长</span><span class="v">${((n.end-n.start)/3600000).toFixed(1)} 小时</span>
+        <span class="k">执行人</span><span class="v">${fmtPpl(PF.execs)}</span>
+        <span class="k">执行表单</span><span class="v">${PF.form==='无'?'无（普通任务）':PF.form}</span>
+      </div></div>
+    </div>
+    <div class="hint">按当前填写值实时推算。</div>`
+    : `<div class="empty" style="padding:24px"><i class="bi bi-calendar-x"></i><p>当前配置无法推算出下一条执行，请检查重复日期</p></div>`;
+  openSheet({title:'下一次任务详情', desc:'只读预览', body, foot:`<button class="btn ghost" onclick="popSheet()">关闭</button>`});
+}
+
+/* ---------- 校验 / 保存 / 发布 ---------- */
+function validatePF(isDraft){
+  if(!PF.name.trim()){ toast('请输入任务名称','warn'); return false; }
+  if(!isDraft){
+    if(!PF.execs.length){ toast('请选择执行人','warn'); return false; }
+    if(!PF.start || !PF.end){ toast('请填写计划开始 / 结束时间','warn'); return false; }
+    if(parseT(PF.end) <= parseT(PF.start)){ toast('计划结束时间必须晚于开始时间','warn'); return false; }
+    if(PF.mode!=='edit' && PF.mode!=='view' && parseT(PF.start) < parseT(DEMO_NOW)){
+      toast('计划开始时间不能早于当前时间','warn'); return false;
+    }
+    if(PF.rule.repeatOn){
+      const r = PF.rule;
+      if(r.freq==='按周' && !r.week.length){ toast('请至少选择 1 个重复日期','warn'); return false; }
+      if(r.freq==='按月' && !r.month.length){ toast('请至少选择 1 个重复日期','warn'); return false; }
+      if(r.freq==='按年' && !r.yearRows.some(x=>x.months.length&&x.days.length)){ toast('请配置按年规则的月份与日期','warn'); return false; }
+      if(!r.noEnd && r.stopDate && r.stopDate < PF.start.slice(0,10)){
+        toast('停止日期不能早于计划开始时间','warn'); return false;
+      }
+      if(!r.noEnd && !r.stopDate){ toast('请选择停止日期，或勾选永不截止','warn'); return false; }
+    }
+    if(PF.rule.remindOn){
+      const r = PF.rule;
+      if(r.beforeStart.length && !r.beforeStart.includes('不提醒') && !r.beforeStartPersons.length){
+        toast('请选择「计划开始前」的提醒人','warn'); return false;
+      }
+      if(r.beforeEnd.length && !r.beforeEnd.includes('不提醒') && !r.beforeEndPersons.length){
+        toast('请选择「计划结束前」的提醒人','warn'); return false;
+      }
+      if(r.overdue!=='不提醒' && !r.overduePersons.length){
+        toast('请选择「超期未处理」的提醒人','warn'); return false;
+      }
+    }
+  }
+  return true;
+}
+function saveDraft(){
+  if(!validatePF(true)) return;
+  const base = {
+    name:PF.name.trim(), type:PF.rule.repeatOn?'周期':'单次', creator:CU,
+    execs:PF.execs.slice(), parts:PF.parts.slice(), form:PF.form, work:PF.work, loc:PF.loc, desc:PF.desc,
+    planStart:PF.start.replace('T',' '), planEnd:PF.end.replace('T',' '),
+    tpl:PF.tpl, rule:JSON.parse(JSON.stringify(PF.rule))
+  };
+  if(PF.mode==='draft' && PF.draftId){
+    /* 编辑草稿：保留原创建时间 */
+    const d = DRAFTS.find(x=>x.id===PF.draftId);
+    if(d) Object.assign(d, base);
+  } else {
+    DRAFTS.unshift(Object.assign({id:'D20260714'+pad(++SEQ), createdAt:nowStr()}, base));
+  }
+  toast('草稿已保存（不生成执行）','ok');
+  const target = 'pt-draft';
+  PF = null;
+  openModule('publish');
+  switchPubTab(target);
+}
+function buildTaskFromPF(createdAt){
+  const name = PF.name.trim();
+  const type = PF.rule.repeatOn ? '周期' : '单次';
+  SEQ++;
+  const id = (type==='周期'?'REC':'T') + '20260714' + String(100+SEQ);
+  const task = {
+    id, name, type, status:'进行中', creator:CU,
+    execs:PF.execs.slice(), parts:PF.parts.slice(), form:PF.form,
+    work:PF.work, loc:PF.loc, desc:PF.desc,
+    planStart:PF.start.replace('T',' '), planEnd:PF.end.replace('T',' '),
+    createdAt: createdAt || nowStr(), execCount:1, tpl:PF.tpl,
+    rule:JSON.parse(JSON.stringify(PF.rule))
+  };
+  TASKS.unshift(task);
+  EXECS.unshift({
+    id:id+'-001', taskId:id, name, pubTime:nowStr(),
+    planStart:task.planStart, planEnd:task.planEnd,
+    signers:PF.execs.map(n=>({n, at:null})),
+    parts:PF.parts.slice(), form:PF.form, work:PF.work, loc:PF.loc, desc:PF.desc,
+    starter:CU, events:[]
+  });
+  assignExecNo(EXECS[0]);
+  return task;
+}
+function submitPublish(){
+  if(!PF) return;
+  if(!validatePF(false)) return;
+  if(PF.mode==='edit'){
+    /* 编辑计划：只更新任务定义，已生成的执行不回改 */
+    const t = taskOf(PF.taskId);
+    if(t){
+      t.name = PF.name.trim();
+      t.execs = PF.execs.slice(); t.parts = PF.parts.slice();
+      t.work = PF.work; t.loc = PF.loc; t.desc = PF.desc;
+      t.planStart = PF.start.replace('T',' '); t.planEnd = PF.end.replace('T',' ');
+      t.type = PF.rule.repeatOn ? '周期' : '单次';
+      t.rule = JSON.parse(JSON.stringify(PF.rule));
+    }
+    toast('计划已保存，只影响之后生成的执行','ok');
+    PF = null; openModule('publish'); switchPubTab('pt-launch');
+    return;
+  }
+  if(!validatePF(false)) return;
+  /* 从草稿发布：任务创建时间沿用草稿创建时间 */
+  let draftCreatedAt = null;
+  if(PF.mode==='draft' && PF.draftId){
+    const d = DRAFTS.find(x=>x.id===PF.draftId);
+    if(d) draftCreatedAt = d.createdAt;
+    const i = DRAFTS.findIndex(x=>x.id===PF.draftId);
+    if(i>-1) DRAFTS.splice(i,1);
+  }
+  const t = buildTaskFromPF(draftCreatedAt);
+  toast('发布成功：'+t.name,'ok');
+  PF = null;
+  openModule('publish');
+  switchPubTab('pt-launch');
+}
+function publishDraft(id){
+  const d = DRAFTS.find(x=>x.id===id); if(!d) return;
+  if(!d.execs.length){ toast('该草稿缺少执行人，请先编辑','warn'); return; }
+  PF = pfBase();
+  PF.mode='publish'; PF.name=d.name; PF.execs=d.execs.slice(); PF.parts=(d.parts||[]).slice();
+  PF.form=d.form; PF.work=d.work||''; PF.loc=d.loc||''; PF.desc=d.desc||'';
+  PF.start = (d.planStart||'2026-07-16 08:00').replace(' ','T');
+  PF.end = (d.planEnd||'2026-07-16 17:00').replace(' ','T');
+  PF.rule = hydrateRule(d.rule); PF.tpl = d.tpl||'';
+  ensureRemindPersons();
+  if(!validatePF(false)) { PF = null; return; }
+  const t = buildTaskFromPF(d.createdAt);
+  DRAFTS.splice(DRAFTS.findIndex(x=>x.id===id),1);
+  toast('草稿已发布：'+t.name,'ok');
+  PF = null; openModule('publish'); switchPubTab('pt-launch');
+}
+function askDelDraft(id){
+  const d = DRAFTS.find(x=>x.id===id); if(!d) return;
+  openConfirmSheet({
+    title:'删除草稿',
+    desc:'删除后不可恢复，且不会生成任何执行。<br><br>确认删除「'+d.name+'」？',
+    okText:'确认删除', danger:true,
+    onOk(){
+      DRAFTS.splice(DRAFTS.findIndex(x=>x.id===id),1);
+      renderPublish(); toast('草稿已删除','ok');
+    }
+  });
+}
+function backFromPubForm(){
+  const tab = PF ? (PF.mode==='draft' ? 'pt-draft' : (PF.mode==='publish' ? 'pt-new' : 'pt-launch')) : 'pt-new';
+  PF = null;
+  openModule('publish');
+  switchPubTab(tab);
+}
+
+/* ================================================================
+   17. 初始化
+=============================================================== */
+renderModuleSeg();
+renderMy();
+
+const taskPageMode = new URLSearchParams(window.location.search);
+if(taskPageMode.get('embedded')==='1'){
+  document.documentElement.classList.add('is-embedded');
+  document.body.classList.add('is-embedded');
+}
+if(taskPageMode.get('description')==='1'){
+  document.documentElement.classList.add('is-description-only');
+  document.body.classList.add('is-description-only');
+}
+window.addEventListener('message',event=>{
+  if(event.data?.type==='task-tasks:show-todo'){
+    closeSheets();
+    openModule('my');
+    switchMyTab('t-exec');
+    return;
+  }
+  if(event.data?.type!=='task-tasks:back') return;
+  const current=document.querySelector('.screen.on')?.id;
+  if(current==='sc-pubform'){backFromPubForm();return;}
+  if(current==='sc-exec'){backFromExec();return;}
+  if(current==='sc-detail'){backFromDetail();return;}
+  if(current==='sc-search'){backFromSearch();return;}
+  backToShell();
+});
+
+</script>
+</body>
+</html>

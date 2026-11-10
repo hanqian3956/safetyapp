@@ -87,6 +87,7 @@ p {
 }
 
 .prototype-stage {
+  position: relative;
   min-height: 100dvh;
   display: grid;
   place-items: center;
@@ -3172,7 +3173,14 @@ p {
 .prevention-page,
 .prevention-two-page,
 .prevention-catalog-page,
-.inspection-page {
+.prevention-task-page,
+.inspection-page,
+.fire-management-page,
+.fire-inspection-menu-page,
+.fire-worksheets-page,
+.fire-worksheet-form-page,
+.warning-tasks-page,
+.task-tasks-page {
   position: absolute;
   inset: 0;
   z-index: 4;
@@ -3203,6 +3211,125 @@ p {
 .subpage-header-spacer {
   width: 38px;
   height: 38px;
+}
+
+.warning-tasks-frame {
+  position: absolute;
+  top: 78px;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 78px);
+  border: 0;
+  background: var(--surface);
+}
+
+.task-tasks-frame {
+  position: absolute;
+  top: 78px;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 78px);
+  border: 0;
+  background: var(--surface);
+}
+
+.warning-tasks-page .subpage-header,
+.task-tasks-page .subpage-header {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+}
+
+.warning-help-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+  user-select: none;
+}
+
+.warning-help-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.warning-help-toggle i {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  border-radius: 99px;
+  background: #d9e0e8;
+  transition: background 160ms ease;
+}
+
+.warning-help-toggle i::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  content: "";
+  box-shadow: 0 1px 2px rgb(20 35 52 / 18%);
+  transition: transform 160ms ease;
+}
+
+.warning-help-toggle input:checked + i {
+  background: var(--brand);
+}
+
+.warning-help-toggle input:checked + i::after {
+  transform: translateX(12px);
+}
+
+.warning-help-toggle:has(input:focus-visible) i {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.warning-description-panel {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 248px);
+  width: min(360px, calc(50vw - 276px));
+  height: min(900px, calc(100dvh - 48px));
+  min-width: 280px;
+  overflow: hidden;
+  border: 1px solid #f4d787;
+  border-radius: 24px;
+  background: #fff9e9;
+  box-shadow: 0 18px 52px rgb(33 45 61 / 14%);
+  transform: translateY(-50%);
+}
+
+.warning-description-panel iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 860px) {
+  .warning-description-panel:not([hidden]) {
+    display: block !important;
+    position: absolute;
+    top: 88px;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    z-index: 20;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    border-radius: 22px;
+    transform: none;
+  }
 }
 
 .subpage-scroll {
@@ -3516,6 +3643,148 @@ p {
 
 .inspection-page-header h1 {
   font-size: 16px;
+}
+
+.prevention-task-form {
+  padding-top: 14px;
+}
+
+.task-publish-intro {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 12px;
+  border: 1px solid #d9e9d4;
+  border-radius: 12px;
+  background: #f5faf2;
+}
+
+.task-publish-intro-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #e3f1dd;
+  color: #4f8f35;
+  font-size: 21px;
+}
+
+.task-publish-intro p {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.task-publish-intro strong {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.task-publish-intro small {
+  color: #66805f;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.inspection-info label > span em {
+  color: #d84a40;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.task-flow-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 18px;
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: #f3f7fb;
+  color: #557088;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.task-flow-note > .ph {
+  margin-top: 1px;
+  color: #1774cc;
+  font-size: 15px;
+}
+
+.fire-management-scroll {
+  padding-top: 24px;
+}
+
+.fire-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px 10px;
+  padding: 0 4px;
+}
+
+.fire-menu-entry {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.fire-menu-entry > span {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  font-size: 29px;
+  transition: transform 140ms ease;
+}
+
+.fire-menu-entry:active > span {
+  transform: scale(0.94);
+}
+
+.fire-menu-entry strong {
+  width: 100%;
+  min-height: 32px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.fire-menu-entry.is-red > span {
+  background: #fdebe8;
+  color: #c84337;
+}
+
+.fire-menu-entry.is-amber > span {
+  background: #fff1db;
+  color: #bb761e;
+}
+
+.fire-menu-entry.is-blue > span {
+  background: #e6f1fb;
+  color: #1774cc;
+}
+
+.fire-menu-entry.is-green > span {
+  background: #e8f5e5;
+  color: #4f8f35;
+}
+
+.fire-menu-entry.is-slate > span {
+  background: #edf0f4;
+  color: #53677c;
 }
 
 .inspection-form {
@@ -4078,6 +4347,23 @@ p {
 }
 
 .page[data-page="activity"] {
+  position: relative;
+  padding: 0;
+  background: var(--surface-strong);
+}
+
+.page[data-page="activity"] > :not(.activity-embedded-frame) {
+  display: none !important;
+}
+
+.activity-embedded-frame {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 90px - env(safe-area-inset-bottom, 0px));
+  border: 0;
   background: var(--surface-strong);
 }
 
@@ -4562,6 +4848,58 @@ p {
   font-weight: 750;
 }
 
+.signature-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  background: var(--surface-strong);
+}
+
+.signature-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.signature-card-heading h2 {
+  font-size: 16px;
+}
+
+.signature-landscape-button {
+  min-height: 32px;
+  flex: 0 0 auto;
+}
+
+.signature-pad-wrap {
+  overflow: hidden;
+  border: 1px solid #cfd8e1;
+  border-radius: 12px;
+  background-color: #fbfcfd;
+  background-image: linear-gradient(to right, rgba(117, 132, 148, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(117, 132, 148, 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+#signatureCanvas {
+  width: 100%;
+  height: 190px;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.signature-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.signature-actions button {
+  min-height: 44px;
+}
+
 .offline-panel {
   padding: 18px;
   border: 1px solid var(--line);
@@ -4753,6 +5091,75 @@ p {
 .sync-state small {
   color: var(--muted);
   font-size: 11px;
+}
+
+.pending-upload-list {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  background: var(--surface-strong);
+}
+
+.pending-upload-row {
+  width: 100%;
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: transparent;
+  text-align: left;
+}
+
+.pending-upload-row + .pending-upload-row {
+  border-top: 1px solid var(--line);
+}
+
+.pending-upload-row > span:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.pending-upload-row strong,
+.pending-upload-row time {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pending-upload-row strong {
+  font-size: 14px;
+}
+
+.pending-upload-row time {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pending-upload-row > .ph {
+  color: #a2aab5;
+}
+
+.pending-upload-type {
+  min-width: 38px;
+  min-height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.pending-upload-type.is-form {
+  background: #e8f2fb;
+  color: #1d6cae;
+}
+
+.pending-upload-type.is-flow {
+  background: #fff1df;
+  color: #b86e16;
 }
 
 .bottom-nav {
@@ -5135,6 +5542,99 @@ p {
     border-radius: 0;
     box-shadow: none;
   }
+}
+
+@media (orientation: landscape) and (max-height: 620px) {
+  .prototype-stage {
+    display: block;
+    padding: 0;
+  }
+
+  .app-shell {
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .signature-management-page .profile-center-header {
+    min-height: 64px;
+    align-items: center;
+    padding: 10px 16px;
+  }
+
+  .signature-management-page .profile-center-scroll {
+    height: calc(100% - 64px);
+    padding: 12px 16px 16px;
+  }
+
+  .signature-management-page .signature-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 14px;
+  }
+
+  .signature-management-page .signature-card-heading {
+    grid-column: 1 / -1;
+    margin-bottom: 10px;
+  }
+
+  .signature-management-page .signature-pad-wrap {
+    min-height: 0;
+  }
+
+  .signature-management-page #signatureCanvas {
+    height: clamp(150px, 52dvh, 260px);
+  }
+
+  .signature-management-page .signature-actions {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: end;
+    grid-template-columns: 1fr;
+    margin-top: 0;
+  }
+}
+
+.signature-management-page.is-signature-landscape .profile-center-header {
+  display: none;
+}
+
+.signature-management-page.is-signature-landscape .signature-management-scroll {
+  height: 100%;
+  padding: 0;
+}
+
+.signature-management-page.is-signature-landscape .signature-card {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 18px;
+  border: 0;
+  border-radius: 0;
+}
+
+.signature-management-page.is-signature-landscape .signature-card-heading {
+  margin-bottom: 12px;
+}
+
+.signature-management-page.is-signature-landscape .signature-pad-wrap {
+  min-height: 0;
+}
+
+.signature-management-page.is-signature-landscape #signatureCanvas {
+  height: 100%;
+}
+
+.signature-management-page.is-signature-landscape .signature-actions {
+  grid-column: 1;
+  grid-row: 3;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 14px;
 }
 
 @media (max-width: 370px) {
