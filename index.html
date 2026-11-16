@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=prevention-scheme-one-process-v2" />
+    <link rel="stylesheet" href="./styles.css?v=workbench-scroll" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -40,7 +40,7 @@
               </button>
             </header>
 
-            <div class="page-scroll">
+            <div class="page-scroll workbench-scroll">
               <button class="workbench-search-trigger" type="button" data-open-workbench-search aria-label="搜索子系统内的工作表、流程和其他内容">
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                 <span>搜索工作表、流程和台账</span>
@@ -79,12 +79,8 @@
               </section>
 
               <section class="section-block workbench-access-section" aria-label="快捷访问">
-                <div class="workbench-access-tabs" role="tablist" aria-label="快捷访问分类">
-                  <button class="is-active" type="button" role="tab" aria-selected="true" data-workbench-access-tab="recent">最近使用</button>
-                  <button type="button" role="tab" aria-selected="false" data-workbench-access-tab="collected">我收藏的</button>
-                </div>
-                <div class="workbench-access-panel is-active" data-workbench-access-panel="recent"></div>
-                <div class="workbench-access-panel" data-workbench-access-panel="collected" hidden></div>
+                <div class="workbench-access-host" data-workbench-access-host="recent"></div>
+                <div class="workbench-access-host" data-workbench-access-host="collected"></div>
                 <section class="offline-reports-section" data-offline-reports-section aria-labelledby="offlineReportsTitle" hidden>
                   <div class="section-heading">
                     <h2 id="offlineReportsTitle">离线报表</h2>
@@ -1247,35 +1243,34 @@
               <div data-applications-host></div>
               <section class="section-block recent-section" aria-labelledby="recentTitle">
                 <div class="section-heading">
-                  <div>
-                    <h2 id="recentTitle">最近使用</h2>
-                  </div>
+                  <h2 id="recentTitle">最近使用</h2>
+                  <button class="recent-expand-button" type="button" aria-expanded="false" aria-controls="workbenchRecentList">展开</button>
                 </div>
 
-                <div class="recent-grid">
-                  <button class="recent-entry" type="button" data-show-toast="正在打开东区巡检">
+                <div class="recent-grid" id="workbenchRecentList">
+                  <button class="recent-entry" type="button" data-show-toast="正在打开仓库巡查工作表">
                     <span class="recent-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
-                    <span class="recent-copy"><strong>东区巡检</strong></span>
+                    <span class="recent-copy"><strong>仓库巡查工作表</strong></span>
                   </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开动火审批">
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-fire"></i></span>
-                    <span class="recent-copy"><strong>动火审批</strong></span>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开掘进凿岩工作隐患排查清单">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-warning-circle"></i></span>
+                    <span class="recent-copy"><strong>掘进凿岩工作隐患排查清单</strong></span>
                   </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开整改复查">
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-check-circle"></i></span>
-                    <span class="recent-copy"><strong>整改复查</strong></span>
-                  </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开设备点检">
+                  <button class="recent-entry" type="button" data-show-toast="正在打开设备日常点检记录">
                     <span class="recent-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span>
-                    <span class="recent-copy"><strong>设备点检</strong></span>
+                    <span class="recent-copy"><strong>设备日常点检记录</strong></span>
                   </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开班前会确认">
+                  <button class="recent-entry" type="button" data-show-toast="正在打开特种作业人员安全确认表">
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-user-check"></i></span>
+                    <span class="recent-copy"><strong>特种作业人员安全确认表</strong></span>
+                  </button>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开班前安全教育记录" data-extra-recent hidden>
                     <span class="recent-icon" aria-hidden="true"><i class="ph ph-users-three"></i></span>
-                    <span class="recent-copy"><strong>班前会确认</strong></span>
+                    <span class="recent-copy"><strong>班前安全教育记录</strong></span>
                   </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开隐患整改台账">
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-book-bookmark"></i></span>
-                    <span class="recent-copy"><strong>隐患整改台账</strong></span>
+                  <button class="recent-entry" type="button" data-show-toast="正在打开临时用电检查工作表" data-extra-recent hidden>
+                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-lightning"></i></span>
+                    <span class="recent-copy"><strong>临时用电检查工作表</strong></span>
                   </button>
                 </div>
               </section>

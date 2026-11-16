@@ -3,6 +3,7 @@ const loadingView = document.querySelector("#loadingView");
 const pages = [...document.querySelectorAll(".page")];
 const navItems = [...document.querySelectorAll(".nav-item")];
 const bottomNav = document.querySelector(".bottom-nav");
+const workbenchScroll = document.querySelector(".workbench-scroll");
 const screenModal = document.querySelector("#bottomSheet");
 const sheetBackdrop = document.querySelector("#sheetBackdrop");
 const sheetTitle = document.querySelector("#sheetTitle");
@@ -13,6 +14,7 @@ const toastMessage = document.querySelector("[data-toast-message]");
 const toastIcon = toast.querySelector(".toast-icon i");
 
 let activePage = "workbench";
+let workbenchScrollTop = 0;
 let lastFocusedElement = null;
 let toastTimer = null;
 let preventionCatalogParent = "prevention";
@@ -144,7 +146,7 @@ function showToast(message, type = "notice") {
   }, 3200);
 }
 
-function switchPage(pageName, navItem) {
+function switchPage(pageName, navItem, scrollTop = 0) {
   if (pageName === activePage) return;
   appShell.classList.remove("is-detail-page");
   activePage = pageName;
@@ -156,7 +158,7 @@ function switchPage(pageName, navItem) {
     if (isActive) {
       page.classList.remove("is-entering");
       requestAnimationFrame(() => page.classList.add("is-entering"));
-      page.querySelector(".page-scroll")?.scrollTo({ top: 0 });
+      page.querySelector(".page-scroll")?.scrollTo({ top: scrollTop });
     }
   });
 
@@ -176,9 +178,7 @@ function openMessagesPage() {
 }
 
 function closeDetailPage() {
-  appShell.classList.remove("is-detail-page");
-  activePage = "";
-  switchPage("workbench", navItems[0]);
+  switchPage("workbench", navItems[0], workbenchScrollTop);
 }
 
 function openApplicationDetail(pageName, returnPage = "favorites") {
@@ -194,6 +194,7 @@ function closeApplicationDetail() {
 }
 
 function openDetailPage(pageName) {
+  if (activePage === "workbench") workbenchScrollTop = workbenchScroll.scrollTop;
   activePage = pageName;
   pages.forEach((page) => {
     const isActive = page.dataset.page === pageName;
@@ -245,15 +246,12 @@ function openInspection(parentPage = "preventionCatalog") {
 }
 
 function closeInspection() {
-  if (inspectionParentPage === "favorites" || inspectionParentPage === "workbench") {
-    appShell.classList.remove("is-detail-page");
-    activePage = "";
-    if (inspectionParentPage === "workbench") {
-      setWorkbenchAccessTab("collected");
-      switchPage("workbench", navItems.find((item) => item.dataset.pageTarget === "workbench"));
-    } else {
-      switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
-    }
+  if (inspectionParentPage === "workbench") {
+    closeDetailPage();
+    return;
+  }
+  if (inspectionParentPage === "favorites") {
+    switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
     return;
   }
   openDetailPage(inspectionParentPage);
@@ -470,10 +468,8 @@ const favoriteAppGrid = document.querySelector("[data-favorite-app-grid]");
 const applicationsHost = document.querySelector("[data-applications-host]");
 const applicationRecentList = document.querySelector("#applicationRecentList");
 const applicationRecentEmpty = document.querySelector("#applicationRecentEmpty");
-const workbenchRecentHost = document.querySelector('[data-workbench-access-panel="recent"]');
-const workbenchCollectedHost = document.querySelector('[data-workbench-access-panel="collected"]');
-const workbenchAccessTabs = [...document.querySelectorAll("[data-workbench-access-tab]")];
-const workbenchAccessPanels = [...document.querySelectorAll("[data-workbench-access-panel]")];
+const workbenchRecentHost = document.querySelector('[data-workbench-access-host="recent"]');
+const workbenchCollectedHost = document.querySelector('[data-workbench-access-host="collected"]');
 const appSection = favoriteAppGrid?.closest(".app-section");
 const recentSection = document.querySelector(".recent-section");
 const collectedSection = document.querySelector(".collected-section");
@@ -491,21 +487,14 @@ applicationsHost?.append(appSection);
 workbenchRecentHost?.prepend(recentSection);
 workbenchCollectedHost?.append(collectedSection);
 
-function setWorkbenchAccessTab(tabName) {
-  workbenchAccessTabs.forEach((tab) => {
-    const isActive = tab.dataset.workbenchAccessTab === tabName;
-    tab.classList.toggle("is-active", isActive);
-    tab.setAttribute("aria-selected", String(isActive));
-  });
-  workbenchAccessPanels.forEach((panel) => {
-    const isActive = panel.dataset.workbenchAccessPanel === tabName;
-    panel.classList.toggle("is-active", isActive);
-    panel.hidden = !isActive;
-  });
-}
+const recentExpandButton = recentSection.querySelector(".recent-expand-button");
+const extraRecentEntries = recentSection.querySelectorAll("[data-extra-recent]");
 
-workbenchAccessTabs.forEach((tab) => {
-  tab.addEventListener("click", () => setWorkbenchAccessTab(tab.dataset.workbenchAccessTab));
+recentExpandButton.addEventListener("click", () => {
+  const isExpanded = recentExpandButton.getAttribute("aria-expanded") === "false";
+  recentExpandButton.setAttribute("aria-expanded", String(isExpanded));
+  recentExpandButton.textContent = isExpanded ? "收起" : "展开";
+  extraRecentEntries.forEach((entry) => { entry.hidden = !isExpanded; });
 });
 
 function persistApplicationRecents() {
@@ -1599,11 +1588,8 @@ function closeFavoritesDetail() {
     editFavorites.textContent = "编辑";
     syncFavoriteOverview();
   }
-  appShell.classList.remove("is-detail-page");
-  activePage = "";
   if (returnToWorkbench) {
-    setWorkbenchAccessTab("collected");
-    switchPage("workbench", navItems.find((item) => item.dataset.pageTarget === "workbench"));
+    closeDetailPage();
     return;
   }
   switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
@@ -1755,7 +1741,6 @@ function renderCollectedItems() {
 }
 
 document.querySelector("[data-open-collected-list]").addEventListener("click", () => {
-  setWorkbenchAccessTab("collected");
   openDetailPage("collectedAll");
 });
 document.querySelectorAll("[data-close-collection-remove]").forEach((button) => button.addEventListener("click", closeCollectionRemoveDialog));
