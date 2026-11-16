@@ -78,6 +78,22 @@
                 </div>
               </section>
 
+              <section class="section-block workbench-access-section" aria-label="快捷访问">
+                <div class="workbench-access-tabs" role="tablist" aria-label="快捷访问分类">
+                  <button class="is-active" type="button" role="tab" aria-selected="true" data-workbench-access-tab="recent">最近使用</button>
+                  <button type="button" role="tab" aria-selected="false" data-workbench-access-tab="collected">我收藏的</button>
+                </div>
+                <div class="workbench-access-panel is-active" data-workbench-access-panel="recent"></div>
+                <div class="workbench-access-panel" data-workbench-access-panel="collected" hidden></div>
+                <section class="offline-reports-section" data-offline-reports-section aria-labelledby="offlineReportsTitle" hidden>
+                  <div class="section-heading">
+                    <h2 id="offlineReportsTitle">离线报表</h2>
+                  </div>
+                  <div class="offline-report-list" id="offlineReportList" hidden></div>
+                  <div class="offline-report-empty" id="offlineReportEmpty"><i class="ph ph-download-simple" aria-hidden="true"></i><span>暂无已下载的离线工作表</span></div>
+                </section>
+              </section>
+
               <section class="section-block app-section" aria-labelledby="appListTitle">
                 <div class="section-heading">
                   <h2 id="appListTitle">应用列表</h2>
@@ -102,34 +118,6 @@
                 </div>
               </section>
 
-              <section class="section-block function-section" aria-labelledby="functionTitle">
-                <div class="section-heading">
-                  <h2 id="functionTitle">功能</h2>
-                </div>
-
-                <div class="function-grid">
-                  <button class="function-card function-card-task" type="button" data-open-task-tasks>
-                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-checks"></i></span>
-                    <span class="function-card-copy"><strong>任务</strong><small>3 项待办</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                  <button class="function-card function-card-flow" type="button" data-open-process-page>
-                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-flow-arrow"></i></span>
-                    <span class="function-card-copy"><strong>流程</strong><small>3 项审批</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                  <button class="function-card function-card-warning" type="button" data-open-warning-tasks>
-                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-warning"></i></span>
-                    <span class="function-card-copy"><strong>预警</strong><small>1 项待处理</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                  <button class="function-card function-card-board" type="button" data-show-toast="正在打开安全看板">
-                    <span class="function-card-icon" aria-hidden="true"><i class="ph ph-chart-donut"></i></span>
-                    <span class="function-card-copy"><strong>看板</strong><small>实时概览</small></span>
-                    <i class="ph ph-caret-right" aria-hidden="true"></i>
-                  </button>
-                </div>
-              </section>
             </div>
           </section>
 
@@ -758,7 +746,7 @@
 
           <section class="page prevention-page" data-page="prevention" aria-labelledby="preventionTitle" hidden>
             <header class="subpage-header">
-              <button class="icon-button icon-button-small" type="button" data-close-prevention aria-label="返回工作台">
+              <button class="icon-button icon-button-small" type="button" data-close-prevention aria-label="返回应用">
                 <i class="ph ph-caret-left" aria-hidden="true"></i>
               </button>
               <h1 id="preventionTitle">双重预防管理</h1>
@@ -824,7 +812,7 @@
 
           <section class="page prevention-two-page" data-page="preventionTwo" aria-labelledby="preventionTwoTitle" hidden>
             <header class="subpage-header">
-              <button class="icon-button icon-button-small" type="button" data-close-prevention-two aria-label="返回工作台">
+              <button class="icon-button icon-button-small" type="button" data-close-prevention-two aria-label="返回应用">
                 <i class="ph ph-caret-left" aria-hidden="true"></i>
               </button>
               <h1 id="preventionTwoTitle">双重预防2</h1>
@@ -1008,15 +996,20 @@
           </section>
 
           <section class="page inspection-page" data-page="inspection" aria-labelledby="inspectionTitle" hidden>
-            <header class="subpage-header inspection-page-header">
+            <header class="subpage-header inspection-page-header inspection-download-header">
               <button class="icon-button icon-button-small" type="button" data-back-prevention-catalog aria-label="返回清单">
                 <i class="ph ph-caret-left" aria-hidden="true"></i>
               </button>
               <h1 id="inspectionTitle">平巷凿岩作业岗位隐患排查表</h1>
-              <span class="subpage-header-spacer" aria-hidden="true"></span>
+              <button class="inspection-download-button" id="downloadInspection" type="button"><i class="ph ph-download-simple" aria-hidden="true"></i><span>离线下载</span></button>
             </header>
 
-            <form class="page-scroll subpage-scroll inspection-form" id="inspectionForm">
+            <div class="worksheet-tabs" role="tablist" aria-label="工作表内容">
+              <button class="is-active" type="button" role="tab" aria-selected="true" data-inspection-tab="page">页面</button>
+              <button type="button" role="tab" aria-selected="false" data-inspection-tab="drafts">草稿箱</button>
+            </div>
+
+            <form class="page-scroll subpage-scroll inspection-form" id="inspectionForm" data-inspection-panel="page">
               <fieldset class="inspection-fieldset inspection-info">
                 <legend>填报信息</legend>
                 <label>
@@ -1080,11 +1073,26 @@
                 <button class="inspection-action-submit" type="submit">提交</button>
               </div>
             </form>
+
+            <section class="page-scroll subpage-scroll inspection-drafts-pane" data-inspection-panel="drafts" aria-label="草稿箱" hidden>
+              <div class="inspection-draft-empty" id="inspectionDraftEmpty">
+                <i class="ph ph-note-blank" aria-hidden="true"></i>
+                <span>暂无草稿</span>
+              </div>
+              <article class="inspection-draft-card" id="inspectionDraftCard" hidden>
+                <span class="inspection-draft-icon" aria-hidden="true"><i class="ph ph-file-text"></i></span>
+                <div>
+                  <strong>平巷凿岩作业岗位隐患排查表</strong>
+                  <time id="inspectionDraftTime"></time>
+                </div>
+                <button class="inspection-draft-open" id="openInspectionDraft" type="button">继续编辑</button>
+              </article>
+            </section>
           </section>
 
           <section class="page fire-management-page" data-page="fireManagement" aria-labelledby="fireManagementTitle" hidden>
             <header class="subpage-header">
-              <button class="icon-button icon-button-small" type="button" data-close-fire-management aria-label="返回工作台">
+              <button class="icon-button icon-button-small" type="button" data-close-fire-management aria-label="返回应用">
                 <i class="ph ph-caret-left" aria-hidden="true"></i>
               </button>
               <h1 id="fireManagementTitle">消防管理</h1>
@@ -1224,14 +1232,19 @@
           <section class="page" data-page="favorites" aria-labelledby="favoritesTitle" hidden>
             <header class="page-header simple-header">
               <div>
-                <h1 id="favoritesTitle">常用</h1>
+                <h1 id="favoritesTitle">应用</h1>
               </div>
-              <button class="icon-button" type="button" data-show-toast="长按项目即可调整顺序" aria-label="管理常用项目">
-                <i class="ph ph-dots-three" aria-hidden="true"></i>
-              </button>
             </header>
 
             <div class="page-scroll">
+              <section class="section-block application-recent-section" aria-labelledby="applicationRecentTitle">
+                <div class="section-heading">
+                  <h2 id="applicationRecentTitle">最近使用</h2>
+                </div>
+                <div class="application-recent-grid" id="applicationRecentList" hidden></div>
+                <div class="application-recent-empty" id="applicationRecentEmpty"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i><span>暂无最近使用的应用</span></div>
+              </section>
+              <div data-applications-host></div>
               <section class="section-block recent-section" aria-labelledby="recentTitle">
                 <div class="section-heading">
                   <div>
@@ -1267,7 +1280,7 @@
                 </div>
               </section>
 
-              <section class="section-block" aria-labelledby="savedTitle">
+              <section class="section-block" aria-labelledby="savedTitle" hidden>
                 <div class="section-heading">
                   <div>
                     <h2 id="savedTitle">我的常用</h2>
@@ -1321,10 +1334,10 @@
               <section class="section-block collected-section" aria-labelledby="collectedTitle">
                 <div class="section-heading">
                   <h2 id="collectedTitle">我收藏的</h2>
-                  <button class="icon-button icon-button-small" type="button" data-open-collected-list aria-label="查看全部我的收藏" hidden><i class="ph ph-caret-right" aria-hidden="true"></i></button>
                 </div>
                 <div class="favorite-list collected-list" id="collectedList" hidden></div>
                 <div class="collected-empty" id="collectedEmpty"><i class="ph ph-star" aria-hidden="true"></i><span>暂无收藏</span></div>
+                <button class="collected-more-button" type="button" data-open-collected-list hidden>更多</button>
               </section>
 
             </div>
@@ -1475,15 +1488,10 @@
             </header>
 
             <div class="page-scroll profile-scroll">
-              <section class="profile-entry-group" aria-label="个人与离线管理">
+              <section class="profile-entry-group" aria-label="个人功能">
                 <button class="profile-center-entry" type="button" data-open-profile-center>
                   <span class="row-icon" aria-hidden="true"><i class="ph ph-identification-card"></i></span>
                   <strong>个人中心</strong>
-                  <i class="ph ph-caret-right" aria-hidden="true"></i>
-                </button>
-                <button class="profile-center-entry" type="button" data-open-offline-management>
-                  <span class="row-icon" aria-hidden="true"><i class="ph ph-cloud-slash"></i></span>
-                  <strong>离线管理</strong>
                   <i class="ph ph-caret-right" aria-hidden="true"></i>
                 </button>
               </section>
@@ -1630,7 +1638,7 @@
             <i class="ph ph-house" aria-hidden="true"></i><span>工作台</span>
           </button>
           <button class="nav-item" type="button" data-page-target="favorites">
-            <i class="ph ph-star" aria-hidden="true"></i><span>常用</span>
+            <i class="ph ph-star" aria-hidden="true"></i><span>应用</span>
           </button>
           <button class="nav-item" type="button" data-page-target="activity">
             <i class="ph ph-broadcast" aria-hidden="true"></i><span>动态</span>

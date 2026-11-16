@@ -897,8 +897,19 @@ main { padding: 16px 28px 40px; }
 .nd-basic-binds { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 .nd-basic-label { font-size:11px; color: var(--muted); white-space: nowrap; }
 .nd-basic-biz { display: flex; gap: 6px; flex-wrap: wrap; }
-/* 动态号详情：页头去掉与简介卡片重复的名称/编号标题，只留返回按钮（保持右侧对齐） */
-#view-nodetail .feed-page-head .section-title { justify-content: flex-end; }
+/* 动态号详情：沿用任务页顶部结构，左侧图标返回、标题左对齐。 */
+#view-nodetail .feed-page-head .section-title { justify-content: flex-start; align-items: center; gap: 8px; min-height: 30px; }
+#view-nodetail .feed-page-head .section-title h2 { flex: 1; min-width: 0; font-size: 14.5px; }
+#view-nodetail .nodetail-back {
+  flex: 0 0 auto; width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 9px;
+  display: grid; place-items: center; color: var(--text); background: var(--surface);
+}
+#view-nodetail .nodetail-back svg { width: 18px; }
+#view-nodetail .nodetail-back:hover { text-decoration: none; border-color: var(--accent); color: var(--accent); }
+body.is-embedded #view-nodetail .feed-page-head {
+  margin: -10px -10px 12px; padding: 8px 13px 9px;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
 /* 动态号详情：发动态/关注按钮缩小 —— 覆盖「通用触控优化」里一级按钮的 min-height:40px / border-radius:10px */
 #view-nodetail .nd-follow, #view-nodetail .nd-publish { min-height: 0; border-radius: 5px; }
 /* 动态号详情：筛选区布局（作用域覆盖 @media 竖排规则；区块为 #view-nodetail id）—— 搜索+部门首行，时间筛选独立一行 */
@@ -1176,6 +1187,9 @@ body {
 }
 .workbench.is-detail .page-shell main { padding-bottom: 16px; }
 .workbench.is-detail .bottom-nav { display: none; }
+/* 双保险：动态号详情 / 动态详情打开时一定不展示底部导航（含通过脚本直接切视图的场景） */
+.workbench:has(#view-nodetail:not([hidden])) .bottom-nav,
+.workbench:has(#detailLayer:not([hidden])) .bottom-nav { display: none !important; }
 
 /* 页面标题紧凑化 */
 .feed-page-head { padding: 4px 2px 12px; }
@@ -1624,7 +1638,8 @@ button, select, input, textarea { -webkit-tap-highlight-color: transparent; touc
 
 /* 窄屏：发布入口收成图标，把宽度还给搜索框 */
 @media (max-width: 480px) {
-  #view-feed .feed-post-btn { width: 38px !important; padding: 0 !important; }
+  #view-feed .feed-post-btn { width: 38px !important; padding: 0 !important; justify-content: center; }
+  #view-feed .feed-post-btn svg { display: block; }
   #view-feed .feed-post-btn span { display: none !important; }
 }
 
@@ -1820,6 +1835,21 @@ main input[type="text"], main textarea,
 .detail-dialog #detailComposerSlot .composer-btn { width: 26px; height: 26px; min-height: 0; }
 .detail-dialog #detailComposerSlot .send-btn { min-height: 26px; padding: 0 12px; font-size: 12px; }
 
+/* ===== 键盘避让 =====
+   1) 弹层（详情页 / 抽屉 / 二级页）整体抬高 var(--kb-h)，输入框与底部按钮始终在键盘之上；
+   2) 普通页面内的输入框由脚本把焦点元素滚到可视区中部（见文件末尾 keyboardAvoid）。 */
+body.kb-open .detail-dialog,
+body.kb-open .cmt-panel,
+body.kb-open .sheet-panel,
+body.kb-open .biz-pick-dialog {
+  padding-bottom: var(--kb-h, 0px) !important;
+  transition: padding-bottom .18s ease;
+}
+/* 二级页 / 详情页不预留底部导航高度（这些页面本身不展示导航） */
+.workbench.is-detail .page-shell main { padding-bottom: 16px !important; }
+/* 键盘弹出时，普通页面额外留出键盘高度的滚动余量，保证末尾输入框也能滚到键盘上方 */
+body.kb-open .page-shell main { padding-bottom: calc(24px + var(--kb-h, 0px)) !important; }
+
 /* ===== 楼中楼回复（动态详情 + 评论抽屉共用） =====
    点击某条评论的「回复」后输入条进入回复态，发送的内容挂到该评论 c.replies，
    渲染在评论正文下方的 .comment-replies 内，而不再平铺成新的顶层评论。
@@ -1899,10 +1929,21 @@ body.is-embedded .workbench {
   --nav: #133450;
   --nav-hover: #1a4668;
   --shadow: 0 8px 22px rgba(19, 52, 80, .08);
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 body.is-embedded #view-feed .feed-layout--scoped .feed-topbar {
-  background: linear-gradient(118deg, #12314d 0%, #1b4a69 100%) !important;
+  position: relative;
+  background: #111d28 !important;
   border-bottom-color: rgba(255, 255, 255, .12) !important;
+}
+body.is-embedded #view-feed .feed-layout--scoped .feed-topbar::after {
+  position: absolute;
+  right: 14px;
+  bottom: 0;
+  left: 14px;
+  height: 2px;
+  background: #e8574c;
+  content: "";
 }
 body.is-embedded #view-feed .feed-search-mini {
   border: 1px solid rgba(255, 255, 255, .3) !important;
@@ -1945,6 +1986,12 @@ body.is-embedded #view-feed .feed-scope-item.sel::after {
   background: #e44b42;
   content: "";
 }
+body.is-embedded #view-feed .feed-type-tag {
+  border: 1px solid currentColor;
+  border-color: color-mix(in srgb, currentColor 24%, transparent);
+  font-weight: 700 !important;
+  letter-spacing: .01em;
+}
 body.is-embedded #view-feed .feed-toolbar {
   margin: 8px 0 4px !important;
   padding: 8px 0 4px !important;
@@ -1972,7 +2019,7 @@ body.is-embedded #view-feed .feed-card {
   border: 1px solid #e0e8ef !important;
   border-radius: 15px !important;
   background: #ffffff;
-  box-shadow: 0 7px 18px rgba(19, 52, 80, .055) !important;
+  box-shadow: 0 5px 15px rgba(19, 52, 80, .045) !important;
 }
 body.is-embedded #view-feed .feed-card::before {
   position: absolute;
@@ -1991,8 +2038,12 @@ body.is-embedded #view-feed .feed-card:has(.feed-type-tag.manual)::before { back
 body.is-embedded #view-feed .feed-card .feed-avatar {
   box-shadow: inset 0 0 0 1px rgba(22, 57, 84, .09);
 }
-body.is-embedded #view-feed .feed-card-operator b { color: #173854; }
-body.is-embedded #view-feed .feed-card-title { color: #1a2f42; font-weight: 720 !important; }
+body.is-embedded #view-feed .feed-card-operator b { color: #173854; letter-spacing: -.01em; }
+body.is-embedded #view-feed .feed-card-title {
+  color: #1a2f42;
+  font-weight: 720 !important;
+  letter-spacing: -.014em;
+}
 body.is-embedded #view-feed .feed-source {
   background: #eef4f8;
   color: #41657d;
@@ -2009,7 +2060,11 @@ body.is-embedded #view-feed .feed-card-footer {
   border-radius: 10px;
   background: #f4f7fa;
 }
-body.is-embedded #view-feed .feed-card-footer .feed-action { color: #64798a !important; }
+body.is-embedded #view-feed .feed-card-footer .feed-action {
+  color: #64798a !important;
+  border-radius: 7px !important;
+}
+body.is-embedded #view-feed .feed-card-footer .feed-action:active { background: #e7eff5; }
 body.is-embedded #view-feed .feed-card-footer .feed-action.relate { color: #1d5b83 !important; }
 body.is-embedded #view-feed .feed-card-footer .feed-action.like.on { color: #dc4f46 !important; }
 body.is-embedded #view-feed button:focus-visible,
@@ -2028,7 +2083,10 @@ body.is-embedded #view-feed input:focus-visible {
 }
 
 /* 嵌入工作台后收紧纵向节奏，让首屏容纳更多现场动态。 */
-body.is-embedded .page-shell main { padding: 10px !important; }
+body.is-embedded .page-shell main {
+  padding: 10px !important;
+  background: linear-gradient(to bottom, #111d28 0 58px, var(--canvas) 58px);
+}
 body.is-embedded #view-feed .feed-layout--scoped .feed-topbar {
   top: -10px !important;
   width: calc(100% + 20px) !important;
@@ -2055,9 +2113,13 @@ body.is-embedded #view-feed .feed-scope-item {
   font-size: 13px !important;
 }
 body.is-embedded #view-feed .feed-scope-item.sel::after { bottom: 3px; }
+body.is-embedded #view-feed .feed-layout { gap: 0 !important; }
 body.is-embedded #view-feed .feed-toolbar {
-  margin: 4px 0 2px !important;
-  padding: 4px 0 2px !important;
+  margin: 0 !important;
+  padding: 2px 0 !important;
+}
+body.is-embedded #view-feed .feed-quick {
+  padding: 2px 0 !important;
 }
 body.is-embedded .feed-quick-chip,
 body.is-embedded .feed-filter-btn {
@@ -2097,6 +2159,77 @@ body.is-embedded #view-feed .feed-card-footer {
 body.is-embedded #view-feed .feed-card-footer .feed-action {
   min-height: 38px !important;
   font-size: 11.5px !important;
+}
+
+/* 详情页顶栏直接复用任务模块的真实布局。 */
+body.is-embedded #view-nodetail .feed-page-head {
+  height: 78px;
+  margin: -10px -10px 12px;
+  padding: 18px 18px 10px;
+  background: #f7f8fa;
+  border-bottom: 1px solid #dfe4e9;
+}
+body.is-embedded #view-nodetail .feed-page-head .section-title,
+body.is-embedded .detail-dialog .detail-head {
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 10px;
+}
+body.is-embedded #view-nodetail .feed-page-head .section-title {
+  min-height: 38px;
+}
+body.is-embedded #view-nodetail .feed-page-head .section-title h2,
+body.is-embedded .detail-dialog .detail-nav-title {
+  position: static;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #18212e !important;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: normal;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+body.is-embedded #view-nodetail .nodetail-back,
+body.is-embedded #detailHead .detail-back {
+  width: 38px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0;
+  border: 1px solid #dfe4e9;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #18212e;
+  display: grid;
+  place-items: center;
+}
+body.is-embedded #view-nodetail .nodetail-back svg,
+body.is-embedded #detailHead .detail-back svg {
+  width: 18px;
+  height: 18px;
+}
+body.is-embedded #view-nodetail .nodetail-back:hover,
+body.is-embedded #detailHead .detail-back:hover {
+  border-color: #dfe4e9;
+  background: #ffffff;
+  color: #18212e;
+  text-decoration: none;
+}
+body.is-embedded .detail-dialog .detail-head {
+  height: 78px;
+  min-height: 78px;
+  padding: 18px 18px 10px !important;
+  background: #f7f8fa !important;
+  border-bottom: 1px solid #dfe4e9;
+}
+.detail-header-spacer {
+  width: 38px;
+  height: 38px;
 }
 
 </style>
@@ -2288,13 +2421,14 @@ body.is-embedded #view-feed .feed-card-footer .feed-action {
 
         <div class="feed-page-head">
           <div class="section-title">
-            <button class="quiet-action" id="backFromNd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>返回</button>
+            <button class="quiet-action nodetail-back" id="backFromNd" type="button" title="返回" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <h2>动态号详情</h2>
+            <span class="detail-header-spacer" aria-hidden="true"></span>
           </div>
         </div>
         <div class="side-card nd-basic" id="ndBasic"></div>
         <div class="no-detail-filter">
           <label class="feed-search nd-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg><input id="ndSearch" type="text" placeholder="搜索动态标题、内容、成员…" /></label>
-          <div class="no-seg"><select id="ndDeptSel" class="nd-select"></select></div>
           <div class="no-seg"><div class="seg" id="ndTimeSeg">
             <button data-nd-time="all" class="sel">全部</button>
             <button data-nd-time="today">今天</button>
@@ -3128,10 +3262,12 @@ function filterFeeds(list) {
 }
 
 /* 附件：可点击 → 图片查看器 / 文件预览页 */
+/* 附件（仅文件）：动态不再展示图片，图片类附件在渲染层直接过滤掉 */
 function attachmentsHTML(f, style = '') {
-  if (!f.attachments.length) return '';
-  const items = f.attachments.map((a, i) =>
-    `<button class="feed-attachment" data-att="${f.id}:${i}" title="${a.kind === 'img' ? '查看图片' : '预览文件'}">${a.kind === 'img' ? I.img : I.doc}${esc(a.name)}<small>${a.kind === 'img' ? '查看' : '预览'}</small></button>`
+  const list = (f.attachments || []).map((a, i) => ({ a, i })).filter(x => x.a.kind !== 'img');
+  if (!list.length) return '';
+  const items = list.map(({ a, i }) =>
+    `<button class="feed-attachment" data-att="${f.id}:${i}" title="预览文件">${I.doc}${esc(a.name)}<small>预览</small></button>`
   ).join('');
   return `<div class="feed-attachments"${style ? ` style="${style}"` : ''}>${items}</div>`;
 }
@@ -3146,11 +3282,12 @@ function attIcon(name) { return attKind(name) === 'img' ? I.img : I.doc; }
 /* picker 项 / 数据项 → 统一附件对象 { name, kind, url } */
 function toAtt(p) { return { name: p.n || p.name, kind: p.kind || attKind(p.n || p.name), url: p.url || '' }; }
 
-/* 评论等局部附件渲染（可点击预览） */
+/* 评论等局部附件渲染（仅文件，图片同样过滤；可点击预览） */
 function miniAttachmentsHTML(list, cidx) {
-  if (!list || !list.length) return '';
-  return `<div class="comment-attachments">${list.map((a, i) =>
-    `<button class="cmt-att" data-catt="${cidx}:${i}" title="${a.kind === 'img' ? '查看图片' : '预览文件'}">${attIcon(a.name)}${esc(a.name)}<small>${a.kind === 'img' ? '查看' : '预览'}</small></button>`
+  const rows = (list || []).map((a, i) => ({ a, i })).filter(x => x.a.kind !== 'img');
+  if (!rows.length) return '';
+  return `<div class="comment-attachments">${rows.map(({ a, i }) =>
+    `<button class="cmt-att" data-catt="${cidx}:${i}" title="预览文件">${I.doc}${esc(a.name)}<small>预览</small></button>`
   ).join('')}</div>`;
 }
 
@@ -3370,7 +3507,8 @@ function openDetail(id) {
   const t = TYPES[f.type];
   $('#detailHead').innerHTML = `
     <button class="detail-back" id="detailBack" title="返回" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
-    <div class="detail-nav-title">动态详情</div>`;
+    <div class="detail-nav-title">动态详情</div>
+    <span class="detail-header-spacer" aria-hidden="true"></span>`;
   $('#detailBody').innerHTML = `
     <div class="detail-card">
       <div class="detail-publisher">
@@ -3925,7 +4063,7 @@ function pickRefresh() {
 
 /* ---------- 页面 B：上传附件 ---------- */
 let photoState = null;
-const ATT_FILE_ACCEPT = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt,.rar';
+const ATT_FILE_ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt,.rar';
 function openPhotoPicker(opt) {
   photoState = Object.assign({ extra: [], confirmText: '下一步' }, opt, { sel: new Set() });
   pushSheet({ title: opt.title || '上传附件', sub: opt.sub || '最多 9 个 · 支持图片与文件', body: photoBody, foot: photoFoot, mount: photoMount });
@@ -3986,8 +4124,13 @@ function pickLocalFiles(onDone) {
   }
   const handler = () => {
     inp.removeEventListener('change', handler);
-    const files = Array.from(inp.files || []);
+    const raw = Array.from(inp.files || []);
     inp.value = '';
+    if (!raw.length) return;
+    /* 动态不再支持图片：图片文件直接忽略，避免加了却展示不出来 */
+    const files = raw.filter(f => attKind(f.name) !== 'img');
+    const skipped = raw.length - files.length;
+    if (skipped) toast(`已忽略 ${skipped} 个图片文件：动态暂不支持图片`);
     if (!files.length) return;
     const list = files.map(file => {
       const kind = attKind(file.name);
@@ -4364,7 +4507,7 @@ document.addEventListener('click', (e) => {
     const a = owner && owner.attachments && owner.attachments[Number(p[p.length - 1])];
     openAttachmentPreview(a);
   }
-  else if (d.relate) { const f = feeds.find(x => x.id === d.relate); if (f) openRecordDrawer(f.related.id); }
+  else if (d.relate) { const f = feeds.find(x => x.id === d.relate); if (f) openRecord(f.related.id); }
   else if (d.relateTl) { openRecord(d.relateTl); }
 
   /* ---- Sheet 通用 ---- */
@@ -4405,10 +4548,8 @@ document.addEventListener('click', (e) => {
     });
   }
   else if (t.hasAttribute('data-compose-photo')) {
-    openPhotoPicker({
-      confirmText: '添加',
-      onConfirm(list) { composeState.photos = composeState.photos.concat(list); popSheet(); composeRefresh(); },
-    });
+    /* 动态不带图片：附件只从本地文件选择（文档类） */
+    pickLocalFiles((list) => { composeState.photos = composeState.photos.concat(list); composeRefresh(); toast(`已添加 ${list.length} 个附件`); });
   }
   else if (d.unmention) { composeState.mentions = composeState.mentions.filter(m => m !== d.unmention); composeState.text = composeState.text.replace('@' + d.unmention, '').replace(/\s+/g, ' ').trim(); composeRefresh(); }
   else if (d.uncphoto) { composeState.photos.splice(Number(d.uncphoto), 1); composeRefresh(); }
@@ -4422,7 +4563,8 @@ document.addEventListener('click', (e) => {
     });
   }
   else if (t.hasAttribute('data-nf-photo')) {
-    openPhotoPicker({ confirmText: '添加', onConfirm(list) { feedDraft.photos = feedDraft.photos.concat(list); popSheet(); newFeedRefresh(); } });
+    /* 动态不带图片：附件只从本地文件选择（文档类） */
+    pickLocalFiles((list) => { feedDraft.photos = feedDraft.photos.concat(list); newFeedRefresh(); toast(`已添加 ${list.length} 个附件`); });
   }
   /* 发动态：附件直接弹出电脑原生文件选择弹窗 */
   else if (t.hasAttribute('data-nf-file')) {
@@ -4520,7 +4662,6 @@ let noFilters = { owner: 'all', status: 'all', dept: 'all' };
 let noSearch = '';
 let ndId = null;             /* 当前查看的动态号 */
 let ndTimeFilter = 'all';    /* 详情页时间筛选：all/today/7d/30d */
-let ndDeptFilter = 'all';    /* 详情页部门筛选：all 或 DEPTS.name */
 let ndSearch = '';           /* 详情页关键字搜索 */
 let ndBasicCollapsed = true;  /* 详情页「动态号介绍」卡片是否折叠（默认收起） */
 let lifeInsId = null;        /* 当前查看的业务实例 */
@@ -5159,11 +5300,7 @@ function renderNoDetail() {
   `;
   $('#ndBasic').classList.toggle('nd-basic--collapsed', ndBasicCollapsed);
 
-  /* 部门筛选下拉（进入详情重置为全部部门） */
-  ndDeptFilter = 'all';
-  const dsel = $('#ndDeptSel');
-  if (dsel) dsel.innerHTML = `<option value="all">全部部门</option>` + DEPTS.map(x => `<option value="${esc(x.name)}">${esc(x.name)}</option>`).join('');
-  /* 时间筛选高亮 */
+  /* 时间筛选高亮（部门筛选已移除，详情页只按时间 / 关键字筛） */
   $$('#ndTimeSeg button').forEach(b => b.classList.toggle('sel', (b.dataset.ndTime || 'all') === ndTimeFilter));
 
   renderNdFeeds();
@@ -5182,7 +5319,6 @@ function renderNdFeeds() {
   }
   const kw = (ndSearch || '').trim().toLowerCase();
   if (kw) fl = fl.filter(f => (f.title + ' ' + f.summary + ' ' + f.operator).toLowerCase().includes(kw));
-  if (ndDeptFilter !== 'all') fl = fl.filter(f => (f.dept || '') === ndDeptFilter);
   fl.sort((a, b) => (b.ts || 0) - (a.ts || 0));
   $('#ndFeedCount').textContent = fl.length;
   $('#ndFeeds').innerHTML = fl.length
@@ -5359,7 +5495,6 @@ $('#ndTimeSeg').addEventListener('click', (e) => {
   $$('#ndTimeSeg button').forEach(x => x.classList.toggle('sel', x === b));
   renderNdFeeds();
 });
-$('#ndDeptSel').addEventListener('change', (e) => { ndDeptFilter = e.target.value; renderNdFeeds(); });
 $('#ndSearch').addEventListener('input', (e) => { ndSearch = e.target.value; renderNdFeeds(); });
 $('#ndBasic').addEventListener('click', (e) => {
   const publish = e.target.closest('[data-nd-publish]');
@@ -5686,6 +5821,92 @@ if (new URLSearchParams(window.location.search).get('embedded') === '1') {
   document.documentElement.classList.add('is-embedded');
   document.body.classList.add('is-embedded');
 }
+</script>
+<script>
+/* ============================================================
+   键盘避让：输入框获得焦点 / 键盘弹出时，页面向上推，输入框不被遮挡
+   · 弹层类容器（详情页、底部抽屉、二级页）用 --kb-h 整体抬高
+   · 普通页面内的输入框把焦点元素滚到可视区中部
+   ============================================================ */
+(function keyboardAvoid() {
+  var root = document.body;
+  var activeField = null;
+
+  function isField(el) {
+    return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+  }
+  function kbHeight() {
+    var vv = window.visualViewport;
+    if (!vv) return 0;
+    return Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+  }
+  function syncKbVar() {
+    var h = kbHeight();
+    root.style.setProperty('--kb-h', h + 'px');
+    root.classList.toggle('kb-open', h > 80);
+  }
+  /* 最近的纵向可滚动祖先 */
+  function scrollParent(el) {
+    var p = el.parentElement;
+    while (p && p !== root) {
+      var s = getComputedStyle(p);
+      if (/(auto|scroll)/.test(s.overflowY) && p.scrollHeight > p.clientHeight + 4) return p;
+      p = p.parentElement;
+    }
+    return null;
+  }
+  /* 把元素推到可视区中部偏上，给键盘留位置 */
+  function reveal(el) {
+    if (!isField(el) || !el.isConnected) return;
+    var vv = window.visualViewport;
+    var visTop = vv ? vv.offsetTop : 0;
+    var visBottom = visTop + (vv ? vv.height : window.innerHeight);
+    var r = el.getBoundingClientRect();
+    var over = r.bottom + 24 - visBottom;
+    var under = visTop + 8 - r.top;
+    if (over <= 0 && under <= 0) return;
+    /* 先让最近的滚动容器把元素带到中间 */
+    try { el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' }); } catch (e) { el.scrollIntoView(); }
+    /* 容器已到顶/到底仍被遮住时，再整体补一段位移 */
+    setTimeout(function () {
+      var r2 = el.getBoundingClientRect();
+      var d2 = (visTop + 8) - r2.top;
+      if (d2 <= 0) return;
+      var sc = scrollParent(el);
+      if (sc) sc.scrollTop -= d2; else window.scrollBy(0, -d2);
+    }, 380);
+  }
+
+  document.addEventListener('focusin', function (e) {
+    if (!isField(e.target)) return;
+    activeField = e.target;
+    syncKbVar();
+    setTimeout(function () { syncKbVar(); reveal(activeField); }, 240);
+    setTimeout(function () { syncKbVar(); reveal(activeField); }, 520);
+  });
+  document.addEventListener('focusout', function () {
+    activeField = null;
+    /* 收起键盘后复位 */
+    setTimeout(function () {
+      if (activeField) return;
+      syncKbVar();
+      if (kbHeight() <= 80) { root.style.setProperty('--kb-h', '0px'); root.classList.remove('kb-open'); }
+    }, 60);
+  });
+
+  if (window.visualViewport) {
+    var t = null;
+    window.visualViewport.addEventListener('resize', function () {
+      syncKbVar();
+      clearTimeout(t);
+      t = setTimeout(function () { if (activeField) reveal(activeField); }, 120);
+    });
+    window.visualViewport.addEventListener('scroll', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { if (activeField) reveal(activeField); }, 120);
+    });
+  }
+})();
 </script>
 </body>
 </html>

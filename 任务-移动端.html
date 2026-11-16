@@ -438,6 +438,30 @@ select.inp{
 .empty{text-align:center;padding:38px 16px;color:#a9b5c4}
 .empty i{font-size:30px;display:block;margin-bottom:8px;opacity:.45}
 .empty p{font-size:11.5px}
+
+/* ===== 加载更多 ===== */
+.load-more{text-align:center;padding:12px 0 4px;font-size:11px;color:var(--text-muted);cursor:pointer}
+.load-more:active{color:var(--accent)}
+.load-more .spinner{
+  display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--accent);
+  border-radius:50%;vertical-align:-2px;margin-right:5px;animation:myspin .7s linear infinite;
+}
+@keyframes myspin{to{transform:rotate(360deg)}}
+.load-end{text-align:center;padding:9px 0 2px;font-size:10.5px;color:#b6c0cd}
+
+/* ===== 现场照片（拍照上传） ===== */
+.pht-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pht{position:relative;border-radius:9px;overflow:hidden;background:var(--surface-soft);border:1px solid var(--line-soft)}
+.pht-img{height:62px;display:flex;align-items:center;justify-content:center;color:#b3c0d0;font-size:22px;
+  background:linear-gradient(135deg,#eef3f8,#e3ebf4)}
+.pht-n{font-size:9.5px;color:var(--text-muted);text-align:center;padding:2px 3px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pht-del{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:rgba(23,35,55,.62);
+  color:#fff;font-size:11px;line-height:15px;text-align:center;cursor:pointer}
+.pht-add{display:flex;flex-direction:column;align-items:center;justify-content:center;height:62px;gap:2px;
+  border:1px dashed #c3d2e2;background:var(--surface);color:var(--accent);cursor:pointer}
+.pht-add i{font-size:17px}
+.pht-add span{font-size:9.5px;font-weight:600}
+.pht-add:active{background:var(--accent-soft)}
 .divider{height:1px;background:var(--line-soft);margin:9px 0}
 .mini{font-size:10.5px;color:var(--text-muted);line-height:1.6}
 .tipbox{background:var(--accent-soft);border:1px solid #cfe3f5;border-radius:9px;padding:8px 10px;font-size:10.5px;color:#255a86;line-height:1.65;margin-bottom:9px}
@@ -613,7 +637,7 @@ body.is-description-only .logic{
       <div class="fd"><span class="f">超期</span><span class="s">← 人级判定：我未提交 且 当前时间 &gt; 该执行 <code>planEnd</code> → 红「超期」。示例：我未交，2026-07-14 09:30 &gt; 2026-07-02 12:00 → 超期</span></div>
       <div class="fd"><span class="f">超期完成</span><span class="s">← 我已提交但 我的提交时间 &gt; <code>planEnd</code> → 橙「超期完成」，永久保留。出现在「已执行」</span></div>
       <div class="fd"><span class="f">未到计划开始</span><span class="s">← 任务规则 <code>rule.execCtrl=true</code> 且 当前时间 &lt; 该执行 <code>planStart</code> → 执行按钮置灰，卡片提示「未到计划开始时间（<b>完整年月日时分</b>，如 2026-07-14 10:00）」。演示数据：<code>顶板离层专项观测</code>（<code>I20260714002</code>，plan_start=2026-07-14 10:00）</span></div>
-      <p class="fd-note">「执行」按钮点击＝进入执行页；「转办」＝打开转办弹窗。超期只标红和提醒，不限制提交 / 转办。</p>
+      <p class="fd-note">「执行」按钮点击＝进入执行页；<b>卡片空白处点击同样进入执行页</b>（卡片整块可点，与按钮完全一致；未到计划开始时两者都只提示不可执行）；「转办」＝打开转办弹窗。超期只标红和提醒，不限制提交 / 转办。</p>
     </div>
 
     <div class="note">
@@ -663,7 +687,7 @@ body.is-description-only .logic{
       <div class="fd"><span class="f">工种 / 地点</span><span class="s">← <code>task.work / task.loc</code>，发布时快照</span></div>
       <div class="fd"><span class="f">计划时间</span><span class="s">← <b>该执行自己的</b> plan_start ~ plan_end（跨天补日期），不是任务整体起止</span></div>
       <div class="fd"><span class="f">执行说明</span><span class="s">← <code>task.desc</code>，单独占一整行</span></div>
-      <p>填写区：无表单 → 「执行完成情况」必填 + 附件（≤9 个、单个 ≤20MB）；有表单 → 按模板 components 渲染（原型里巡检区域等是<b>演示字段，开发不要写死</b>）。</p>
+      <p>填写区：无表单 → 「执行完成情况」必填 + <b>现场照片（拍照上传，≤9 张）</b> + 附件（≤9 个、单个 ≤20MB）；有表单 → 按模板 components 渲染（原型里巡检区域等是<b>演示字段，开发不要写死</b>）。</p>
       <p>提交：校验 → 写 <code>signers[CU].at</code>（服务端时间）→ 行移入已执行并写「我的提交时间」→ 静默返回；会签未满显示执行中 n/m。暂存存本地 <code>EXEC_DRAFTS</code>，不改状态、再次进入回填。转办：我的待办置已转出、给接收人生成新待办、移入已转发。开始时间控制：<code>exec_ctrl</code> 开且 now &lt; plan_start 时按钮置灰，服务端同样拦截。</p>
     </div>
 
@@ -1181,14 +1205,55 @@ function renderMy(){
       't-join':'暂无参与的任务'
     }[UI.myTab];
     const filtered = !!(f.status||f.over);
+    MY_ROWS = []; myShown = 0;
     $('myList').innerHTML = `<div class="empty"><i class="bi bi-inbox"></i>
       <p>${filtered?'没有符合条件的结果':emptyTxt}</p>
       ${filtered?'<button class="btn sm ghost" style="margin-top:10px" onclick="UI.myFilter={status:\'\',over:\'\'};renderMy()">重置筛选</button>':''}
     </div>`;
+    $('myList').scrollTop = 0;
     return;
   }
-  $('myList').innerHTML = list.map(e=>myCard(e, UI.myTab)).join('');
+  /* 分页渲染：一屏 2 条，底部「下拉加载更多」 */
+  MY_ROWS = list; myShown = 0;
+  const firstPage = list.slice(0, MY_PAGE);
+  myShown = firstPage.length;
+  $('myList').innerHTML = firstPage.map(e=>myCard(e, UI.myTab)).join('') + myLoaderHTML();
+  $('myList').scrollTop = 0;
 }
+
+/* ---------- 我的任务列表：下拉加载更多 ---------- */
+const MY_PAGE = 2;     // 一屏展示条数
+let MY_ROWS = [];      // 当前筛选后的完整数据
+let myShown = 0;       // 已渲染条数
+let myLoading = false; // 加载中标记
+
+function myLoaderHTML(){
+  if(myShown < MY_ROWS.length){
+    return `<div class="load-more" id="myLoadMore" onclick="loadMoreMy()">下拉加载更多</div>`;
+  }
+  return `<div class="load-end">— 没有更多了 —</div>`;
+}
+
+function loadMoreMy(){
+  if(myLoading || myShown >= MY_ROWS.length) return;
+  myLoading = true;
+  const lm = $('myLoadMore');
+  if(lm) lm.innerHTML = `<span class="spinner"></span>加载中...`;
+  setTimeout(()=>{
+    const next = MY_ROWS.slice(myShown, myShown + MY_PAGE);
+    const old = $('myLoadMore'); if(old) old.remove();
+    $('myList').insertAdjacentHTML('beforeend', next.map(e=>myCard(e, UI.myTab)).join(''));
+    myShown += next.length;
+    $('myList').insertAdjacentHTML('beforeend', myLoaderHTML());
+    myLoading = false;
+  }, 550);
+}
+
+$('myList').addEventListener('scroll', ()=>{
+  const box = $('myList');
+  if(!document.getElementById('sc-task').classList.contains('on')) return;
+  if(box.scrollTop + box.clientHeight >= box.scrollHeight - 56) loadMoreMy();
+});
 
 function myCard(e, tab){
   const st = statusOf(e);
@@ -1204,10 +1269,15 @@ function myCard(e, tab){
     </div>`;
   let sub = '';
   let ops = '';
+  /* 待我执行页签：点卡片空白处 ＝ 点「执行」按钮，都进执行页 */
+  let cardAct = `openTaskDetail('${e.id}')`;
 
   if(tab==='t-exec'){
     sub = over ? `<div class="c-sub">${overTag(over)}</div>` : '';
     const notStarted = task.rule && task.rule.execCtrl && parseT(DEMO_NOW) < parseT(e.planStart);
+    cardAct = notStarted
+      ? `toast('未到计划开始时间（${e.planStart}），暂不可执行','warn')`
+      : `startExec('${e.id}')`;
     ops = `<button class="btn primary sm ${notStarted?'dis':''}" ${notStarted?'':`onclick="event.stopPropagation();startExec('${e.id}')"`}>
              <i class="bi bi-play-fill"></i>执行</button>
            <button class="btn ghost sm" onclick="event.stopPropagation();openForwardSheet('${e.id}')"><i class="bi bi-arrow-left-right"></i>转办</button>`;
@@ -1226,7 +1296,7 @@ function myCard(e, tab){
     sub = over ? `<div class="c-sub">${overTag(over)}</div>` : '';
   }
 
-  return `<div class="card tapable ${lateCls}" onclick="openTaskDetail('${e.id}')">
+  return `<div class="card tapable ${lateCls}" onclick="${cardAct}">
     <div class="c-kicker"><i class="bi bi-hash"></i>${execNo(e)}</div>
     <div class="card-h">
       <div class="c-name">${cut(e.name,20)}</div>
@@ -1712,6 +1782,55 @@ function submittedDemo(e, person){
     f5:'设备运行正常，未发现新增隐患。', files:'巡检照片.jpg'
   };
 }
+/* ---------- 现场照片（拍照上传，原型模拟） ---------- */
+let EXEC_PHOTOS = {};   // { execId: ['IMG_1024.jpg', ...] }
+
+function photoList(e, isView){
+  const arr = EXEC_PHOTOS[e.id] || [];
+  if(arr.length) return arr;
+  return isView ? ['现场照片1.jpg','现场照片2.jpg'] : [];   // 只读演示数据
+}
+function photoTiles(e, isView){
+  const list = photoList(e, isView);
+  let h = list.map((n,i)=>`<div class="pht">
+      <div class="pht-img"><i class="bi bi-image"></i>
+        ${isView?'':`<span class="pht-del" onclick="event.stopPropagation();delPhoto('${e.id}',${i})">×</span>`}
+      </div>
+      <div class="pht-n">${n}</div>
+    </div>`).join('');
+  if(!isView && list.length < 9){
+    h += `<div class="pht pht-add" onclick="addPhoto('${e.id}')"><i class="bi bi-camera"></i><span>拍照上传</span></div>`;
+  }
+  return h;
+}
+function photoBlock(e, isView){
+  const n = photoList(e,isView).length;
+  return `<div class="fld">
+    <label>现场照片${isView
+      ? `<span style="font-weight:400;color:#98a5b6;margin-left:6px">共 ${n} 张</span>`
+      : `<span style="font-weight:400;color:#98a5b6;margin-left:6px">拍照或相册 · <b id="phtCount" style="color:var(--accent)">${n}</b>/9</span>`}</label>
+    <div class="pht-grid" id="phtGrid">${photoTiles(e,isView)}</div>
+    ${isView?'':'<div class="hint">现场照片用于留痕，单张自动压缩；拍完可直接删除重拍。</div>'}
+  </div>`;
+}
+function refreshPhotoArea(id){
+  const e = execOf(id); const box = $('phtGrid'); if(!e || !box) return;
+  box.innerHTML = photoTiles(e, EXEC_CTX && EXEC_CTX.mode==='view');
+  const c = $('phtCount'); if(c) c.textContent = (EXEC_PHOTOS[id]||[]).length;
+}
+function addPhoto(id){
+  const arr = EXEC_PHOTOS[id] || (EXEC_PHOTOS[id] = []);
+  if(arr.length >= 9){ toast('最多上传 9 张现场照片','warn'); return; }
+  arr.push('IMG_' + (Math.floor(Math.random()*9000)+1000) + '.jpg');
+  refreshPhotoArea(id);
+  toast('已拍摄 1 张现场照片（原型模拟）','ok');
+}
+function delPhoto(id,i){
+  const arr = EXEC_PHOTOS[id] || [];
+  arr.splice(i,1);
+  refreshPhotoArea(id);
+}
+
 function renderExecScreen(){
   const ctx = EXEC_CTX, e = ctx.exec, isView = ctx.mode==='view';
   const signer = e.signers.find(s=>s.n===ctx.person);
@@ -1770,11 +1889,13 @@ function renderExecScreen(){
     if(e.form==='无'){
       if(!isView){
         html += `<div class="hint" style="margin:0 0 10px"><i class="bi bi-info-circle"></i>
-          本任务<b>未绑定固定表单</b>：只需填写执行完成情况，并可上传附件。</div>`;
+          本任务<b>未绑定固定表单</b>：填写执行完成情况、<b>拍摄现场照片</b>留痕，并可上传附件。</div>`;
       }
       const val = EXEC_DRAFTS[e.id]?.desc || (isView ? (submittedDemo(e,ctx.person).desc||'') : '');
       html += `<div class="fld"><label>执行完成情况<span class="req">*</span></label>
         <textarea class="inp" id="exDesc" ${isView?'readonly':''} placeholder="请详细描述任务执行完成情况">${esc(val)}</textarea></div>`;
+      /* 无表单任务的现场照片：拍照上传区 */
+      html += photoBlock(e, isView);
     } else {
       const demo = submittedDemo(e,ctx.person);
       const draft = EXEC_DRAFTS[e.id]||{};

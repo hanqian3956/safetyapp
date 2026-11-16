@@ -2,8 +2,11 @@
   矿山安全预警管理系统 - 移动端「预警任务」原型（V3 对齐 PC 2026-10 版）
   ==================================================================
   本次修订：完全按「预警模块pc端原型一期.html」（page-warning-task）现行逻辑重做移动端
-  · 编号 WRN-YYYYMMDD-NNN；预警内容 = 任务标题；预警工作项可点开命中明细
+  · 编号 WRN-YYYYMMDD-NNN；预警内容 = 任务标题；预警工作项在列表中仅展示、不可点击
   · 页签：未处理 / 通知我 / 已处理 / 我转发（仅前两个带数量角标）
+  · 未处理页签：点卡片与点「处理」按钮均进入处理页；列表卡片只有「处理」按钮
+  · 处理页页脚 =「转办 + 提交」；转办弹出转办弹窗（组织架构选一人，单条限 1 次）
+  · 列表分页：每次 3 条，底部「下拉加载更多」，加载完显示「没有更多了」
   · 查询：时间维度（触发时间 / 处理期限）+ 起止日期 + 预警工作项 + 风险等级（全部等级 / 未分级 / 一~四级）
   · 处理人多值：首人 + 等 N 人；点开「处理人明细」只列人不带日志
   · 状态按已提交人数计算（0 未处理 / 部分处理中 / 全部已完成）；超期徽标按当前登录人个人判定
@@ -103,14 +106,9 @@ button{font-family:inherit;}
 .row .k{color:var(--t3);width:74px;flex-shrink:0;}
 .row .v{color:var(--t1);flex:1;min-width:0;word-break:break-word;}
 .row .v.muted{color:var(--t2);}
-.hit-trigger{display:inline-flex;align-items:center;gap:5px;color:var(--primary);cursor:pointer;font-weight:500;}
-.hit-trigger .caret{width:0;height:0;border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-top:4.5px solid currentColor;opacity:.7;transition:transform .15s;}
-.hit-trigger.open .caret{transform:rotate(180deg);}
 .mini-badge{display:inline-block;padding:1px 6px;border-radius:9px;background:var(--primary-light);color:var(--primary);font-size:10.5px;font-weight:600;}
 .cond-link{display:inline-flex;align-items:center;gap:4px;color:var(--t1);cursor:pointer;}
 .cond-link .go{color:var(--t3);font-size:11px;}
-.hit-area{display:none;background:#F7F9FC;border-top:1px solid var(--border-light);padding:9px 13px 11px;}
-.hit-area.open{display:block;}
 .hit-tbl{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed;}
 .hit-tbl th{text-align:left;font-weight:500;color:var(--t3);padding:4px 4px 5px;border-bottom:1px solid var(--border-light);white-space:nowrap;}
 .hit-tbl td{padding:5px 4px;border-bottom:1px solid var(--border-light);color:var(--t2);word-break:break-all;vertical-align:top;}
@@ -146,6 +144,13 @@ button{font-family:inherit;}
 .empty i{font-size:34px;opacity:.28;display:block;margin-bottom:12px;}
 .empty p{font-size:13px;}
 .empty .sub{font-size:11.5px;margin-top:6px;color:#a9b2bf;}
+
+/* 加载更多 */
+.load-more{text-align:center;padding:14px 0 6px;font-size:12px;color:var(--t3);cursor:pointer;}
+.load-more:active{color:var(--primary);}
+.load-more .spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;vertical-align:-2px;margin-right:6px;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-end{text-align:center;padding:10px 0 4px;font-size:11.5px;color:#a9b2bf;}
 
 /* ============ 详情页 ============ */
 .detail-wrap{padding:12px 12px 96px;}
@@ -409,27 +414,29 @@ body.is-description-only .desc-panel{
       <span class="sub">等级快捷筛选：全部等级 / <b>未分级</b> / 一级 / 二级 / 三级 / 四级，精确匹配；「未分级」只返回规则未指定等级的预警。点右上「筛选」叠加：时间维度（触发时间 / 处理期限）+ 起止日期（自然日闭区间，含当日 00:00—23:59）+ 预警工作项（<b>包含匹配</b>）。查询只作用于当前页签；「重置」清空全部条件（时间维度回「触发时间」、日期为空、工作项为空、等级回「全部等级」）并重查当前页签。</span></div>
     <div class="desc-item" data-target="warningList"><span class="num">3</span><b>预警卡片</b><br>
       <span class="sub">标题 = <b>预警内容</b>（规则里配的条件组名称）；编号 WRN-YYYYMMDD-NNN。风险等级颜色固定：一级红、二级橙、三级蓝、四级绿，规则未指定显示灰色「未分级」。<b>处理人</b>取首人 + 「等 N 人」，仅 1 人不显示徽标；<b>处理期限只显示时间</b>，不标红、不写状态文字，是否超期由徽标单独表达。列表按触发时间倒序。</span></div>
-    <div class="desc-item"><span class="num">4</span><b>命中明细（点「预警工作项」展开）</b><br>
-      <span class="sub">展开在本卡片内，不新开弹窗：工作项 / 判定 / 预警值（阈值）/ 触发值（实测，红色加粗）。命中 1 项与多项交互完全一致；无命中数据时工作项显示「—」。</span></div>
+    <div class="desc-item"><span class="num">4</span><b>命中明细（详情页内展示）</b><br>
+      <span class="sub">列表中的「预警工作项」为<b>纯文本展示</b>、不可点击，只显示首个工作项 + 「共 N 项」徽标；完整命中明细（工作项 / 判定 / 预警值 / 触发值）在详情页内以表格展示，触发值红色加粗。命中 1 项与多项展示一致；无命中数据时显示「—」。</span></div>
     <div class="desc-item"><span class="num">5</span><b>状态与超期（两个独立维度）</b><br>
       <span class="sub"><b>状态</b>按「已提交处置人数 / 处理人总数」计算：0 → 未处理，部分 → 处理中，全部 → 已完成；仅 1 个处理人时不会出现「处理中」；作废不属于任务状态。<b>超期徽标</b>按当前登录人个人判定、不看整条任务：本人未提交且已过期 →「已超期」；本人已提交且提交时间晚于期限 →「超期完成」；按期完成或未到期不显示。</span></div>
     <div class="desc-item"><span class="num">6</span><b>处理人明细（点「处理人」进入）</b><br>
       <span class="sub">只列人、不带日志，用于核对「谁在办、办了没、几点交的」：姓名 / 来源角色类别 / 处置状态 / 提交时间 / 处理详情。顶部显示<b>派单快照时间</b>——处理人触发时解析并固化，组织架构后续变动不影响本条。解析不到人员的预警属「分派异常」，不进任何页签，只在 PC 端「预警信息表统计」由企业管理员指派。</span></div>
     <h4>详情三种模式（同一套内容，按入口切换）</h4>
-    <div class="desc-item"><span class="num">7</span><b>处理（编辑）</b><br><span class="sub">仅「未处理」页签的「处理」进入。内容：基础信息（处理人只读显示全部）+ 命中明细 + 本人处置填写 + 处理日志。<b>不显示处理人列表</b>，不暴露他人处置进度。页脚「取消 / 提交处置」。</span></div>
-    <div class="desc-item"><span class="num">8</span><b>任务详情（只读）</b><br><span class="sub">点卡片或「查看」进入。基础信息 + 命中明细 + <b>处理人列表</b> + 处理日志，<b>无处置区</b>，页脚只有「关闭」。</span></div>
+    <div class="desc-item"><span class="num">7</span><b>处理（编辑）</b><br><span class="sub">「未处理」页签下，<b>点卡片任意位置与点「处理」按钮行为一致</b>，均进入处理页。内容：基础信息（处理人只读显示全部）+ 命中明细 + 本人处置填写 + 处理日志。<b>不显示处理人列表</b>，不暴露他人处置进度。页脚「转办 / 提交」。</span></div>
+    <div class="desc-item"><span class="num">8</span><b>任务详情（只读）</b><br><span class="sub">「通知我 / 已处理 / 我转发」页签点卡片或「查看」进入。基础信息 + 命中明细 + <b>处理人列表</b> + 处理日志，<b>无处置区</b>，页脚只有「关闭」。</span></div>
     <div class="desc-item"><span class="num">9</span><b>个人处置详情（只读）</b><br><span class="sub">从处理人明细点「查看」进入。只展示该处理人的处置内容（处理情况 / 附件 / 电子签字 / 提交时间），<b>不含处理人列表、不含日志</b>，页脚「返回」回到上一层。已提交内容不可编辑、不可重新提交。</span></div>
     <h4>填写与提交</h4>
     <div class="desc-item"><span class="num">10</span><b>处理情况 / 附件 / 签字</b><br>
       <span class="sub">处理情况必填、≤500 字、trim 后非空，提交后不可修改；整改照片/附件<b>选填</b>、≤9 个、单个 ≤10MB、限 jpg/jpeg/png/pdf，提交后不可删除；实际处理人与实际处理时间<b>只读</b>，由服务端在提交时写入，未提交显示「提交处置时自动记录」；电子签字必填，未签不可提交。</span></div>
-    <div class="desc-item"><span class="num">11</span><b>转发规则</b><br>
-      <span class="sub">仅「未处理」且当前登录人是处理人时可转发；从组织架构选<b>一名</b>具体人员、不能选自己；转办说明选填 ≤200 字。<b>单条预警只允许转发 1 次</b>，转发后按钮消失，原处理人退出该任务并在「我转发」页签留痕，写入一条「转发预警」日志。</span></div>
+    <div class="desc-item"><span class="num">11</span><b>转办规则</b><br>
+      <span class="sub">入口在<b>处理页页脚「转办」按钮</b>（列表卡片不再放转发按钮），仅「未处理」且当前登录人是处理人时显示；从组织架构选<b>一名</b>具体人员、不能选自己；转办说明选填 ≤200 字。<b>单条预警只允许转办 1 次</b>，已转办的处理页页脚只剩「提交」；转办后原处理人退出该任务并在「我转发」页签留痕，写入一条「转办预警」日志。</span></div>
     <div class="desc-item"><span class="num">12</span><b>处理日志</b><br>
       <span class="sub">日志是<b>任务级</b>的，只出现在「处理」与「任务详情」两处，「个人处置详情」不重复出现。默认收起，点标题行展开；按时间正序，记录触发 / 处理 / 转发 / 调整处理人 / 作废五类节点，含操作人及其角色，只读不可删改。</span></div>
     <div class="desc-item"><span class="num">13</span><b>提交流转</b><br>
       <span class="sub">提交后本人处置状态置为已处理并写入提交时间；<b>全部处理人已提交 → 任务转「已完成」并从待办消失</b>，部分提交则任务转「处理中」仍留在「未处理」。提交按钮点击后置灰防重，同一处理人同一预警幂等。</span></div>
     <h4>样式规范</h4>
     <div class="desc-item">主色 #0F6CBD（选中 / 主按钮）· 危险 #F5655B（预警 / 超期 / 未处理）· 警示 #E6A23C（处理中 / 超期完成）· 成功 #2BA471（已完成）。字体 Segoe UI Variable Text / Noto Sans SC。圆角：卡片 12 / 按钮 8-10 / 弹层 16。</div>
+    <div class="desc-item"><span class="num">14</span><b>下拉加载更多</b><br>
+      <span class="sub">列表按每次 <b>3 条</b> 分页渲染（约一屏），底部显示「下拉加载更多」；滚动到底部自动追加下一批（带加载中动画），全部加载完显示「— 没有更多了 —」。切换页签、筛选、重置都会回到第一页。</span></div>
   </div>
 
   <svg class="svg-overlay" id="svgLines" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;"></svg>
@@ -603,35 +610,80 @@ function applyFilter(rows){
   });
 }
 
+/* ---- 分页加载：一屏展示几条，底部「下拉加载更多」 ---- */
+const PAGE_SIZE = 3;          // 每屏展示条数
+let shownCount = 0;           // 当前已渲染条数
+let loadingMore = false;      // 防抖：加载中不重复触发
+
+function loaderHTML(total){
+  if (shownCount < total) return `<div class="load-more" id="loadMore">下拉加载更多</div>`;
+  return `<div class="load-end">— 没有更多了 —</div>`;
+}
+
 function renderList(){
   let rows = applyFilter(rowsOfTab(currentTab));
   const box = $('warningList');
+  shownCount = 0;
   if (!rows.length){
     box.innerHTML = `<div class="empty"><div class="empty-ico"></div><p>该分类下暂无预警任务</p><p class="sub">切换页签或清空筛选条件后重试</p></div>`;
   } else {
-    box.innerHTML = rows.map(cardHTML).join('');
+    const first = rows.slice(0, PAGE_SIZE);
+    box.innerHTML = first.map(cardHTML).join('') + loaderHTML(rows.length);
+    shownCount = first.length;
+    maybeAutoLoad(rows.length);
   }
   refreshCounts();
   updateFilterHint();
 }
 
+/* 内容不足一屏且还有数据时自动补一页，保证「下拉加载更多」始终在可滚动位置 */
+function maybeAutoLoad(total){
+  const body = $('phoneBody');
+  if (view.mode === 'list' && shownCount < total && body.scrollHeight <= body.clientHeight){
+    loadMore(total);
+  }
+}
+
+function loadMore(total){
+  if (view.mode !== 'list' || loadingMore) return;
+  const rows = applyFilter(rowsOfTab(currentTab));
+  if (shownCount >= rows.length) return;
+  total = total || rows.length;
+  loadingMore = true;
+  const lm = $('loadMore');
+  if (lm) lm.innerHTML = `<span class="spinner"></span>加载中...`;
+  // 模拟网络请求
+  setTimeout(() => {
+    const next = rows.slice(shownCount, shownCount + PAGE_SIZE);
+    const old = $('loadMore');
+    if (old) old.remove();
+    const box = $('warningList');
+    box.insertAdjacentHTML('beforeend', next.map(cardHTML).join('') + loaderHTML(total));
+    shownCount += next.length;
+    loadingMore = false;
+    maybeAutoLoad(total);
+  }, 600);
+}
+
+/* 滚动到底部触发加载更多 */
+$('phoneBody').addEventListener('scroll', () => {
+  if (view.mode !== 'list') return;
+  const body = $('phoneBody');
+  if (body.scrollTop + body.clientHeight >= body.scrollHeight - 60) loadMore();
+});
+
 function cardHTML(t){
   const st = statusOf(t);
-  const showActions = (currentTab === 'todo');
-  const multi = t.assignees.length > 1;
+  const isTodo = (currentTab === 'todo');
   const first = t.assignees[0].name;
 
-  let actions = '';
-  if (showActions){
-    actions = `<div class="btn primary" onclick="event.stopPropagation();openDetail('${t.id}','edit')">处理</div>`;
-    if (!t.forwarded){
-      actions += `<div class="btn ghost" onclick="event.stopPropagation();openForwardSheet('${t.id}')">转发</div>`;
-    }
-  } else {
-    actions = `<div class="btn ghost" onclick="event.stopPropagation();openDetail('${t.id}','task')">查看</div>`;
-  }
+  // 列表只保留一个按钮：未处理页签=处理（进处理页），其余页签=查看（进任务详情）
+  const actions = isTodo
+    ? `<div class="btn primary" onclick="event.stopPropagation();openDetail('${t.id}','edit')">处理</div>`
+    : `<div class="btn ghost" onclick="event.stopPropagation();openDetail('${t.id}','task')">查看</div>`;
 
-  return `<div class="wcard" onclick="openDetail('${t.id}','task')">
+  // 未处理页签：点卡片任意空白处与点「处理」按钮一致，均进入处理页
+  return `<div class="wcard" onclick="openDetail('${t.id}','${isTodo ? 'edit' : 'task'}')">
     <div class="wc-top">
       <span class="wc-id">${t.id}</span>
       <span class="wc-flags">${statusTag(st)}${ovdTag(t.ovd)}</span>
@@ -639,24 +691,21 @@ function cardHTML(t){
     <div class="wc-title">${t.content}</div>
     <div class="wc-body">
       <div class="row"><span class="k">工作表</span><span class="v muted">${t.sheet}</span></div>
-      <div class="row"><span class="k">预警工作项</span><span class="v">
-        <span class="hit-trigger" id="trg-${t.id}" onclick="event.stopPropagation();toggleHit('${t.id}')">
-          ${t.items.length ? t.items[0].name : '—'}
-          ${t.items.length > 1 ? `<span class="mini-badge">共 ${t.items.length} 项</span>` : ''}
-          <span class="caret"></span>
-        </span></span></div>
+      <div class="row"><span class="k">预警工作项</span><span class="v muted">
+        ${t.items.length ? t.items[0].name : '—'}
+        ${t.items.length > 1 ? ` <span class="mini-badge">共 ${t.items.length} 项</span>` : ''}
+      </span></div>
       <div class="row"><span class="k">风险等级</span><span class="v">
         <span class="tag-lv ${lvClass(t.level)}">● ${lvText(t.level)}</span>
         ${t.type ? `<span style="color:var(--t3);font-size:12px;"> · ${t.type}</span>` : ''}</span></div>
       <div class="row"><span class="k">处理人</span><span class="v">
         <span class="cond-link" onclick="event.stopPropagation();openAssigneeSheet('${t.id}')">
-          ${first}${multi ? ` <span class="mini-badge">等 ${t.assignees.length} 人</span>` : ''}
+          ${first}${t.assignees.length > 1 ? ` <span class="mini-badge">等 ${t.assignees.length} 人</span>` : ''}
           <span class="go">›</span>
         </span></span></div>
       <div class="row"><span class="k">触发时间</span><span class="v muted">${t.time}</span></div>
       <div class="row"><span class="k">处理期限</span><span class="v muted">${t.due}</span></div>
     </div>
-    <div class="hit-area" id="hit-${t.id}">${hitTable(t)}</div>
     <div class="wc-actions">${actions}</div>
   </div>`;
 }
@@ -667,13 +716,6 @@ function hitTable(t){
     <thead><tr><th style="width:34%">工作项</th><th style="width:16%">判定</th><th style="width:22%">预警值</th><th style="width:28%">触发值</th></tr></thead>
     <tbody>${t.items.map(i => `<tr><td>${i.name}</td><td>${i.judge}</td><td>${i.thr}</td><td class="act">${i.act}</td></tr>`).join('')}</tbody>
   </table>`;
-}
-
-function toggleHit(id){
-  const box = $('hit-' + id), trg = $('trg-' + id);
-  const open = !box.classList.contains('open');
-  box.classList.toggle('open', open);
-  trg.classList.toggle('open', open);
 }
 
 function refreshCounts(){
@@ -825,14 +867,14 @@ function resetFilters(){
   toast('info','筛选条件已重置');
 }
 
-/* 转发（组织架构选一人） */
+/* 转办（组织架构选一人） */
 let fwPick = '', fwTaskId = null;
 function openForwardSheet(id){
   const t = getTask(id);
   fwTaskId = id; fwPick = '';
   const body = `
     <div style="background:#FDF6EC;border:1px dashed #FAECD8;border-radius:8px;padding:9px 11px;font-size:11.5px;color:#96652a;line-height:1.7;margin-bottom:13px;">
-      仅「未处理」状态且本人是处理人时可转发；<b>单条预警只允许转发 1 次</b>，转发后原处理人退出该任务，本条在「我转发」留痕。
+      仅「未处理」状态且本人是处理人时可转办；<b>单条预警只允许转办 1 次</b>，转办后原处理人退出该任务，本条在「我转发」留痕。
     </div>
     <div class="org-search">
       <input id="orgKw" placeholder="搜索姓名..." oninput="renderOrg(this.value)">
@@ -844,8 +886,8 @@ function openForwardSheet(id){
       <textarea class="ftextarea" id="fwNote" maxlength="200" style="min-height:64px" placeholder="请输入转办说明..."></textarea>
     </div>`;
   const foot = `<div class="btn ghost" onclick="closeSheet()">取消</div>
-                <div class="btn primary" onclick="confirmForward()">确认转发</div>`;
-  openSheet('转发预警任务', t.content, body, foot);
+                <div class="btn primary" onclick="confirmForward()">确认转办</div>`;
+  openSheet('转办预警任务', t.content, body, foot);
   renderOrg('');
 }
 function renderOrg(kw){
@@ -859,7 +901,7 @@ function renderOrg(kw){
         <span class="cnt2">${d.people.length}</span></div>
       <div class="org-people" style="display:${open?'block':'block'}">
         ${ppl.map(n => `<div class="org-person ${fwPick===n?'active':''} ${n==='王五'?'self':''}"
-            onclick="${n==='王五'?"toast('warning','不能转发给自己')":`pickFwPerson(this,'${n}')`}">
+            onclick="${n==='王五'?"toast('warning','不能转办给自己')":`pickFwPerson(this,'${n}')`}">
             <span class="ppl-dot"></span>${n}
             ${n==='王五'?'<span class="me">本人</span>':''}</div>`).join('')}
       </div>`;
@@ -874,7 +916,7 @@ function pickFwPerson(el, name){
   $('orgPicked').textContent = name;
 }
 function confirmForward(){
-  if (!fwPick){ toast('error','请选择转交人'); return; }
+  if (!fwPick){ toast('error','请选择转办人'); return; }
   const t = getTask(fwTaskId);
   const who = myAssignee(t).name;
   const note = ($('fwNote') && $('fwNote').value.trim()) || '';
@@ -886,13 +928,13 @@ function confirmForward(){
   t.forwarded = true;
   t.mine = t.mine.filter(m => m !== 'todo');
   if (!t.mine.includes('forwarded')) t.mine.push('forwarded');
-  t.logs.push({ at, actor:who, role:'表单提交人', type:'forward', action:'转发预警',
-    detail:'转交给 ' + fwPick + (note ? '（转办说明：' + note + '）' : '') });
+  t.logs.push({ at, actor:who, role:'表单提交人', type:'forward', action:'转办预警',
+    detail:'转办给 ' + fwPick + (note ? '（转办说明：' + note + '）' : '') });
 
   closeSheet();
   if (view.mode !== 'list') backToList();
   renderList();
-  toast('success','已转发至 ' + fwPick + '，本条已移入「我转发」');
+  toast('success','已转办至 ' + fwPick + '，本条已移入「我转发」');
 }
 
 /* =========================================================
@@ -1063,8 +1105,13 @@ function renderFootBar(){
   const bar = $('footBar');
   const t = getTask(view.taskId);
   if (view.mode === 'edit'){
-    bar.innerHTML = `<div class="btn ghost" onclick="backToList()">取消</div>
-                     <div class="btn primary" onclick="submitProcess()">提交处置</div>`;
+    const t2 = getTask(view.taskId);
+    // 页脚按钮：转办（已转发过的不再显示）+ 提交
+    const fwBtn = t2.forwarded
+      ? ''
+      : `<div class="btn ghost" onclick="openForwardSheet('${view.taskId}')">转办</div>`;
+    bar.innerHTML = `${fwBtn}
+                     <div class="btn primary" onclick="submitProcess()">提交</div>`;
   } else if (view.mode === 'person'){
     bar.innerHTML = `<div class="btn ghost" onclick="backToTaskDetail()">返回</div>`;
   } else if (view.mode === 'task'){
