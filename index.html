@@ -9,7 +9,7 @@
       name="description"
       content="覆盖工作台、常用、安全动态与离线作业的移动端产品原型。"
     />
-    <link rel="stylesheet" href="./styles.css?v=workbench-scroll" />
+    <link rel="stylesheet" href="./styles.css?v=activity-title" />
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
   </head>
   <body>
@@ -25,27 +25,25 @@
         <div class="app-content" id="appContent">
           <section class="page is-active" data-page="workbench" aria-labelledby="workbenchTitle">
             <header class="page-header workbench-header">
-              <div>
-                <p class="header-context">移动作业中心</p>
+              <div class="workbench-heading">
                 <h1 id="workbenchTitle">早上好，林工</h1>
+                <button
+                  class="icon-button notification-button"
+                  type="button"
+                  data-open-messages-page
+                  aria-label="打开消息中心，有新消息"
+                >
+                  <i class="ph ph-bell" aria-hidden="true"></i>
+                  <span class="notification-mark" aria-hidden="true"></span>
+                </button>
               </div>
-              <button
-                class="icon-button notification-button"
-                type="button"
-                data-open-messages-page
-                aria-label="打开消息中心，有新消息"
-              >
-                <i class="ph ph-bell" aria-hidden="true"></i>
-                <span class="notification-mark" aria-hidden="true"></span>
-              </button>
-            </header>
-
-            <div class="page-scroll workbench-scroll">
               <button class="workbench-search-trigger" type="button" data-open-workbench-search aria-label="搜索子系统内的工作表、流程和其他内容">
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                 <span>搜索工作表、流程和台账</span>
               </button>
+            </header>
 
+            <div class="page-scroll workbench-scroll">
               <section class="section-block message-section" aria-labelledby="messageTitle">
                 <div class="section-heading">
                   <h2 id="messageTitle">待办事项</h2>
@@ -79,23 +77,65 @@
               </section>
 
               <section class="section-block workbench-access-section" aria-label="快捷访问">
-                <div class="workbench-access-host" data-workbench-access-host="recent"></div>
-                <div class="workbench-access-host" data-workbench-access-host="collected"></div>
+                <section class="section-block recent-section" aria-labelledby="recentTitle">
+                  <div class="section-heading">
+                    <h2 id="recentTitle">最近使用</h2>
+                    <button class="recent-expand-button" type="button" data-toggle-workbench-recents aria-controls="workbenchRecentEntries" aria-expanded="false">
+                      <span>展开</span><i class="ph ph-caret-down" aria-hidden="true"></i>
+                    </button>
+                  </div>
+
+                  <div class="recent-grid" id="workbenchRecentEntries">
+                    <button class="recent-entry" type="button" data-show-toast="正在打开仓库巡查工作表">
+                      <span class="recent-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+                      <strong>仓库巡查工作表</strong>
+                    </button>
+                    <button class="recent-entry" type="button" data-show-toast="正在打开掘进凿岩工作隐患排查清单">
+                      <span class="recent-icon" aria-hidden="true"><i class="ph ph-list-checks"></i></span>
+                      <strong>掘进凿岩工作隐患排查清单</strong>
+                    </button>
+                    <button class="recent-entry" type="button" data-show-toast="正在打开设备日常点检记录表">
+                      <span class="recent-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span>
+                      <strong>设备日常点检记录表</strong>
+                    </button>
+                    <button class="recent-entry" type="button" data-show-toast="正在打开特种作业人员安全确认表">
+                      <span class="recent-icon" aria-hidden="true"><i class="ph ph-user-check"></i></span>
+                      <strong>特种作业人员安全确认表</strong>
+                    </button>
+                    <button class="recent-entry" type="button" data-show-toast="正在打开班前安全教育记录表" data-extra-recent hidden>
+                      <span class="recent-icon" aria-hidden="true"><i class="ph ph-users-three"></i></span>
+                      <strong>班前安全教育记录表</strong>
+                    </button>
+                    <button class="recent-entry" type="button" data-show-toast="正在打开临时用电检查工作表" data-extra-recent hidden>
+                      <span class="recent-icon" aria-hidden="true"><i class="ph ph-lightning"></i></span>
+                      <strong>临时用电检查工作表</strong>
+                    </button>
+                  </div>
+                </section>
+
+                <section class="section-block collected-section" aria-labelledby="collectedTitle">
+                  <div class="section-heading">
+                    <h2 id="collectedTitle">我收藏的</h2>
+                    <button class="collected-more-button" type="button" data-open-collected-list hidden>更多</button>
+                  </div>
+                  <div class="favorite-list collected-list" id="collectedList" hidden></div>
+                  <p class="collected-hint" id="collectedHint" hidden>iOS 左滑 / Android 长按 可取消收藏</p>
+                  <div class="collected-empty" id="collectedEmpty"><i class="ph ph-star" aria-hidden="true"></i><span>暂无收藏</span></div>
+                </section>
+
                 <section class="offline-reports-section" data-offline-reports-section aria-labelledby="offlineReportsTitle" hidden>
                   <div class="section-heading">
-                    <h2 id="offlineReportsTitle">离线报表</h2>
+                    <h2 id="offlineReportsTitle">离线填报</h2>
                   </div>
                   <div class="offline-report-list" id="offlineReportList" hidden></div>
-                  <div class="offline-report-empty" id="offlineReportEmpty"><i class="ph ph-download-simple" aria-hidden="true"></i><span>暂无已下载的离线工作表</span></div>
+                  <p class="offline-report-hint" id="offlineReportHint">iOS 左滑 / Android 长按 可取消离线</p>
+                  <div class="offline-report-empty" id="offlineReportEmpty"><i class="ph ph-download-simple" aria-hidden="true"></i><span>暂无已下载的离线填报</span></div>
                 </section>
               </section>
 
               <section class="section-block app-section" aria-labelledby="appListTitle">
                 <div class="section-heading">
-                  <h2 id="appListTitle">应用列表</h2>
-                  <div class="app-section-actions">
-                    <button class="icon-button icon-button-small" type="button" data-open-app-organizer aria-label="查看全部应用"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
-                  </div>
+                  <h2 id="appListTitle">全部应用</h2>
                 </div>
 
                 <div class="app-grid" data-favorite-app-grid>
@@ -203,11 +243,17 @@
 
           <section class="page app-organizer-page" data-page="appOrganizer" aria-labelledby="appOrganizerTitle" hidden>
             <header class="app-organizer-header">
-              <button class="icon-button icon-button-small" type="button" data-close-app-organizer aria-label="返回工作台"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <button class="icon-button icon-button-small" type="button" data-close-app-organizer aria-label="返回应用"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
               <h1 id="appOrganizerTitle">全部应用</h1>
               <button class="text-button app-organizer-edit-button" type="button" data-toggle-app-organizer-edit>编辑</button>
             </header>
             <div class="page-scroll app-organizer-scroll">
+              <form class="app-organizer-search" role="search" data-app-organizer-search-form>
+                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                <input type="search" placeholder="搜索应用名称" autocomplete="off" aria-label="搜索应用名称" data-app-organizer-search />
+                <button type="button" class="app-organizer-search-clear" data-clear-app-organizer-search aria-label="清空搜索" hidden><i class="ph ph-x-circle" aria-hidden="true"></i></button>
+              </form>
+              <p class="app-organizer-empty" data-app-organizer-empty hidden>没有找到匹配的应用</p>
               <div class="app-organizer-tip" aria-label="操作提示" hidden>
                 <span><i class="ph ph-dots-six-vertical" aria-hidden="true"></i>拖动左侧手柄调整顺序</span>
                 <span><i class="ph ph-toggle-right" aria-hidden="true"></i>右侧开关显示或隐藏应用</span>
@@ -313,9 +359,8 @@
                 <i class="ph ph-caret-left" aria-hidden="true"></i>
               </button>
               <h1 id="processPageTitle">流程中心</h1>
-              <button class="process-launch-button" type="button" data-open-process-library>
+              <button class="process-launch-button" type="button" data-open-process-library aria-label="发起流程">
                 <i class="ph ph-plus" aria-hidden="true"></i>
-                <span>发起</span>
               </button>
             </header>
 
@@ -525,8 +570,10 @@
             <div class="page-scroll process-library-scroll">
               <div class="process-template-tools">
                 <nav class="process-template-tabs" aria-label="流程模板分类">
-                  <button class="is-active" type="button" data-template-filter="all" aria-pressed="true">全部</button>
-                  <button type="button" data-template-filter="recent" aria-pressed="false">最近使用</button>
+                  <button class="is-active" type="button" data-template-filter="recent" aria-pressed="true">最近使用</button>
+                  <button type="button" data-template-filter="human" aria-pressed="false">人资管理</button>
+                  <button type="button" data-template-filter="construction" aria-pressed="false">基建管理</button>
+                  <button type="button" data-template-filter="mining" aria-pressed="false">选矿管理</button>
                 </nav>
                 <label class="process-template-search">
                   <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
@@ -536,32 +583,42 @@
               </div>
 
               <div class="process-template-groups">
-                <section class="process-template-group" data-template-group>
-                  <header><span class="template-group-mark template-group-blue"></span><h2>人资管理</h2><small>3</small></header>
+                <section class="process-template-group" data-template-group data-template-section="recent">
+                  <header><button type="button" data-template-collapse aria-expanded="true"><h2>最近使用</h2><i class="ph ph-caret-up" aria-hidden="true"></i></button></header>
                   <div class="process-template-list">
-                    <button type="button" data-process-template data-template-name="员工离职申请" data-template-app="消防管理" data-template-type="业务审批" data-template-recent="true"><span><strong>员工离职申请</strong><small>消防管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
-                    <button type="button" data-process-template data-template-name="职员晋升审批" data-template-app="机电管理" data-template-type="人事审批"><span><strong>职员晋升审批</strong><small>机电管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
-                    <button type="button" data-process-template data-template-name="职员调岗审批" data-template-app="双重预防机制" data-template-type="人事审批"><span><strong>职员调岗审批</strong><small>双重预防机制</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="员工离职申请" data-template-app="消防管理" data-template-type="业务审批" data-template-recent="true"><span class="process-template-card-icon tone-blue"><i class="ph ph-user-minus"></i></span><strong>员工离职申请</strong></button>
+                    <button type="button" data-process-template data-template-name="地表基建项目报建申请" data-template-app="生产管理" data-template-type="项目审批" data-template-recent="true"><span class="process-template-card-icon tone-gold"><i class="ph ph-buildings"></i></span><strong>项目报建申请</strong></button>
+                    <button type="button" data-process-template data-template-name="选厂药剂领用申请" data-template-app="安全管理" data-template-type="领用审批" data-template-recent="true"><span class="process-template-card-icon tone-red"><i class="ph ph-flask"></i></span><strong>药剂领用申请</strong></button>
                   </div>
                 </section>
 
-                <section class="process-template-group" data-template-group>
-                  <header><span class="template-group-mark template-group-gold"></span><h2>基建管理</h2><small>3</small></header>
+                <section class="process-template-group" data-template-group data-template-section="human">
+                  <header><button type="button" data-template-collapse aria-expanded="true"><h2>人资管理</h2><i class="ph ph-caret-up" aria-hidden="true"></i></button></header>
                   <div class="process-template-list">
-                    <button type="button" data-process-template data-template-name="地表基建项目报建申请" data-template-app="生产管理" data-template-type="项目审批" data-template-recent="true"><span><strong>地表基建项目报建申请</strong><small>生产管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
-                    <button type="button" data-process-template data-template-name="年度工程计划编制审批" data-template-app="应急管理" data-template-type="计划审批"><span><strong>年度工程计划编制审批</strong><small>应急管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
-                    <button type="button" data-process-template data-template-name="项目合同申报审批" data-template-app="设备管理" data-template-type="合同审批"><span><strong>项目合同申报审批</strong><small>设备管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="员工离职申请" data-template-app="消防管理" data-template-type="业务审批"><span class="process-template-card-icon tone-blue"><i class="ph ph-user-minus"></i></span><strong>员工离职申请</strong></button>
+                    <button type="button" data-process-template data-template-name="职员晋升审批" data-template-app="机电管理" data-template-type="人事审批"><span class="process-template-card-icon tone-purple"><i class="ph ph-trend-up"></i></span><strong>职员晋升审批</strong></button>
+                    <button type="button" data-process-template data-template-name="职员调岗审批" data-template-app="双重预防机制" data-template-type="人事审批"><span class="process-template-card-icon tone-teal"><i class="ph ph-arrows-left-right"></i></span><strong>职员调岗审批</strong></button>
                   </div>
                 </section>
 
-                <section class="process-template-group" data-template-group>
-                  <header><span class="template-group-mark template-group-red"></span><h2>选矿管理</h2><small>3</small></header>
+                <section class="process-template-group" data-template-group data-template-section="construction">
+                  <header><button type="button" data-template-collapse aria-expanded="true"><h2>基建管理</h2><i class="ph ph-caret-up" aria-hidden="true"></i></button></header>
                   <div class="process-template-list">
-                    <button type="button" data-process-template data-template-name="换矿申请" data-template-app="火工品管理" data-template-type="业务审批"><span><strong>换矿申请</strong><small>火工品管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
-                    <button type="button" data-process-template data-template-name="选厂药剂领用申请" data-template-app="安全管理" data-template-type="领用审批" data-template-recent="true"><span><strong>选厂药剂领用申请</strong><small>安全管理</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
-                    <button type="button" data-process-template data-template-name="材料采购流程" data-template-app="双重预防机制" data-template-type="采购申请"><span><strong>材料采购流程</strong><small>双重预防机制</small></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                    <button type="button" data-process-template data-template-name="地表基建项目报建申请" data-template-app="生产管理" data-template-type="项目审批"><span class="process-template-card-icon tone-gold"><i class="ph ph-buildings"></i></span><strong>项目报建申请</strong></button>
+                    <button type="button" data-process-template data-template-name="年度工程计划编制审批" data-template-app="应急管理" data-template-type="计划审批"><span class="process-template-card-icon tone-green"><i class="ph ph-calendar-check"></i></span><strong>工程计划审批</strong></button>
+                    <button type="button" data-process-template data-template-name="项目合同申报审批" data-template-app="设备管理" data-template-type="合同审批"><span class="process-template-card-icon tone-blue"><i class="ph ph-file-text"></i></span><strong>合同申报审批</strong></button>
                   </div>
                 </section>
+
+                <section class="process-template-group" data-template-group data-template-section="mining">
+                  <header><button type="button" data-template-collapse aria-expanded="true"><h2>选矿管理</h2><i class="ph ph-caret-up" aria-hidden="true"></i></button></header>
+                  <div class="process-template-list">
+                    <button type="button" data-process-template data-template-name="换矿申请" data-template-app="火工品管理" data-template-type="业务审批"><span class="process-template-card-icon tone-red"><i class="ph ph-arrows-clockwise"></i></span><strong>换矿申请</strong></button>
+                    <button type="button" data-process-template data-template-name="选厂药剂领用申请" data-template-app="安全管理" data-template-type="领用审批"><span class="process-template-card-icon tone-gold"><i class="ph ph-flask"></i></span><strong>药剂领用申请</strong></button>
+                    <button type="button" data-process-template data-template-name="材料采购流程" data-template-app="双重预防机制" data-template-type="采购申请"><span class="process-template-card-icon tone-teal"><i class="ph ph-shopping-cart"></i></span><strong>材料采购流程</strong></button>
+                  </div>
+                </section>
+                <div class="process-template-scroll-spacer" aria-hidden="true"></div>
               </div>
 
               <div class="process-template-empty" hidden>
@@ -1000,7 +1057,7 @@
               <button class="inspection-download-button" id="downloadInspection" type="button"><i class="ph ph-download-simple" aria-hidden="true"></i><span>离线下载</span></button>
             </header>
 
-            <div class="worksheet-tabs" role="tablist" aria-label="工作表内容">
+            <div class="worksheet-tabs" id="inspectionTabs" role="tablist" aria-label="工作表内容">
               <button class="is-active" type="button" role="tab" aria-selected="true" data-inspection-tab="page">页面</button>
               <button type="button" role="tab" aria-selected="false" data-inspection-tab="drafts">草稿箱</button>
             </div>
@@ -1226,13 +1283,14 @@
           </section>
 
           <section class="page" data-page="favorites" aria-labelledby="favoritesTitle" hidden>
-            <header class="page-header simple-header">
-              <div>
-                <h1 id="favoritesTitle">应用</h1>
-              </div>
+            <header class="page-header simple-header application-header">
+              <h1 id="favoritesTitle">应用</h1>
+              <button class="application-manage-button" type="button" data-open-app-organizer aria-label="管理应用">
+                <i class="ph ph-gear-six" aria-hidden="true"></i>
+              </button>
             </header>
 
-            <div class="page-scroll">
+            <div class="page-scroll application-scroll">
               <section class="section-block application-recent-section" aria-labelledby="applicationRecentTitle">
                 <div class="section-heading">
                   <h2 id="applicationRecentTitle">最近使用</h2>
@@ -1241,40 +1299,6 @@
                 <div class="application-recent-empty" id="applicationRecentEmpty"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i><span>暂无最近使用的应用</span></div>
               </section>
               <div data-applications-host></div>
-              <section class="section-block recent-section" aria-labelledby="recentTitle">
-                <div class="section-heading">
-                  <h2 id="recentTitle">最近使用</h2>
-                  <button class="recent-expand-button" type="button" aria-expanded="false" aria-controls="workbenchRecentList">展开</button>
-                </div>
-
-                <div class="recent-grid" id="workbenchRecentList">
-                  <button class="recent-entry" type="button" data-show-toast="正在打开仓库巡查工作表">
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
-                    <span class="recent-copy"><strong>仓库巡查工作表</strong></span>
-                  </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开掘进凿岩工作隐患排查清单">
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-warning-circle"></i></span>
-                    <span class="recent-copy"><strong>掘进凿岩工作隐患排查清单</strong></span>
-                  </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开设备日常点检记录">
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span>
-                    <span class="recent-copy"><strong>设备日常点检记录</strong></span>
-                  </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开特种作业人员安全确认表">
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-user-check"></i></span>
-                    <span class="recent-copy"><strong>特种作业人员安全确认表</strong></span>
-                  </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开班前安全教育记录" data-extra-recent hidden>
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-users-three"></i></span>
-                    <span class="recent-copy"><strong>班前安全教育记录</strong></span>
-                  </button>
-                  <button class="recent-entry" type="button" data-show-toast="正在打开临时用电检查工作表" data-extra-recent hidden>
-                    <span class="recent-icon" aria-hidden="true"><i class="ph ph-lightning"></i></span>
-                    <span class="recent-copy"><strong>临时用电检查工作表</strong></span>
-                  </button>
-                </div>
-              </section>
-
               <section class="section-block" aria-labelledby="savedTitle" hidden>
                 <div class="section-heading">
                   <div>
@@ -1326,26 +1350,18 @@
                 </div>
               </section>
 
-              <section class="section-block collected-section" aria-labelledby="collectedTitle">
-                <div class="section-heading">
-                  <h2 id="collectedTitle">我收藏的</h2>
-                </div>
-                <div class="favorite-list collected-list" id="collectedList" hidden></div>
-                <div class="collected-empty" id="collectedEmpty"><i class="ph ph-star" aria-hidden="true"></i><span>暂无收藏</span></div>
-                <button class="collected-more-button" type="button" data-open-collected-list hidden>更多</button>
-              </section>
-
             </div>
           </section>
 
           <section class="page favorites-detail-page" data-page="collectedAll" aria-labelledby="collectedAllTitle" hidden>
             <header class="favorites-detail-header">
-              <button class="icon-button icon-button-small" type="button" data-close-favorites-detail aria-label="返回常用"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+              <button class="icon-button icon-button-small" type="button" data-close-favorites-detail aria-label="返回工作台"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
               <h1 id="collectedAllTitle">我收藏的</h1>
               <span aria-hidden="true"></span>
             </header>
             <div class="page-scroll favorites-detail-scroll">
               <div class="favorite-list favorite-detail-list" id="collectedAllList" hidden></div>
+              <p class="collected-hint" id="collectedAllHint" hidden>iOS 左滑 / Android 长按 可取消收藏</p>
               <div class="collected-empty" id="collectedAllEmpty"><i class="ph ph-star" aria-hidden="true"></i><span>暂无收藏</span></div>
             </div>
           </section>
@@ -1364,16 +1380,10 @@
           </section>
 
           <section class="page" data-page="activity" aria-labelledby="activityTitle" hidden>
-            <iframe class="activity-embedded-frame" src="./动态号-移动端.html?embedded=1" title="动态信息流"></iframe>
             <header class="page-header simple-header activity-header">
-              <div>
-                <p class="header-context">现场圈</p>
-                <h1 id="activityTitle">安全动态</h1>
-              </div>
-              <button class="icon-button" type="button" data-show-toast="发布入口将在下一版开放" aria-label="发布安全动态">
-                <i class="ph ph-camera" aria-hidden="true"></i>
-              </button>
+              <h1 id="activityTitle">动态</h1>
             </header>
+            <iframe class="activity-embedded-frame" src="./动态号-移动端.html?embedded=1&amp;v=9" title="动态信息流"></iframe>
 
             <div class="page-scroll moments-scroll">
               <div class="activity-filters" role="group" aria-label="安全动态筛选">
@@ -1475,18 +1485,17 @@
 
           <section class="page" data-page="profile" aria-labelledby="profileTitle" hidden>
             <header class="profile-header">
-              <span class="avatar" data-profile-avatar aria-hidden="true">林</span>
-              <div>
-                <h1 id="profileTitle" data-profile-heading>林舟</h1>
-              </div>
-              <span aria-hidden="true"></span>
+              <h1 id="profileTitle">我的</h1>
+              <button class="profile-tab-avatar" type="button" data-open-profile-center aria-label="进入个人信息">
+                <span data-profile-avatar aria-hidden="true">林</span>
+              </button>
             </header>
 
             <div class="page-scroll profile-scroll">
               <section class="profile-entry-group" aria-label="个人功能">
                 <button class="profile-center-entry" type="button" data-open-profile-center>
                   <span class="row-icon" aria-hidden="true"><i class="ph ph-identification-card"></i></span>
-                  <strong>个人中心</strong>
+                  <strong>个人信息</strong>
                   <i class="ph ph-caret-right" aria-hidden="true"></i>
                 </button>
               </section>
@@ -1501,6 +1510,15 @@
               <span aria-hidden="true"></span>
             </header>
             <div class="page-scroll profile-center-scroll">
+              <section class="profile-avatar-setting" aria-label="头像设置">
+                <strong>头像</strong>
+                <label class="profile-avatar-editor" aria-label="上传或更新头像">
+                  <span class="avatar" data-profile-avatar aria-hidden="true">林</span>
+                  <span class="profile-avatar-edit" aria-hidden="true"><i class="ph ph-camera"></i></span>
+                  <span class="profile-avatar-action">更换</span>
+                  <input id="profileAvatarInput" type="file" accept="image/*" />
+                </label>
+              </section>
               <section class="profile-card" aria-labelledby="profileInfoTitle">
                 <div class="profile-section-heading"><h2 id="profileInfoTitle">个人资料</h2><button type="button" data-open-profile-edit>编辑</button></div>
                 <dl class="profile-data-list">
@@ -1701,6 +1719,15 @@
           </section>
         </div>
 
+        <div class="collection-remove-dialog" data-offline-remove-dialog hidden>
+          <div class="collection-remove-backdrop" data-close-offline-remove></div>
+          <section role="dialog" aria-modal="true" aria-labelledby="offlineRemoveTitle">
+            <header><h2 id="offlineRemoveTitle">取消离线</h2><button type="button" data-close-offline-remove aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button></header>
+            <p data-offline-remove-copy>取消后，该工作表将从离线填报中移除，需要重新下载才能离线填写。</p>
+            <footer><button type="button" data-close-offline-remove>暂不取消</button><button class="collection-remove-danger" type="button" data-confirm-offline-remove>确认取消</button></footer>
+          </section>
+        </div>
+
         <div class="toast" id="toast" role="status" aria-live="polite" hidden>
           <span class="toast-icon" aria-hidden="true"><i class="ph ph-check-circle"></i></span>
           <span class="toast-message" data-toast-message></span>
@@ -1715,6 +1742,6 @@
       </aside>
     </main>
 
-    <script src="./main.js"></script>
+    <script src="./main.js?v=profile-native"></script>
   </body>
 </html>

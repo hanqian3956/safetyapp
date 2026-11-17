@@ -3,6 +3,7 @@ const loadingView = document.querySelector("#loadingView");
 const pages = [...document.querySelectorAll(".page")];
 const navItems = [...document.querySelectorAll(".nav-item")];
 const bottomNav = document.querySelector(".bottom-nav");
+const activityEmbeddedFrame = document.querySelector(".activity-embedded-frame");
 const workbenchScroll = document.querySelector(".workbench-scroll");
 const screenModal = document.querySelector("#bottomSheet");
 const sheetBackdrop = document.querySelector("#sheetBackdrop");
@@ -146,8 +147,10 @@ function showToast(message, type = "notice") {
   }, 3200);
 }
 
-function switchPage(pageName, navItem, scrollTop = 0) {
+function switchPage(pageName, navItem) {
   if (pageName === activePage) return;
+  if (activePage === "workbench") workbenchScrollTop = workbenchScroll.scrollTop;
+  if (pageName !== "activity") appShell.classList.remove("is-activity-detail", "is-activity-scrolled");
   appShell.classList.remove("is-detail-page");
   activePage = pageName;
 
@@ -158,7 +161,7 @@ function switchPage(pageName, navItem, scrollTop = 0) {
     if (isActive) {
       page.classList.remove("is-entering");
       requestAnimationFrame(() => page.classList.add("is-entering"));
-      page.querySelector(".page-scroll")?.scrollTo({ top: scrollTop });
+      page.querySelector(".page-scroll")?.scrollTo({ top: pageName === "workbench" ? workbenchScrollTop : 0 });
     }
   });
 
@@ -173,12 +176,31 @@ function switchPage(pageName, navItem, scrollTop = 0) {
   bottomNav.style.setProperty("--nav-index", index);
 }
 
+window.addEventListener("message", (event) => {
+  if (event.source !== activityEmbeddedFrame?.contentWindow) return;
+  if (event.data?.type === "activity-detail-state") {
+    const isDetail = Boolean(event.data.isDetail);
+    appShell.classList.toggle("is-activity-detail", isDetail);
+    if (isDetail) appShell.classList.remove("is-activity-scrolled");
+    return;
+  }
+  if (event.data?.type === "activity-scroll-state" && !appShell.classList.contains("is-activity-detail")) {
+    appShell.classList.toggle("is-activity-scrolled", Boolean(event.data.isScrolled));
+  }
+});
+
+activityEmbeddedFrame?.addEventListener("load", () => {
+  appShell.classList.remove("is-activity-detail", "is-activity-scrolled");
+});
+
 function openMessagesPage() {
   openDetailPage("messages");
 }
 
 function closeDetailPage() {
-  switchPage("workbench", navItems[0], workbenchScrollTop);
+  appShell.classList.remove("is-detail-page");
+  activePage = "";
+  switchPage("workbench", navItems[0]);
 }
 
 function openApplicationDetail(pageName, returnPage = "favorites") {
@@ -239,19 +261,80 @@ function openPreventionTaskPublish(parentPage = "prevention") {
   openDetailPage("preventionTaskPublish");
 }
 
-function openInspection(parentPage = "preventionCatalog") {
+let inspectionOfflineMode = false;
+let inspectionOfflineReport = null;
+
+function openInspection(parentPage = "preventionCatalog", report = null) {
   inspectionParentPage = parentPage;
+  inspectionOfflineMode = parentPage === "workbench";
+  inspectionOfflineReport = report;
+  applyInspectionMode();
   setInspectionTab("page");
   openDetailPage("inspection");
 }
 
-function closeInspection() {
-  if (inspectionParentPage === "workbench") {
-    closeDetailPage();
-    return;
+/* 离线填报模式：去掉草稿箱页签、存草稿 → 暂存、预填演示数据 */
+const inspectionWorksheetMeta = {
+  inspection: {
+    checks: ["凿岩设备防护装置完好", "作业面通风与照明符合要求", "人员防护用品佩戴规范"],
+    location: "西翼 3# 平巷",
+  },
+  "fire-facility": {
+    checks: ["灭火器压力正常、铅封完好", "消火栓箱体及水带完好", "疏散通道和安全出口畅通"],
+    location: "主厂房消防通道",
+  },
+  "hoist-daily": {
+    checks: ["提升机制动系统灵敏可靠", "钢丝绳无断丝、变形", "信号与保护装置有效"],
+    location: "北区提升机房",
+  },
+};
+
+function applyInspectionMode() {
+  const titleEl = document.querySelector("#inspectionTitle");
+  const tabsEl = document.querySelector("#inspectionTabs");
+  const submitBtn = inspectionForm.querySelector(".inspection-action-submit");
+  const defaultTitle = "平巷凿岩作业岗位隐患排查表";
+  const meta = inspectionWorksheetMeta[inspectionOfflineReport?.id] || inspectionWorksheetMeta.inspection;
+
+  if (titleEl) {
+    titleEl.textContent = inspectionOfflineMode && inspectionOfflineReport?.title
+      ? inspectionOfflineReport.title
+      : defaultTitle;
   }
-  if (inspectionParentPage === "favorites") {
-    switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
+  /* 工作表填写统一按离线填报的口径：不展示草稿箱、存草稿改称暂存 */
+  if (tabsEl) tabsEl.hidden = true;
+  saveInspectionDraft.textContent = "暂存";
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "提交";
+    submitBtn.classList.remove("is-submitting");
+  }
+  /* 两条离线工作表用各自的口径，避免标题与检查项对不上 */
+  inspectionForm.querySelectorAll(".inspection-check-row > span").forEach((label, index) => {
+    if (meta.checks[index]) label.textContent = meta.checks[index];
+  });
+  if (inspectionOfflineMode) prefillInspectionDemo(meta.location);
+}
+
+function prefillInspectionDemo(location) {
+  const textInputs = inspectionForm.querySelectorAll('input[type="text"]');
+  if (textInputs[1]) textInputs[1].value = location || "西翼 3# 平巷";
+  ["equipment", "environment", "protection"].forEach((name) => {
+    if (inspectionForm.querySelector(`input[name="${name}"]:checked`)) return;
+    const normal = inspectionForm.querySelector(`input[name="${name}"][value="normal"]`);
+    if (normal) normal.checked = true;
+  });
+}
+
+function closeInspection() {
+  if (inspectionParentPage === "favorites" || inspectionParentPage === "workbench") {
+    appShell.classList.remove("is-detail-page");
+    activePage = "";
+    if (inspectionParentPage === "workbench") {
+      switchPage("workbench", navItems.find((item) => item.dataset.pageTarget === "workbench"));
+    } else {
+      switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
+    }
     return;
   }
   openDetailPage(inspectionParentPage);
@@ -423,9 +506,13 @@ workbenchSearchItems.forEach((item) => {
   });
 });
 
-document.querySelector("[data-open-profile-center]").addEventListener("click", () => openDetailPage("profileCenter"));
+document.querySelectorAll("[data-open-profile-center]").forEach((button) => {
+  button.addEventListener("click", () => openDetailPage("profileCenter"));
+});
 document.querySelector("[data-close-profile-center]").addEventListener("click", closeProfileCenter);
-document.querySelector("[data-open-signature-management]").addEventListener("click", openSignatureManagement);
+document.querySelectorAll("[data-open-signature-management]").forEach((button) => {
+  button.addEventListener("click", openSignatureManagement);
+});
 document.querySelector("[data-close-signature-management]").addEventListener("click", closeSignatureManagement);
 document.querySelector("[data-close-offline-management]").addEventListener("click", closeOfflineManagement);
 document.querySelector("[data-open-pending-uploads]").addEventListener("click", () => openDetailPage("pendingUploads"));
@@ -464,15 +551,25 @@ document.querySelectorAll("[data-back-fire-worksheets]").forEach((button) => {
   button.addEventListener("click", () => openDetailPage("fireWorksheets"));
 });
 
+const workbenchRecentsToggle = document.querySelector("[data-toggle-workbench-recents]");
+const workbenchRecentsLabel = workbenchRecentsToggle.querySelector("span");
+const extraRecentEntries = document.querySelectorAll("#workbenchRecentEntries [data-extra-recent]");
+
+workbenchRecentsToggle.addEventListener("click", () => {
+  const expanded = workbenchRecentsToggle.getAttribute("aria-expanded") === "false";
+  workbenchRecentsToggle.setAttribute("aria-expanded", String(expanded));
+  workbenchRecentsLabel.textContent = expanded ? "收起" : "展开";
+  extraRecentEntries.forEach((entry) => {
+    entry.hidden = !expanded;
+  });
+});
+
 const favoriteAppGrid = document.querySelector("[data-favorite-app-grid]");
 const applicationsHost = document.querySelector("[data-applications-host]");
 const applicationRecentList = document.querySelector("#applicationRecentList");
 const applicationRecentEmpty = document.querySelector("#applicationRecentEmpty");
-const workbenchRecentHost = document.querySelector('[data-workbench-access-host="recent"]');
-const workbenchCollectedHost = document.querySelector('[data-workbench-access-host="collected"]');
+const applicationRecentSection = applicationRecentList.closest(".application-recent-section");
 const appSection = favoriteAppGrid?.closest(".app-section");
-const recentSection = document.querySelector(".recent-section");
-const collectedSection = document.querySelector(".collected-section");
 const applicationRecentStorageKey = "mobile-bottom-nav-application-recents";
 let applicationRecents = [];
 
@@ -484,18 +581,6 @@ try {
 }
 
 applicationsHost?.append(appSection);
-workbenchRecentHost?.prepend(recentSection);
-workbenchCollectedHost?.append(collectedSection);
-
-const recentExpandButton = recentSection.querySelector(".recent-expand-button");
-const extraRecentEntries = recentSection.querySelectorAll("[data-extra-recent]");
-
-recentExpandButton.addEventListener("click", () => {
-  const isExpanded = recentExpandButton.getAttribute("aria-expanded") === "false";
-  recentExpandButton.setAttribute("aria-expanded", String(isExpanded));
-  recentExpandButton.textContent = isExpanded ? "收起" : "展开";
-  extraRecentEntries.forEach((entry) => { entry.hidden = !isExpanded; });
-});
 
 function persistApplicationRecents() {
   try {
@@ -507,6 +592,7 @@ function persistApplicationRecents() {
 
 function renderApplicationRecents() {
   const hasRecents = applicationRecents.length > 0;
+  applicationRecentSection.hidden = !hasRecents;
   applicationRecentList.replaceChildren();
   applicationRecentList.hidden = !hasRecents;
   applicationRecentEmpty.hidden = hasRecents;
@@ -547,9 +633,39 @@ const appOrganizerList = document.querySelector("[data-app-organizer-list]");
 const appOrganizerPage = document.querySelector("[data-page=\"appOrganizer\"]");
 const appOrganizerTip = appOrganizerPage.querySelector(".app-organizer-tip");
 const appOrganizerEditButton = document.querySelector("[data-toggle-app-organizer-edit]");
+const appOrganizerSearchInput = document.querySelector("[data-app-organizer-search]");
+const appOrganizerSearchClear = document.querySelector("[data-clear-app-organizer-search]");
+const appOrganizerEmpty = document.querySelector("[data-app-organizer-empty]");
 const appLayoutStorageKey = "mobile-bottom-nav-app-layout";
 let draggedOrganizerItem = null;
 let isEditingAppOrganizer = false;
+
+/* 全部应用：按应用名称搜索（编辑态下也可以边搜边调顺序） */
+function filterAppOrganizer(keyword) {
+  const text = (keyword || "").trim().toLowerCase();
+  let matched = 0;
+  appOrganizerList.querySelectorAll("[data-app-organizer-item]").forEach((item) => {
+    const name = (item.querySelector("strong")?.textContent || "").toLowerCase();
+    const hit = !text || name.includes(text);
+    item.hidden = !hit;
+    if (hit) matched += 1;
+  });
+  if (appOrganizerEmpty) appOrganizerEmpty.hidden = matched > 0 || !text;
+  if (appOrganizerSearchClear) appOrganizerSearchClear.hidden = !text;
+}
+
+if (appOrganizerSearchInput) {
+  appOrganizerSearchInput.addEventListener("input", (event) => filterAppOrganizer(event.target.value));
+  appOrganizerSearchInput.addEventListener("search", (event) => filterAppOrganizer(event.target.value));
+}
+if (appOrganizerSearchClear) {
+  appOrganizerSearchClear.addEventListener("click", () => {
+    if (!appOrganizerSearchInput) return;
+    appOrganizerSearchInput.value = "";
+    filterAppOrganizer("");
+    appOrganizerSearchInput.focus();
+  });
+}
 
 function setAppOrganizerEditing(isEditing) {
   isEditingAppOrganizer = isEditing;
@@ -564,12 +680,16 @@ function setAppOrganizerEditing(isEditing) {
 
 function openAppOrganizer() {
   setAppOrganizerEditing(false);
+  if (appOrganizerSearchInput) appOrganizerSearchInput.value = "";
+  filterAppOrganizer("");
   openDetailPage("appOrganizer");
 }
 
 function closeAppOrganizer() {
   setAppOrganizerEditing(false);
-  closeDetailPage();
+  appShell.classList.remove("is-detail-page");
+  activePage = "";
+  switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
 }
 
 function openOrganizerApp(item) {
@@ -781,7 +901,7 @@ saveInspectionDraft.addEventListener("click", () => {
   inspectionDraft = getInspectionDraftData();
   localStorage.setItem(inspectionDraftStorageKey, JSON.stringify(inspectionDraft));
   renderInspectionDraft();
-  showToast(hadDraft ? "草稿已更新，已覆盖上一份草稿" : "草稿已保存");
+  showToast(hadDraft ? "已更新暂存内容" : "已暂存到本机");
 });
 
 openInspectionDraft.addEventListener("click", () => {
@@ -794,11 +914,22 @@ openInspectionDraft.addEventListener("click", () => {
 renderInspectionDraft();
 inspectionForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  if (!isNetworkAvailable()) {
+  const submitBtn = inspectionForm.querySelector(".inspection-action-submit");
+  if (submitBtn?.disabled) return;
+  /* 离线填报入口默认按无网处理，便于演示「提交中 → 置灰」 */
+  if (!isNetworkAvailable() || inspectionOfflineMode) {
+    /* 无网：先提示「提交中」，随后按钮置灰不可再点 */
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add("is-submitting");
+      submitBtn.textContent = "提交中…";
+    }
+    showToast("提交中…");
     saveInspectionForOfflineUpload();
-    showToast(autoUploadToggle.checked
-      ? "当前网络不可用，待网络恢复后自动上报"
-      : "当前网络不可用，保存在“我的”-“离线管理”中，当网络恢复后请手动点击上报");
+    window.setTimeout(() => {
+      if (submitBtn) submitBtn.textContent = "待上报";
+      showToast("当前网络不可用，已保存到本机，网络恢复后自动上报");
+    }, 1400);
     return;
   }
   showToast("排查记录已提交");
@@ -953,7 +1084,7 @@ const approvalOpinion = document.querySelector("[data-approval-opinion]");
 const rejectOpinion = document.querySelector("[data-reject-opinion]");
 const refuseOpinion = document.querySelector("[data-refuse-opinion]");
 const rejectDestinationNotice = document.querySelector("[data-reject-destination-notice]");
-let selectedTemplateFilter = "all";
+let selectedTemplateFilter = "recent";
 let selectedProcessRow = null;
 let activeSubaction = "转办";
 let selectedSubactionPeople = [];
@@ -1021,15 +1152,14 @@ function applyTemplateFilters() {
     let groupVisible = 0;
 
     groupButtons.forEach((button) => {
-      const matchesCategory = selectedTemplateFilter === "all" || button.dataset.templateRecent === "true";
       const keywords = `${button.dataset.templateName} ${button.dataset.templateApp} ${button.dataset.templateType}`.toLocaleLowerCase("zh-CN");
-      const isVisible = matchesCategory && (!query || keywords.includes(query));
+      const isVisible = !query || keywords.includes(query);
       button.hidden = !isVisible;
       if (isVisible) groupVisible += 1;
     });
 
     group.hidden = groupVisible === 0;
-    group.querySelector("header small").textContent = String(groupVisible);
+    if (query && groupVisible) group.classList.remove("is-collapsed");
     totalVisible += groupVisible;
   });
 
@@ -1231,11 +1361,29 @@ templateFilters.forEach((filter) => {
       item.classList.toggle("is-active", isActive);
       item.setAttribute("aria-pressed", String(isActive));
     });
-    applyTemplateFilters();
+    const target = templateGroups.find((group) => group.dataset.templateSection === selectedTemplateFilter);
+    if (!target) return;
+
+    target.classList.remove("is-collapsed");
+    target.querySelector("[data-template-collapse]")?.setAttribute("aria-expanded", "true");
+    const libraryScroll = document.querySelector(".process-template-groups");
+    const targetTop = libraryScroll.scrollTop + target.getBoundingClientRect().top - libraryScroll.getBoundingClientRect().top;
+    libraryScroll.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: "smooth",
+    });
   });
 });
 
 templateSearch.addEventListener("input", applyTemplateFilters);
+
+document.querySelectorAll("[data-template-collapse]").forEach((trigger) => {
+  trigger.addEventListener("click", () => {
+    const group = trigger.closest("[data-template-group]");
+    const isCollapsed = group.classList.toggle("is-collapsed");
+    trigger.setAttribute("aria-expanded", String(!isCollapsed));
+  });
+});
 
 document.querySelector("[data-open-process-library]").addEventListener("click", () => openDetailPage("processLibrary"));
 document.querySelectorAll("[data-back-process-list]").forEach((button) => button.addEventListener("click", () => openDetailPage("processes")));
@@ -1588,8 +1736,10 @@ function closeFavoritesDetail() {
     editFavorites.textContent = "编辑";
     syncFavoriteOverview();
   }
+  appShell.classList.remove("is-detail-page");
+  activePage = "";
   if (returnToWorkbench) {
-    closeDetailPage();
+    switchPage("workbench", navItems.find((item) => item.dataset.pageTarget === "workbench"));
     return;
   }
   switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
@@ -1646,15 +1796,19 @@ const collectedList = document.querySelector("#collectedList");
 const collectedEmpty = document.querySelector("#collectedEmpty");
 const collectedAllList = document.querySelector("#collectedAllList");
 const collectedAllEmpty = document.querySelector("#collectedAllEmpty");
+const collectedHint = document.querySelector("#collectedHint");
+const collectedAllHint = document.querySelector("#collectedAllHint");
 const openCollectedListButton = document.querySelector("[data-open-collected-list]");
 const collectionRemoveDialog = document.querySelector("[data-collection-remove-dialog]");
 const collectionStorageKey = "mobile-bottom-nav-subsystem-collections";
 const collectableMenuEntries = [...document.querySelectorAll(
-  ".prevention-page .prevention-menu-row[data-show-toast], .prevention-page .prevention-submenu button, .prevention-two-page .prevention-two-category-list button[data-show-toast], .prevention-two-page .prevention-two-hazard-list button[data-show-toast], .prevention-catalog-page .inspection-catalog-list button",
+  ".prevention-page .prevention-menu-row[data-show-toast], .prevention-page .prevention-submenu button, .prevention-catalog-page .inspection-catalog-list button",
 )];
 let collectedItems = [];
 let pendingCollectionRemoval = null;
 let collectionRemoveTrigger = null;
+const COLLECTION_SWIPE_LIMIT = 96;
+const COLLECTION_LONG_PRESS_MS = 550;
 
 function getCollectionSystem(entry) {
   const pageName = entry.closest("[data-page]")?.dataset.page;
@@ -1680,17 +1834,109 @@ function syncCollectionIcons() {
 }
 
 function createCollectedRow(item) {
-  const row = document.createElement("article");
-  row.className = "favorite-row collected-row";
-  row.innerHTML = `<button class="collected-remove" type="button" aria-label="取消收藏${item.title}"><span class="favorite-type" aria-hidden="true"><i class="ph-fill ph-star"></i></span></button><button class="collected-row-open" type="button"><span><strong>${item.title}</strong></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>`;
-  row.querySelector(".collected-row-open").addEventListener("click", () => {
+  const row = document.createElement("div");
+  const iconClass = /清单|排查/.test(item.title) ? "ph-list-checks" : "ph-clipboard-text";
+  row.className = "collected-swipe";
+  row.innerHTML = `<button class="collected-remove" type="button" aria-label="取消收藏${item.title}"><i class="ph ph-trash" aria-hidden="true"></i><span>取消收藏</span></button><button class="collected-row-open" type="button"><span class="collected-entry-icon" aria-hidden="true"><i class="ph ${iconClass}"></i></span><span><strong>${item.title}</strong></span><i class="ph ph-caret-right" aria-hidden="true"></i></button>`;
+  bindCollectionGestures(row, item);
+  return row;
+}
+
+function openCollectedItem(item) {
     const sourceEntry = collectableMenuEntries.find((entry) => entry.dataset.collectionId === item.id);
     if (sourceEntry?.matches("[data-open-inspection]")) openInspection("workbench");
     else if (sourceEntry) sourceEntry.click();
     else showToast(`已打开${item.title}`);
+}
+
+function closeCollectionSwipes(except) {
+  document.querySelectorAll(".collected-swipe.is-open").forEach((row) => {
+    if (row !== except) row.classList.remove("is-open");
   });
-  row.querySelector(".collected-remove").addEventListener("click", (event) => openCollectionRemoveDialog(item, event.currentTarget));
-  return row;
+}
+
+function bindCollectionGestures(row, item) {
+  const surface = row.querySelector(".collected-row-open");
+  let startX = 0;
+  let startY = 0;
+  let baseOffset = 0;
+  let offset = 0;
+  let dragging = false;
+  let moved = false;
+  let longPressTimer = null;
+
+  const clearLongPress = () => {
+    if (!longPressTimer) return;
+    window.clearTimeout(longPressTimer);
+    longPressTimer = null;
+  };
+  const resetTransform = () => {
+    row.classList.remove("is-swiping");
+    surface.style.transform = "";
+  };
+
+  surface.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    closeCollectionSwipes(row);
+    dragging = true;
+    moved = false;
+    startX = event.clientX;
+    startY = event.clientY;
+    baseOffset = row.classList.contains("is-open") ? -COLLECTION_SWIPE_LIMIT : 0;
+    offset = baseOffset;
+    clearLongPress();
+    longPressTimer = window.setTimeout(() => {
+      longPressTimer = null;
+      if (!dragging || moved) return;
+      dragging = false;
+      resetTransform();
+      row.classList.remove("is-open");
+      if (navigator.vibrate) navigator.vibrate(15);
+      openCollectionRemoveDialog(item, surface);
+    }, COLLECTION_LONG_PRESS_MS);
+  });
+
+  surface.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+    if (!moved && Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    moved = true;
+    clearLongPress();
+    if (Math.abs(dy) > Math.abs(dx)) return;
+    event.preventDefault();
+    offset = Math.max(-COLLECTION_SWIPE_LIMIT, Math.min(0, baseOffset + dx));
+    row.classList.add("is-swiping");
+    surface.style.transform = `translateX(${offset}px)`;
+  });
+
+  const finishSwipe = () => {
+    if (!dragging) return;
+    dragging = false;
+    clearLongPress();
+    resetTransform();
+    if (!moved && baseOffset < 0) {
+      row.classList.remove("is-open");
+      return;
+    }
+    const shouldOpen = offset < -COLLECTION_SWIPE_LIMIT / 2;
+    row.classList.toggle("is-open", shouldOpen);
+    if (moved) return;
+    openCollectedItem(item);
+  };
+
+  surface.addEventListener("pointerup", finishSwipe);
+  surface.addEventListener("pointercancel", () => {
+    dragging = false;
+    clearLongPress();
+    resetTransform();
+  });
+
+  row.querySelector(".collected-remove").addEventListener("click", (event) => {
+    event.stopPropagation();
+    row.classList.remove("is-open");
+    openCollectionRemoveDialog(item, event.currentTarget);
+  });
 }
 
 function openCollectionRemoveDialog(item, trigger) {
@@ -1729,9 +1975,11 @@ function renderCollectedItems() {
   collectedAllList.hidden = !hasCollections;
   collectedEmpty.hidden = hasCollections;
   collectedAllEmpty.hidden = hasCollections;
-  openCollectedListButton.hidden = collectedItems.length <= 4;
+  collectedHint.hidden = !hasCollections;
+  collectedAllHint.hidden = !hasCollections;
+  openCollectedListButton.hidden = collectedItems.length <= 3;
 
-  collectedItems.slice(0, 4).forEach((item) => {
+  collectedItems.slice(0, 3).forEach((item) => {
     collectedList.append(createCollectedRow(item));
   });
   collectedItems.forEach((item) => {
@@ -1802,6 +2050,10 @@ const downloadInspection = document.querySelector("#downloadInspection");
 const offlineReportsSection = document.querySelector("[data-offline-reports-section]");
 const offlineReportList = document.querySelector("#offlineReportList");
 const offlineReportEmpty = document.querySelector("#offlineReportEmpty");
+const offlineReportHint = document.querySelector("#offlineReportHint");
+const offlineRemoveDialog = document.querySelector("[data-offline-remove-dialog]");
+const offlineRemoveCopy = document.querySelector("[data-offline-remove-copy]");
+let offlineRemoveTarget = null;
 const pendingUploadList = document.querySelector("[data-pending-upload-list]");
 const pendingUploadCount = document.querySelector("[data-pending-upload-count]");
 const pendingUploadSyncCount = document.querySelector("[data-pending-upload-sync-count]");
@@ -1816,7 +2068,16 @@ const signatureContext = signatureCanvas.getContext("2d");
 const signatureManagementPage = document.querySelector("[data-page=\"signatureManagement\"]");
 const signatureLandscapeButton = document.querySelector("#enableSignatureLandscape");
 const signatureStorageKey = "mobile-bottom-nav-electronic-signature";
-const offlineReportStorageKey = "mobile-bottom-nav-offline-reports";
+const profileAvatarInput = document.querySelector("#profileAvatarInput");
+const profileAvatarElements = [...document.querySelectorAll("[data-profile-avatar]")];
+const profileAvatarStorageKey = "mobile-bottom-nav-profile-avatar";
+const offlineReportStorageKey = "mobile-bottom-nav-offline-reports-v3";
+/* 离线填报默认数据：直接铺在工作台上，保证没下载过也能看到这个小模块 */
+const offlineReportSeed = [
+  { id: "inspection", title: "平巷凿岩作业岗位隐患排查表", app: "双重预防管理" },
+  { id: "fire-facility", title: "消防设施月度巡检表", app: "消防管理" },
+  { id: "hoist-daily", title: "提升机日检记录表", app: "设备巡检" },
+];
 let offlineReports = [];
 const profileValues = {
   name: "林舟",
@@ -1828,12 +2089,21 @@ const profileValues = {
 };
 let isDrawingSignature = false;
 let signatureHasInk = false;
+let signatureReturnPage = "profileCenter";
 
+let hasStoredOfflineReports = false;
 try {
-  const savedOfflineReports = JSON.parse(window.localStorage.getItem(offlineReportStorageKey));
-  if (Array.isArray(savedOfflineReports)) offlineReports = savedOfflineReports;
+  const rawOfflineReports = window.localStorage.getItem(offlineReportStorageKey);
+  if (rawOfflineReports) {
+    hasStoredOfflineReports = true;
+    const savedOfflineReports = JSON.parse(rawOfflineReports);
+    if (Array.isArray(savedOfflineReports)) offlineReports = savedOfflineReports;
+  }
 } catch {
   // The current session can still show newly downloaded worktables when storage is unavailable.
+}
+if (!hasStoredOfflineReports) {
+  offlineReports = offlineReportSeed.map((item) => ({ ...item }));
 }
 
 function persistOfflineReports() {
@@ -1853,8 +2123,21 @@ function updateInspectionDownloadButton() {
   const icon = downloadInspection.querySelector("i");
   const label = downloadInspection.querySelector("span");
   downloadInspection.classList.toggle("is-downloaded", isDownloaded);
-  icon.className = isDownloaded ? "ph ph-trash" : "ph ph-download-simple";
-  label.textContent = isDownloaded ? "删除离线" : "离线下载";
+  /* 已下载 → 按钮置灰不可点，取消离线统一在「离线填报」列表里做 */
+  downloadInspection.disabled = isDownloaded;
+  downloadInspection.setAttribute("aria-disabled", String(isDownloaded));
+  icon.className = isDownloaded ? "ph ph-check-circle" : "ph ph-download-simple";
+  label.textContent = isDownloaded ? "已下载" : "离线下载";
+}
+
+/* ===== 离线填报列表：iOS 左滑 / Android 长按 取消离线 ===== */
+const OFFLINE_SWIPE_LIMIT = 96;
+const OFFLINE_LONG_PRESS_MS = 550;
+
+function closeOfflineSwipes(except) {
+  offlineReportList.querySelectorAll(".offline-report-swipe.is-open").forEach((row) => {
+    if (row !== except) row.classList.remove("is-open");
+  });
 }
 
 function renderOfflineReports() {
@@ -1863,20 +2146,142 @@ function renderOfflineReports() {
   offlineReportList.replaceChildren();
   offlineReportList.hidden = !hasOfflineReports;
   offlineReportEmpty.hidden = hasOfflineReports;
+  if (offlineReportHint) offlineReportHint.hidden = !hasOfflineReports;
 
   offlineReports.forEach((report) => {
-    const row = document.createElement("button");
-    row.className = "offline-report-row";
-    row.type = "button";
-    row.innerHTML = `<span class="offline-report-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span><strong>${report.title}</strong><span>已下载</span><i class="ph ph-caret-right" aria-hidden="true"></i>`;
-    row.addEventListener("click", () => openInspection("workbench"));
-    offlineReportList.append(row);
+    const wrap = document.createElement("div");
+    wrap.className = "offline-report-swipe";
+    wrap.dataset.offlineReport = report.id;
+    wrap.innerHTML = `
+      <button class="offline-report-remove" type="button" data-remove-offline="${report.id}" aria-label="取消离线 ${report.title}">
+        <i class="ph ph-trash" aria-hidden="true"></i><span>取消离线</span>
+      </button>
+      <button class="offline-report-row" type="button">
+        <span class="offline-report-icon" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+        <strong><span class="offline-report-title">${report.title}</span><em class="offline-report-app">（${report.app || "未命名应用"}）</em></strong>
+        <i class="ph ph-caret-right" aria-hidden="true"></i>
+      </button>`;
+    bindOfflineReportGestures(wrap, report);
+    offlineReportList.append(wrap);
   });
   updateInspectionDownloadButton();
 }
 
+function bindOfflineReportGestures(row, report) {
+  const surface = row.querySelector(".offline-report-row");
+  let startX = 0;
+  let startY = 0;
+  let baseOffset = 0;
+  let offset = 0;
+  let dragging = false;
+  let moved = false;
+  let longPressTimer = null;
+
+  const clearLongPress = () => {
+    if (!longPressTimer) return;
+    window.clearTimeout(longPressTimer);
+    longPressTimer = null;
+  };
+  const resetTransform = () => {
+    row.classList.remove("is-swiping");
+    surface.style.transform = "";
+  };
+
+  surface.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    closeOfflineSwipes(row);
+    dragging = true;
+    moved = false;
+    startX = event.clientX;
+    startY = event.clientY;
+    baseOffset = row.classList.contains("is-open") ? -OFFLINE_SWIPE_LIMIT : 0;
+    offset = baseOffset;
+    clearLongPress();
+    longPressTimer = window.setTimeout(() => {
+      longPressTimer = null;
+      if (!dragging || moved) return;
+      dragging = false;
+      resetTransform();
+      row.classList.remove("is-open");
+      if (navigator.vibrate) navigator.vibrate(15);
+      openOfflineRemoveDialog(report);
+    }, OFFLINE_LONG_PRESS_MS);
+  });
+
+  surface.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+    if (!moved && Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    moved = true;
+    clearLongPress();
+    if (Math.abs(dy) > Math.abs(dx)) return; /* 纵向滚动优先，不接管 */
+    event.preventDefault();
+    offset = Math.max(-OFFLINE_SWIPE_LIMIT, Math.min(0, baseOffset + dx));
+    row.classList.add("is-swiping");
+    surface.style.transform = `translateX(${offset}px)`;
+  });
+
+  const finishSwipe = () => {
+    if (!dragging) return;
+    dragging = false;
+    clearLongPress();
+    resetTransform();
+    /* 轻点已展开的行：收起操作区；轻点收起态的行：进入离线填报详情 */
+    if (!moved && baseOffset < 0) {
+      row.classList.remove("is-open");
+      return;
+    }
+    const shouldOpen = offset < -OFFLINE_SWIPE_LIMIT / 2;
+    row.classList.toggle("is-open", shouldOpen);
+    if (moved) return;
+    openOfflineReport(report);
+  };
+
+  surface.addEventListener("pointerup", finishSwipe);
+  surface.addEventListener("pointercancel", () => {
+    dragging = false;
+    clearLongPress();
+    resetTransform();
+  });
+
+  row.querySelector("[data-remove-offline]").addEventListener("click", (event) => {
+    event.stopPropagation();
+    row.classList.remove("is-open");
+    openOfflineRemoveDialog(report);
+  });
+}
+
+function openOfflineReport(report) {
+  openInspection("workbench", report);
+}
+
+function openOfflineRemoveDialog(report) {
+  offlineRemoveTarget = report;
+  if (offlineRemoveCopy) {
+    offlineRemoveCopy.textContent = `取消后「${report.title}」将从离线填报中移除，需要重新下载才能离线填写。`;
+  }
+  offlineRemoveDialog.hidden = false;
+  offlineRemoveDialog.querySelector("[data-confirm-offline-remove]")?.focus();
+}
+
+function closeOfflineRemoveDialog() {
+  offlineRemoveDialog.hidden = true;
+  offlineRemoveTarget = null;
+}
+
+offlineRemoveDialog.addEventListener("click", (event) => {
+  if (event.target.closest("[data-confirm-offline-remove]")) {
+    const target = offlineRemoveTarget;
+    closeOfflineRemoveDialog();
+    if (target) removeOfflineReport(target.id);
+    return;
+  }
+  if (event.target.closest("[data-close-offline-remove]")) closeOfflineRemoveDialog();
+});
+
 function addOfflineReport() {
-  const report = { id: "inspection", title: "平巷凿岩作业岗位隐患排查表" };
+  const report = { id: "inspection", title: "平巷凿岩作业岗位隐患排查表", app: "双重预防管理" };
   if (!offlineReports.some((item) => item.id === report.id)) {
     offlineReports.push(report);
     persistOfflineReports();
@@ -1885,9 +2290,11 @@ function addOfflineReport() {
 }
 
 function removeOfflineReport(reportId) {
+  const removed = offlineReports.find((item) => item.id === reportId);
   offlineReports = offlineReports.filter((item) => item.id !== reportId);
   persistOfflineReports();
   renderOfflineReports();
+  showToast(removed ? `已取消离线：${removed.title}` : "已取消离线");
 }
 
 function isNetworkAvailable() {
@@ -1943,6 +2350,7 @@ function loadStoredSignature() {
 }
 
 function openSignatureManagement() {
+  signatureReturnPage = activePage === "profile" ? "profile" : "profileCenter";
   setSignatureLandscapeMode(false);
   openDetailPage("signatureManagement");
   loadStoredSignature();
@@ -1950,6 +2358,12 @@ function openSignatureManagement() {
 
 function closeSignatureManagement() {
   setSignatureLandscapeMode(false);
+  if (signatureReturnPage === "profile") {
+    appShell.classList.remove("is-detail-page");
+    activePage = "";
+    switchPage("profile", navItems.find((item) => item.dataset.pageTarget === "profile"));
+    return;
+  }
   openDetailPage("profileCenter");
 }
 
@@ -2003,9 +2417,48 @@ function updateProfileView() {
     field.textContent = profileValues[key];
     if (key === "status") field.classList.toggle("is-disabled", profileValues.status === "停用");
   });
-  document.querySelector("[data-profile-heading]").textContent = profileValues.name;
-  document.querySelector("[data-profile-avatar]").textContent = profileValues.name.slice(0, 1);
+  profileAvatarElements.filter((avatar) => !avatar.classList.contains("has-image")).forEach((avatar) => {
+    avatar.textContent = profileValues.name.slice(0, 1);
+  });
 }
+
+function applyProfileAvatar(imageData) {
+  const hasImage = Boolean(imageData);
+  profileAvatarElements.forEach((avatar) => {
+    avatar.classList.toggle("has-image", hasImage);
+    avatar.textContent = hasImage ? "" : profileValues.name.slice(0, 1);
+    avatar.style.backgroundImage = hasImage ? `url("${imageData}")` : "";
+  });
+}
+
+try {
+  applyProfileAvatar(window.localStorage.getItem(profileAvatarStorageKey) || "");
+} catch {
+  applyProfileAvatar("");
+}
+
+profileAvatarInput.addEventListener("change", () => {
+  const [file] = profileAvatarInput.files;
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    showToast("请选择图片文件");
+    profileAvatarInput.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    const imageData = typeof reader.result === "string" ? reader.result : "";
+    applyProfileAvatar(imageData);
+    try {
+      window.localStorage.setItem(profileAvatarStorageKey, imageData);
+    } catch {
+      // The updated avatar remains available until this page is refreshed.
+    }
+    showToast("头像已更新");
+  }, { once: true });
+  reader.readAsDataURL(file);
+});
 
 function openProfileEdit(trigger) {
   Object.entries(profileValues).forEach(([key, value]) => {
@@ -2133,19 +2586,15 @@ downloadAll.addEventListener("click", () => {
 });
 
 downloadInspection.addEventListener("click", () => {
-  if (hasOfflineReport("inspection")) {
-    removeOfflineReport("inspection");
-    showToast("已删除离线工作表");
-    return;
-  }
+  if (hasOfflineReport("inspection")) return; /* 已下载：按钮置灰，不再响应 */
 
   downloadInspection.disabled = true;
   downloadInspection.querySelector("span").textContent = "下载中";
 
   window.setTimeout(() => {
     addOfflineReport();
-    downloadInspection.disabled = false;
-    showToast("工作表已离线下载，可在工作台“离线报表”查看");
+    downloadInspection.disabled = true;
+    showToast("已下载到离线填报，可在工作台“离线填报”中打开");
   }, 700);
 });
 
