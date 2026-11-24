@@ -2295,14 +2295,14 @@ let feedSeq = 6;
 let feeds = [
   {
     id: 'f1', type: 'form', operator: '张宇', dept: '安全管理部', avatar: '张', tone: 'blue',
-    title: '提交了《日常巡检表》', summary: '点位：3# 主扇风机房；检测值：温度 87℃、振动 2.1mm/s、电流 142A；结论：运行正常，无需处理。',
+    title: '提交了《日常巡检表》', summary: '点位：3# 主扇风机房；检测值：温度 87℃、振动 2.1mm/s、电流 142A；结论：温度接近关注阈值，建议安排专项点检。',
     time: '12 分钟前', attachments: [{ name: '巡检记录表.xlsx', kind: 'doc' }, { name: '现场照片.jpg', kind: 'img' }],
     related: { label: '《日常巡检表》记录', id: 'REC-2041' },
     likes: [{ name: '王芳', time: '7 分钟前' }, { name: '陈刚', time: '4 分钟前' }, { name: '李明', time: '2 分钟前' }], liked: false,
     comments: [
-      { author: '王芳', tone: 'orange', time: '8 分钟前', content: '收到，数据已同步到设备管理台账。' },
-      { author: '张宇', tone: 'blue', time: '5 分钟前', content: '已收到，下周专项点检我来排期。' },
-      { author: '李明', tone: 'violet', time: '3 分钟前', content: '温度偏高，建议下周安排一次专项点检。' },
+      { author: '李明', tone: 'violet', time: '8 分钟前', content: '温度偏高，建议下周安排一次专项点检。' },
+      { author: '张宇', tone: 'blue', time: '5 分钟前', content: '@李明 收到，下周专项点检我来排期。', mention: ['李明'] },
+      { author: '王芳', tone: 'orange', time: '3 分钟前', content: '巡检数据已同步到设备管理台账，后续处理结果请在此更新。' },
     ], followed: false,
   },
   {

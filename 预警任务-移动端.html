@@ -189,6 +189,7 @@ button{font-family:inherit;}
 .upload i{font-size:20px;display:block;margin-bottom:6px;}
 .thumbs{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
 .thumb{width:58px;height:58px;border-radius:8px;background:#F0F9EB;border:1px solid #C9E9D5;display:flex;align-items:center;justify-content:center;position:relative;color:var(--success);font-size:17px;}
+.thumb.is-attachment{background:#F1F6FE;border-color:#C9DBF0;color:var(--primary);}
 .thumb .del{position:absolute;top:-6px;right:-6px;width:17px;height:17px;border-radius:50%;background:var(--danger);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .sig{border:1px dashed var(--border);border-radius:8px;height:78px;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:12.5px;cursor:pointer;background:#FAFBFC;}
 .sig.signed{border-style:solid;border-color:var(--success);background:#F7FCF9;color:var(--success);}
@@ -477,7 +478,7 @@ const TASKS = [
     assignees:[
       {name:'赵六',from:'预警所在事事号的管理员',status:'未处理',time:'—'},
       {name:'孙立',from:'预警所在事事号的成员',status:'已处理',time:'2026-07-07 17:40'}],
-    records:{'孙立':{content:'已补装防护栏并加固立柱，现场复测合格，防护高度 1.2m 符合要求。',files:['整改照片.jpg','复测记录.pdf'],signed:'孙立',time:'2026-07-07 17:40'}},
+    records:{'孙立':{content:'已补装防护栏并加固立柱，现场复测合格，防护高度 1.2m 符合要求。',photos:['整改照片.jpg'],attachments:['复测记录.pdf'],signed:'孙立',time:'2026-07-07 17:40'}},
     logs:[{at:'2026-07-07 16:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'防护设施缺失预警 · 命中 1 个工作项'},
           {at:'2026-07-07 17:40',actor:'孙立',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（已补装防护栏并加固）'}]
   },
@@ -490,8 +491,8 @@ const TASKS = [
       {name:'孙立',from:'表单提交人',status:'已处理',time:'2026-07-06 15:30'},
       {name:'周伟',from:'预警所在事事号的成员',status:'已处理',time:'2026-07-06 16:10'}],
     records:{
-      '孙立':{content:'已更换接地极并复测接地电阻，作业过程无异常。',files:['检测记录.pdf'],signed:'孙立',time:'2026-07-06 15:30'},
-      '周伟':{content:'现场复核接地电阻 2.8Ω，符合要求，同意闭环。',files:['复核照片.jpg'],signed:'周伟',time:'2026-07-06 16:10'}},
+      '孙立':{content:'已更换接地极并复测接地电阻，作业过程无异常。',photos:[],attachments:['检测记录.pdf'],signed:'孙立',time:'2026-07-06 15:30'},
+      '周伟':{content:'现场复核接地电阻 2.8Ω，符合要求，同意闭环。',photos:['复核照片.jpg'],attachments:[],signed:'周伟',time:'2026-07-06 16:10'}},
     logs:[{at:'2026-07-06 11:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'接地电阻超标预警 · 命中 1 个工作项'},
           {at:'2026-07-06 15:30',actor:'孙立',role:'表单提交人',type:'submit',action:'处理预警',detail:'已提交处置（已更换接地极并复测）'},
           {at:'2026-07-06 16:10',actor:'周伟',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（现场复核合格）'}]
@@ -502,7 +503,7 @@ const TASKS = [
     mine:['didProcess'], forwarded:false, snapshot:'2026-07-05 15:00', ovd:'',
     items:[{name:'堆垛高度',judge:'大于',thr:'2m',act:'2.5m'}],
     assignees:[{name:'孙立',from:'预警所在事事号的成员',status:'已处理',time:'2026-07-05 16:00'}],
-    records:{'孙立':{content:'已重新码放，堆垛高度降至 2.5m 并加设防倾倒措施。',files:['整改后照片.jpg'],signed:'孙立',time:'2026-07-05 16:00'}},
+    records:{'孙立':{content:'已重新码放，堆垛高度降至 2.5m 并加设防倾倒措施。',photos:['整改后照片.jpg'],attachments:[],signed:'孙立',time:'2026-07-05 16:00'}},
     logs:[{at:'2026-07-05 15:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'物料堆放超高预警 · 命中 1 个工作项'},
           {at:'2026-07-05 16:00',actor:'孙立',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（重新码放并加设防倾倒措施）'}]
   },
@@ -512,7 +513,7 @@ const TASKS = [
     mine:['didProcess'], forwarded:false, snapshot:'2026-07-08 11:00', ovd:'',
     items:[{name:'警示标识状态',judge:'等于',thr:'缺失',act:'缺失'}],
     assignees:[{name:'王五',from:'表单提交人',status:'已处理',time:'2026-07-08 11:46'}],
-    records:{'王五':{content:'已补挂「当心高温」警示标识 2 处，位置符合要求。',files:['现场照片.jpg'],signed:'王五',time:'2026-07-08 11:46'}},
+    records:{'王五':{content:'已补挂「当心高温」警示标识 2 处，位置符合要求。',photos:['现场照片.jpg'],attachments:[],signed:'王五',time:'2026-07-08 11:46'}},
     logs:[{at:'2026-07-08 11:00',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'高温区域标识缺失预警 · 命中 1 个工作项'},
           {at:'2026-07-08 11:46',actor:'王五',role:'预警所在事事号的成员',type:'submit',action:'处理预警',detail:'已提交处置（已补挂警示标识 2 处）'}]
   },
@@ -522,7 +523,7 @@ const TASKS = [
     mine:['didProcess'], forwarded:false, snapshot:'2026-07-08 09:45', ovd:'',
     items:[{name:'管道压力',judge:'小于',thr:'1.0MPa',act:'0.6MPa'}],
     assignees:[{name:'李国强',from:'预警所在事事号的负责人',status:'已处理',time:'2026-07-08 10:40'}],
-    records:{'李国强':{content:'已更换法兰密封垫并试压合格，无渗漏。',files:['检修记录.pdf'],signed:'李国强',time:'2026-07-08 10:40'}},
+    records:{'李国强':{content:'已更换法兰密封垫并试压合格，无渗漏。',photos:[],attachments:['检修记录.pdf'],signed:'李国强',time:'2026-07-08 10:40'}},
     logs:[{at:'2026-07-08 09:45',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'管道泄漏预警 · 命中 1 个工作项'},
           {at:'2026-07-08 10:40',actor:'李国强',role:'预警所在事事号的负责人',type:'submit',action:'处理预警',detail:'已提交处置（已更换法兰密封垫并试压合格）'}]
   },
@@ -532,7 +533,7 @@ const TASKS = [
     mine:['forwarded'], forwarded:true, snapshot:'2026-07-06 09:40', ovd:'',
     items:[{name:'噪音值',judge:'大于',thr:'85分贝',act:'92分贝'}],
     assignees:[{name:'李国强',from:'转发自 陈海波',status:'已处理',time:'2026-07-06 10:45'}],
-    records:{'李国强':{content:'已加装隔声罩并复测噪音 82 分贝，达标。',files:['复测记录.pdf'],signed:'李国强',time:'2026-07-06 10:45'}},
+    records:{'李国强':{content:'已加装隔声罩并复测噪音 82 分贝，达标。',photos:[],attachments:['复测记录.pdf'],signed:'李国强',time:'2026-07-06 10:45'}},
     logs:[{at:'2026-07-06 09:40',actor:'系统',role:'系统',type:'system',action:'触发预警',detail:'噪音超标预警 · 命中 1 个工作项'},
           {at:'2026-07-06 10:30',actor:'陈海波',role:'预警所在事事号的负责人',type:'forward',action:'转发预警',detail:'转交给 李国强（转办说明：该隐患由我牵头，转交复核处理）'},
           {at:'2026-07-06 10:45',actor:'李国强',role:'转发自 陈海波',type:'submit',action:'处理预警',detail:'已提交处置（已加装隔声罩并复测噪音 82 分贝）'}]
@@ -553,7 +554,7 @@ const ORG = [
 let currentTab = 'todo';
 let filters = { level:'all', dim:'触发时间', from:'', to:'', kw:'' };
 let view = { mode:'list', taskId:null, person:null, backToSheet:false };
-let form = { note:'', files:[], signed:'' };
+let form = { note:'', photos:[], attachments:[], signed:'' };
 
 const $ = id => document.getElementById(id);
 const getTask = id => TASKS.find(t => t.id === id);
@@ -947,7 +948,7 @@ function openDetail(id, mode, person){
 
   if (mode === 'edit'){
     const me = myAssignee(t);
-    form = { note:'', files:[], signed:'' };
+    form = { note:'', photos:[], attachments:[], signed:'' };
     view.person = me.name;
   }
 
@@ -957,6 +958,22 @@ function openDetail(id, mode, person){
   $('navFilterBtn').style.display = 'none';
   $('phoneBody').scrollTop = 0;
   renderDetail();
+}
+
+function isRectificationPhoto(name){
+  return /\.(jpe?g|png)$/i.test(name || '');
+}
+function recordAssets(record){
+  const legacyFiles = record.files || [];
+  return {
+    photos: record.photos || legacyFiles.filter(isRectificationPhoto),
+    attachments: record.attachments || legacyFiles.filter(name => !isRectificationPhoto(name))
+  };
+}
+function recordAssetChips(items, emptyText){
+  return items.length
+    ? items.map(name => `<span class="filechip">${name}</span>`).join('')
+    : `<span style="color:var(--t3)">${emptyText}</span>`;
 }
 
 function renderDetail(){
@@ -1023,12 +1040,20 @@ function renderDetail(){
           <div class="fcounter" id="noteCount">0 / 500</div>
         </div>
         <div class="fgroup">
-          <label class="flabel">整改照片 / 附件<span class="hint">选填 · ≤9 个 · 单个 ≤10MB</span></label>
-          <div class="upload" onclick="mockUpload()">
+          <label class="flabel">整改照片<span class="hint">选填 · ≤9 张 · 单个 ≤10MB</span></label>
+          <div class="upload" onclick="mockUpload('photo')">
             <span style="font-size:19px;display:block;margin-bottom:5px;line-height:1">＋</span>
-            点击上传 jpg / jpeg / png / pdf
+            点击上传 jpg / jpeg / png
           </div>
-          <div class="thumbs" id="thumbs"></div>
+          <div class="thumbs" id="rectificationPhotos"></div>
+        </div>
+        <div class="fgroup">
+          <label class="flabel">附件<span class="hint">选填 · ≤9 个 · 单个 ≤10MB</span></label>
+          <div class="upload" onclick="mockUpload('attachment')">
+            <span style="font-size:19px;display:block;margin-bottom:5px;line-height:1">＋</span>
+            点击上传 pdf
+          </div>
+          <div class="thumbs" id="rectificationAttachments"></div>
         </div>
         <div class="fgroup">
           <label class="flabel">实际处理人</label>
@@ -1046,6 +1071,7 @@ function renderDetail(){
     </div>`;
   } else if (mode === 'person'){
     const r = (t.records || {})[view.person];
+    const assets = r ? recordAssets(r) : null;
     html += `<div class="sec">
       <div class="sec-head"><span class="sec-ico"></span>
         <span class="st">预警处置</span><span class="sm">处理人：${view.person} · 只读</span></div>
@@ -1058,8 +1084,11 @@ function renderDetail(){
               <span class="dis-time">提交时间 ${r.time}</span></div>
             <div class="dis-label">处理情况</div>
             <div class="dis-text">${r.content}</div>
-            <div class="dis-label">整改照片 / 附件</div>
-            <div class="dis-text">${r.files && r.files.length ? r.files.map(f=>`<span class="filechip">📎 ${f}</span>`).join('') : '<span style="color:var(--t3)">无附件</span>'}
+            <div class="dis-label">整改照片</div>
+            <div class="dis-text">${recordAssetChips(assets.photos, '暂无整改照片')}
+              <span style="font-size:10.5px;color:var(--t3)">（可预览，不可删除）</span></div>
+            <div class="dis-label">附件</div>
+            <div class="dis-text">${recordAssetChips(assets.attachments, '暂无附件')}
               <span style="font-size:10.5px;color:var(--t3)">（可预览 / 下载，不可删除）</span></div>
             <div class="dis-label">电子签字</div>
             <div class="dis-text" style="color:var(--success);font-weight:600;">✎ ${r.signed} · 已签字</div>
@@ -1129,22 +1158,29 @@ function onNoteInput(el){
   form.note = el.value;
   $('noteCount').textContent = (el.value.length) + ' / 500';
 }
-function mockUpload(){
-  if (form.files.length >= 9){ toast('error','最多上传 9 个附件'); return; }
-  form.files.push('整改照片' + (form.files.length + 1) + '.jpg');
-  renderThumbs();
-  toast('success','已添加 1 个附件');
+function mockUpload(type){
+  const isPhoto = type === 'photo';
+  const target = isPhoto ? form.photos : form.attachments;
+  if (target.length >= 9){ toast('error', isPhoto ? '最多上传 9 张整改照片' : '最多上传 9 个附件'); return; }
+  target.push(isPhoto ? `整改照片${target.length + 1}.jpg` : `整改记录${target.length + 1}.pdf`);
+  renderUploads();
+  toast('success', isPhoto ? '已添加 1 张整改照片' : '已添加 1 个附件');
 }
-function renderThumbs(){
-  const box = $('thumbs');
+function renderUploadGroup(id, items, type){
+  const box = $(id);
   if (!box) return;
-  box.innerHTML = form.files.map((f,i) =>
-    `<div class="thumb"><span class="thumb-tx">IMG</span>
-      <span class="del" onclick="removeFile(${i})">×</span></div>`).join('');
+  const isPhoto = type === 'photo';
+  box.innerHTML = items.map((file, index) =>
+    `<div class="thumb${isPhoto ? '' : ' is-attachment'}"><span class="thumb-tx">${isPhoto ? 'IMG' : 'PDF'}</span>
+      <span class="del" onclick="removeUpload('${type}',${index})">×</span></div>`).join('');
 }
-function removeFile(i){
-  form.files.splice(i,1);
-  renderThumbs();
+function renderUploads(){
+  renderUploadGroup('rectificationPhotos', form.photos, 'photo');
+  renderUploadGroup('rectificationAttachments', form.attachments, 'attachment');
+}
+function removeUpload(type, index){
+  (type === 'photo' ? form.photos : form.attachments).splice(index,1);
+  renderUploads();
 }
 function doSign(){
   const pad = $('sigPad');
@@ -1173,7 +1209,8 @@ function submitProcess(){
   t.records = t.records || {};
   t.records[a.name] = {
     content: note,
-    files: form.files.slice(),
+    photos: form.photos.slice(),
+    attachments: form.attachments.slice(),
     signed: form.signed,
     time: at
   };
@@ -1190,7 +1227,7 @@ function submitProcess(){
     if (!t.mine.includes('didProcess')) t.mine.push('didProcess');
   }
 
-  form = { note:'', files:[], signed:'' };
+  form = { note:'', photos:[], attachments:[], signed:'' };
   backToList();
   renderList();
   toast('success', st === '已完成'

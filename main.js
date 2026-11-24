@@ -273,7 +273,7 @@ function openInspection(parentPage = "preventionCatalog", report = null) {
   openDetailPage("inspection");
 }
 
-/* 离线填报模式：去掉草稿箱页签、存草稿 → 暂存、预填演示数据 */
+/* 离线填报保留暂存语义；工作台工作表沿用完整的页面与草稿箱 mock。 */
 const inspectionWorksheetMeta = {
   inspection: {
     checks: ["凿岩设备防护装置完好", "作业面通风与照明符合要求", "人员防护用品佩戴规范"],
@@ -297,13 +297,12 @@ function applyInspectionMode() {
   const meta = inspectionWorksheetMeta[inspectionOfflineReport?.id] || inspectionWorksheetMeta.inspection;
 
   if (titleEl) {
-    titleEl.textContent = inspectionOfflineMode && inspectionOfflineReport?.title
+    titleEl.textContent = inspectionOfflineReport?.title
       ? inspectionOfflineReport.title
       : defaultTitle;
   }
-  /* 工作表填写统一按离线填报的口径：不展示草稿箱、存草稿改称暂存 */
-  if (tabsEl) tabsEl.hidden = true;
-  saveInspectionDraft.textContent = "暂存";
+  if (tabsEl) tabsEl.hidden = inspectionOfflineMode;
+  saveInspectionDraft.textContent = inspectionOfflineMode ? "暂存" : "存草稿";
   if (submitBtn) {
     submitBtn.disabled = false;
     submitBtn.textContent = "提交";
@@ -314,6 +313,7 @@ function applyInspectionMode() {
     if (meta.checks[index]) label.textContent = meta.checks[index];
   });
   if (inspectionOfflineMode) prefillInspectionDemo(meta.location);
+  renderInspectionDraft();
 }
 
 function prefillInspectionDemo(location) {
@@ -327,10 +327,10 @@ function prefillInspectionDemo(location) {
 }
 
 function closeInspection() {
-  if (inspectionParentPage === "favorites" || inspectionParentPage === "workbench") {
+  if (inspectionParentPage === "favorites" || inspectionParentPage === "workbench" || inspectionParentPage === "workbenchWorksheet") {
     appShell.classList.remove("is-detail-page");
     activePage = "";
-    if (inspectionParentPage === "workbench") {
+    if (inspectionParentPage === "workbench" || inspectionParentPage === "workbenchWorksheet") {
       switchPage("workbench", navItems.find((item) => item.dataset.pageTarget === "workbench"));
     } else {
       switchPage("favorites", navItems.find((item) => item.dataset.pageTarget === "favorites"));
@@ -534,6 +534,11 @@ document.querySelector("[data-back-prevention-two]").addEventListener("click", (
 document.querySelector("[data-open-prevention-two-catalog]").addEventListener("click", () => openPreventionCatalog("preventionTwoHazards"));
 document.querySelector("[data-back-prevention-parent]").addEventListener("click", () => openDetailPage(preventionCatalogParent));
 document.querySelector("[data-open-inspection]").addEventListener("click", () => openInspection());
+document.querySelectorAll("[data-open-workbench-worksheet]").forEach((trigger) => {
+  trigger.addEventListener("click", () => {
+    openInspection("workbenchWorksheet", { id: "inspection", title: trigger.dataset.worksheetTitle });
+  });
+});
 document.querySelectorAll("[data-back-prevention-catalog]").forEach((button) => {
   button.addEventListener("click", closeInspection);
 });
@@ -860,6 +865,7 @@ function setInspectionTab(tabName) {
 function getInspectionDraftData() {
   const textInputs = inspectionForm.querySelectorAll('input[type="text"]');
   return {
+    title: document.querySelector("#inspectionTitle")?.textContent || "平巷凿岩作业岗位隐患排查表",
     reporter: textInputs[0].value,
     inspectionDate: inspectionForm.querySelector('input[type="date"]').value,
     shift: inspectionForm.querySelector("select").value,
@@ -889,7 +895,10 @@ function renderInspectionDraft() {
   const hasDraft = Boolean(inspectionDraft?.savedAt);
   inspectionDraftCard.hidden = !hasDraft;
   inspectionDraftEmpty.hidden = hasDraft;
-  if (hasDraft) inspectionDraftTime.textContent = `保存于 ${inspectionDraft.savedAt}`;
+  if (hasDraft) {
+    inspectionDraftCard.querySelector("strong").textContent = inspectionDraft.title || "平巷凿岩作业岗位隐患排查表";
+    inspectionDraftTime.textContent = `保存于 ${inspectionDraft.savedAt}`;
+  }
 }
 
 inspectionTabs.forEach((tab) => {
@@ -901,7 +910,9 @@ saveInspectionDraft.addEventListener("click", () => {
   inspectionDraft = getInspectionDraftData();
   localStorage.setItem(inspectionDraftStorageKey, JSON.stringify(inspectionDraft));
   renderInspectionDraft();
-  showToast(hadDraft ? "已更新暂存内容" : "已暂存到本机");
+  showToast(inspectionOfflineMode
+    ? (hadDraft ? "已更新暂存内容" : "已暂存到本机")
+    : (hadDraft ? "已更新草稿" : "已保存到草稿箱"));
 });
 
 openInspectionDraft.addEventListener("click", () => {
@@ -1843,10 +1854,12 @@ function createCollectedRow(item) {
 }
 
 function openCollectedItem(item) {
-    const sourceEntry = collectableMenuEntries.find((entry) => entry.dataset.collectionId === item.id);
-    if (sourceEntry?.matches("[data-open-inspection]")) openInspection("workbench");
-    else if (sourceEntry) sourceEntry.click();
-    else showToast(`已打开${item.title}`);
+  const sourceEntry = collectableMenuEntries.find((entry) => entry.dataset.collectionId === item.id);
+  /* 历史收藏可能找不到原菜单节点，按名称兜底仍可进入统一工作表 mock。 */
+  const isWorksheet = Boolean(sourceEntry?.closest(".inspection-catalog-list")) || /表|清单/.test(item.title);
+  if (isWorksheet) openInspection("workbenchWorksheet", { id: "inspection", title: item.title });
+  else if (sourceEntry) sourceEntry.click();
+  else showToast(`已打开${item.title}`);
 }
 
 function closeCollectionSwipes(except) {
