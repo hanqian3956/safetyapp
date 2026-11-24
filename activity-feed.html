@@ -313,6 +313,11 @@ main { padding: 16px 28px 40px; }
 .cmt-att svg { width: 13px; color: var(--accent); flex: 0 0 auto; }
 .cmt-att small { color: var(--muted); }
 .cmt-att:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.comment-photo-grid { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.comment-photo { width: 72px; height: 72px; padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-soft); color: var(--accent); display: grid; place-items: center; }
+.comment-photo img { width: 100%; height: 100%; object-fit: cover; }
+.comment-photo svg { width: 22px; }
+.comment-photo:active { opacity: .72; }
 .cmt-att:hover small { color: var(--accent); }
 
 .composer { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface-soft); }
@@ -2811,13 +2816,17 @@ function attIcon(name) { return attKind(name) === 'img' ? I.img : I.doc; }
 /* picker 项 / 数据项 → 统一附件对象 { name, kind, url } */
 function toAtt(p) { return { name: p.n || p.name, kind: p.kind || attKind(p.n || p.name), url: p.url || '' }; }
 
-/* 评论等局部附件渲染（仅文件，图片同样过滤；可点击预览） */
+/* 评论附件：照片缩略图与普通文件分别展示，均可点击预览。 */
 function miniAttachmentsHTML(list, cidx) {
-  const rows = (list || []).map((a, i) => ({ a, i })).filter(x => x.a.kind !== 'img');
+  const rows = (list || []).map((a, i) => ({ a, i }));
+  const photos = rows.filter(x => x.a.kind === 'img');
+  const files = rows.filter(x => x.a.kind !== 'img');
   if (!rows.length) return '';
-  return `<div class="comment-attachments">${rows.map(({ a, i }) =>
+  return `${photos.length ? `<div class="comment-photo-grid">${photos.map(({ a, i }) =>
+    `<button class="comment-photo" data-catt="${cidx}:${i}" title="预览照片：${esc(a.name)}">${a.url ? `<img src="${esc(a.url)}" alt="${esc(a.name)}">` : I.img}</button>`
+  ).join('')}</div>` : ''}${files.length ? `<div class="comment-attachments">${files.map(({ a, i }) =>
     `<button class="cmt-att" data-catt="${cidx}:${i}" title="预览文件">${I.doc}${esc(a.name)}<small>预览</small></button>`
-  ).join('')}</div>`;
+  ).join('')}</div>` : ''}`;
 }
 
 function feedCardHTML(f) {
@@ -3149,7 +3158,7 @@ function renderDetailTab(f) {
         <div class="composer-bar">
           <button class="composer-btn" id="emojiBtn" title="表情">${I.smile}</button>
           <button class="composer-btn" id="atBtn" title="提及成员">${I.at}</button>
-          <button class="composer-btn" id="picBtn" title="上传附件">${I.clip}</button>
+          <button class="composer-btn" id="picBtn" title="添加照片" aria-label="添加照片">${I.img}</button>
           <span class="spacer"></span>
           <button class="send-btn" id="sendBtn" disabled>${I.send} 发送</button>
         </div>
@@ -3463,12 +3472,12 @@ function bindComposer(f) {
       toast(`已提及 ${names.length} 位成员`);
     },
   }));
-  /* 上传附件 → 直接调起系统本地文件选择，确认后作为评论附件 */
-  $('#picBtn').addEventListener('click', () => pickLocalFiles((list) => {
-    composerPhotos = list;
+  /* 评论照片：调起系统相册，选中后在输入区直接回显缩略图。 */
+  $('#picBtn').addEventListener('click', () => pickCommentPhotos((list) => {
+    composerPhotos = composerPhotos.concat(list).slice(0, 9);
     renderComposerPhotos();
     send.disabled = !input.value.trim() && !composerPhotos.length;
-    toast(`已添加 ${list.length} 个附件`);
+    toast(`已添加 ${list.length} 张照片`);
   }));
   /* 事件委托：发评论会重写 #detailComments，逐元素绑定会失效 */
   $('#detailComments').addEventListener('click', (e) => {
@@ -3496,7 +3505,7 @@ function renderComposerPhotos() {
   if (!box) return;
   box.innerHTML = composerPhotos.length
     ? `<div class="photo-thumbs" style="margin:8px 0 2px">${composerPhotos.map((p, i) =>
-        `<span class="pt" title="${esc(p.n)}">${attIcon(p.n)}<button data-rmphoto="${i}" title="移除">${I.close}</button></span>`).join('')}</div>`
+        `<span class="pt" title="${esc(p.n)}">${p.url ? `<img src="${esc(p.url)}" alt="${esc(p.n)}">` : I.img}<button data-rmphoto="${i}" title="移除照片">${I.close}</button></span>`).join('')}</div>`
     : '';
 }
 
@@ -3700,6 +3709,32 @@ function pickLocalFiles(onDone) {
       const d = '已选择 · ' + (file.size >= 1048576 ? (file.size / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(file.size / 1024)) + 'KB');
       return { n: file.name, d, kind, url };
     });
+    onDone(list);
+  };
+  inp.addEventListener('change', handler);
+  inp.click();
+}
+
+/* 评论仅接收照片；保留本地 Object URL 以便发布前后都能立即预览。 */
+function pickCommentPhotos(onDone) {
+  let inp = document.getElementById('commentPhotoInput');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'file'; inp.id = 'commentPhotoInput'; inp.multiple = true; inp.accept = 'image/*';
+    inp.style.position = 'fixed'; inp.style.left = '-9999px'; inp.style.top = '-9999px';
+    document.body.appendChild(inp);
+  }
+  const handler = () => {
+    inp.removeEventListener('change', handler);
+    const files = Array.from(inp.files || []).slice(0, 9);
+    inp.value = '';
+    if (!files.length) return;
+    const list = files.map(file => ({
+      n: file.name || `评论照片_${Date.now()}.jpg`,
+      d: '刚刚添加',
+      kind: 'img',
+      url: window.URL && URL.createObjectURL ? URL.createObjectURL(file) : '',
+    }));
     onDone(list);
   };
   inp.addEventListener('change', handler);
