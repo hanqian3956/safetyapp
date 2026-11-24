@@ -276,15 +276,21 @@ function openInspection(parentPage = "preventionCatalog", report = null) {
 /* 离线填报保留暂存语义；工作台工作表沿用完整的页面与草稿箱 mock。 */
 const inspectionWorksheetMeta = {
   inspection: {
-    checks: ["凿岩设备防护装置完好", "作业面通风与照明符合要求", "人员防护用品佩戴规范"],
+    checks: ["凿岩设备防护装置完好", "作业面通风与照明符合要求", "人员防护用品佩戴规范", "作业区域警示标识与现场秩序符合要求", "应急器材、通讯和避灾路线满足要求"],
     location: "西翼 3# 平巷",
   },
+  "operation-post": {
+    checks: ["作业前安全确认、交接班记录完整", "设备防护、制动及警示装置完好有效", "作业区域顶板、边帮和行车路线安全", "现场警戒、信号联络和人员站位符合要求", "劳动防护用品、应急器材和避灾路线符合要求"],
+    location: "西翼运输巷装卸点",
+    position: "装载机司机",
+    operation: "装矿、行驶及卸载作业",
+  },
   "fire-facility": {
-    checks: ["灭火器压力正常、铅封完好", "消火栓箱体及水带完好", "疏散通道和安全出口畅通"],
+    checks: ["灭火器压力正常、铅封完好", "消火栓箱体及水带完好", "疏散通道和安全出口畅通", "消防标识与巡检记录齐全", "应急照明及报警设施运行正常"],
     location: "主厂房消防通道",
   },
   "hoist-daily": {
-    checks: ["提升机制动系统灵敏可靠", "钢丝绳无断丝、变形", "信号与保护装置有效"],
+    checks: ["提升机制动系统灵敏可靠", "钢丝绳无断丝、变形", "信号与保护装置有效", "作业区域警示标识与现场秩序符合要求", "应急器材、通讯和避灾路线满足要求"],
     location: "北区提升机房",
   },
 };
@@ -301,6 +307,14 @@ function applyInspectionMode() {
       ? inspectionOfflineReport.title
       : defaultTitle;
   }
+  const isOperationWorksheet = inspectionOfflineReport?.id === "operation-post";
+  inspectionForm.querySelectorAll(".inspection-operation-field").forEach((field) => {
+    field.hidden = !isOperationWorksheet;
+  });
+  const position = inspectionForm.querySelector("#inspectionPosition");
+  const operation = inspectionForm.querySelector("#inspectionOperation");
+  if (position) position.value = isOperationWorksheet ? meta.position || "" : "";
+  if (operation) operation.value = isOperationWorksheet ? meta.operation || "" : "";
   if (tabsEl) tabsEl.hidden = inspectionOfflineMode;
   saveInspectionDraft.textContent = inspectionOfflineMode ? "暂存" : "存草稿";
   if (submitBtn) {
@@ -319,7 +333,7 @@ function applyInspectionMode() {
 function prefillInspectionDemo(location) {
   const textInputs = inspectionForm.querySelectorAll('input[type="text"]');
   if (textInputs[1]) textInputs[1].value = location || "西翼 3# 平巷";
-  ["equipment", "environment", "protection"].forEach((name) => {
+  ["equipment", "environment", "protection", "siteOrganization", "emergencyReadiness"].forEach((name) => {
     if (inspectionForm.querySelector(`input[name="${name}"]:checked`)) return;
     const normal = inspectionForm.querySelector(`input[name="${name}"][value="normal"]`);
     if (normal) normal.checked = true;
@@ -532,6 +546,9 @@ document.querySelector("[data-close-prevention-two]").addEventListener("click", 
 document.querySelector("[data-open-prevention-two-hazards]").addEventListener("click", () => openDetailPage("preventionTwoHazards"));
 document.querySelector("[data-back-prevention-two]").addEventListener("click", () => openDetailPage("preventionTwo"));
 document.querySelector("[data-open-prevention-two-catalog]").addEventListener("click", () => openPreventionCatalog("preventionTwoHazards"));
+document.querySelector("[data-open-operation-inspection]").addEventListener("click", () => {
+  openInspection("preventionCatalog", { id: "operation-post", title: "操作作业岗位隐患排查表" });
+});
 document.querySelector("[data-back-prevention-parent]").addEventListener("click", () => openDetailPage(preventionCatalogParent));
 document.querySelector("[data-open-inspection]").addEventListener("click", () => openInspection());
 document.querySelectorAll("[data-open-workbench-worksheet]").forEach((trigger) => {
@@ -863,28 +880,32 @@ function setInspectionTab(tabName) {
 }
 
 function getInspectionDraftData() {
-  const textInputs = inspectionForm.querySelectorAll('input[type="text"]');
   return {
     title: document.querySelector("#inspectionTitle")?.textContent || "平巷凿岩作业岗位隐患排查表",
-    reporter: textInputs[0].value,
-    inspectionDate: inspectionForm.querySelector('input[type="date"]').value,
-    shift: inspectionForm.querySelector("select").value,
-    location: textInputs[1].value,
+    reporter: inspectionForm.querySelector("#inspectionReporter").value,
+    inspectionDate: inspectionForm.querySelector("#inspectionDate").value,
+    shift: inspectionForm.querySelector("#inspectionShift").value,
+    location: inspectionForm.querySelector("#inspectionLocation").value,
+    position: inspectionForm.querySelector("#inspectionPosition").value,
+    operation: inspectionForm.querySelector("#inspectionOperation").value,
     equipment: inspectionForm.querySelector('input[name="equipment"]:checked')?.value || "",
     environment: inspectionForm.querySelector('input[name="environment"]:checked')?.value || "",
     protection: inspectionForm.querySelector('input[name="protection"]:checked')?.value || "",
+    siteOrganization: inspectionForm.querySelector('input[name="siteOrganization"]:checked')?.value || "",
+    emergencyReadiness: inspectionForm.querySelector('input[name="emergencyReadiness"]:checked')?.value || "",
     note: inspectionForm.querySelector("textarea").value,
     savedAt: new Date().toLocaleString("zh-CN", { hour12: false }),
   };
 }
 
 function applyInspectionDraft(draft) {
-  const textInputs = inspectionForm.querySelectorAll('input[type="text"]');
-  textInputs[0].value = draft.reporter || "";
-  inspectionForm.querySelector('input[type="date"]').value = draft.inspectionDate || "";
-  inspectionForm.querySelector("select").value = draft.shift || "早班";
-  textInputs[1].value = draft.location || "";
-  ["equipment", "environment", "protection"].forEach((name) => {
+  inspectionForm.querySelector("#inspectionReporter").value = draft.reporter || "";
+  inspectionForm.querySelector("#inspectionDate").value = draft.inspectionDate || "";
+  inspectionForm.querySelector("#inspectionShift").value = draft.shift || "早班";
+  inspectionForm.querySelector("#inspectionLocation").value = draft.location || "";
+  inspectionForm.querySelector("#inspectionPosition").value = draft.position || "";
+  inspectionForm.querySelector("#inspectionOperation").value = draft.operation || "";
+  ["equipment", "environment", "protection", "siteOrganization", "emergencyReadiness"].forEach((name) => {
     const selected = inspectionForm.querySelector(`input[name="${name}"][value="${draft[name]}"]`);
     if (selected) selected.checked = true;
   });

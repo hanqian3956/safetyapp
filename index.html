@@ -953,7 +953,7 @@
                     <strong>掘进凿岩工隐患排查清单</strong>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
                   </button>
-                  <button type="button" data-show-toast="操作作业排查表将在下一版开放">
+                  <button type="button" data-open-operation-inspection>
                     <span class="inspection-catalog-icon" aria-hidden="true"><i class="ph ph-shield-check"></i></span>
                     <strong>操作作业岗位隐患排查表</strong>
                     <i class="ph ph-caret-right" aria-hidden="true"></i>
@@ -1067,15 +1067,15 @@
                 <legend>填报信息</legend>
                 <label>
                   <span>填报人</span>
-                  <input type="text" value="张宇" required />
+                  <input id="inspectionReporter" type="text" value="张宇" required />
                 </label>
                 <label>
                   <span>检查日期</span>
-                  <input type="date" value="2026-07-29" required />
+                  <input id="inspectionDate" type="date" value="2026-07-29" required />
                 </label>
                 <label>
                   <span>作业班次</span>
-                  <select required>
+                  <select id="inspectionShift" required>
                     <option>早班</option>
                     <option>中班</option>
                     <option>晚班</option>
@@ -1083,7 +1083,15 @@
                 </label>
                 <label>
                   <span>作业地点</span>
-                  <input type="text" placeholder="例如：西翼 3# 平巷" required />
+                  <input id="inspectionLocation" type="text" placeholder="例如：西翼 3# 平巷" required />
+                </label>
+                <label class="inspection-operation-field" hidden>
+                  <span>作业岗位</span>
+                  <input id="inspectionPosition" type="text" placeholder="例如：装载机司机" />
+                </label>
+                <label class="inspection-operation-field" hidden>
+                  <span>作业项目</span>
+                  <input id="inspectionOperation" type="text" placeholder="例如：装矿与行驶作业" />
                 </label>
               </fieldset>
 
@@ -1108,6 +1116,20 @@
                   <div class="inspection-options">
                     <label><input type="radio" name="protection" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label>
                     <label><input type="radio" name="protection" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label>
+                  </div>
+                </div>
+                <div class="inspection-check-row">
+                  <span>作业区域警示标识与现场秩序符合要求</span>
+                  <div class="inspection-options">
+                    <label><input type="radio" name="siteOrganization" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label>
+                    <label><input type="radio" name="siteOrganization" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label>
+                  </div>
+                </div>
+                <div class="inspection-check-row">
+                  <span>应急器材、通讯和避灾路线满足要求</span>
+                  <div class="inspection-options">
+                    <label><input type="radio" name="emergencyReadiness" value="normal" required /><span><i class="ph ph-check-circle" aria-hidden="true"></i>正常</span></label>
+                    <label><input type="radio" name="emergencyReadiness" value="issue" /><span><i class="ph ph-warning-circle" aria-hidden="true"></i>发现问题</span></label>
                   </div>
                 </div>
               </fieldset>
