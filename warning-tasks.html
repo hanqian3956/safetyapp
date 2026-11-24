@@ -1320,7 +1320,7 @@ setTimeout(drawConnections, 120);
 window.addEventListener('resize', () => setTimeout(drawConnections, 120));
 </script>
 <script>
-const pageMode = new URLSearchParams(window.location.search);
+const pageMode = new URLSearchParams(window.location.search || window.location.hash.slice(1));
 if (pageMode.get('embedded') === '1') {
   document.documentElement.classList.add('is-embedded');
   document.body.classList.add('is-embedded');

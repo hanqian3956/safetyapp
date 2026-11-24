@@ -4432,7 +4432,7 @@ renderTimeline();
 })();
 </script>
 <script>
-if (new URLSearchParams(window.location.search).get('embedded') === '1') {
+if (new URLSearchParams(window.location.search || window.location.hash.slice(1)).get('embedded') === '1') {
   document.documentElement.classList.add('is-embedded');
   document.body.classList.add('is-embedded');
 }

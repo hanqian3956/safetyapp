@@ -3158,7 +3158,7 @@ function backFromPubForm(){
 renderModuleSeg();
 renderMy();
 
-const taskPageMode = new URLSearchParams(window.location.search);
+const taskPageMode = new URLSearchParams(window.location.search || window.location.hash.slice(1));
 if(taskPageMode.get('embedded')==='1'){
   document.documentElement.classList.add('is-embedded');
   document.body.classList.add('is-embedded');
